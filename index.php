@@ -16,33 +16,40 @@ body {
     min-height: 100vh;
     background: linear-gradient(135deg, #4a6cf7, #6fb1c8);
     font-family: Arial, sans-serif;
-    padding: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .container {
-    width: 100%;
+    width: 80vw;
+    max-width: 30000px;
+    height: 1000px;
     background: white;
-    border-radius: 20px;
-    padding: 56px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    border-radius: 22px;
+    padding: 40px 50px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.25);
 }
+
 
 /* JUDUL */
 h1 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 22px;
     color: #2f3a5f;
+    font-size: 22px;
 }
 
 /* FORM */
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 16px;
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-weight: bold;
+    font-size: 14px;
 }
 
 .required {
@@ -52,22 +59,23 @@ label {
 input,
 select {
     width: 100%;
-    height: 60px;
-    padding: 0 15px;
-    font-size: 16px;
+    height: 44px;
+    padding: 0 14px;
+    font-size: 14px;
     border-radius: 10px;
-    border: 2px solid #ddd;
+    border: 1.8px solid #ddd;
 }
 
 /* FILE */
 .file-label {
     display: block;
     text-align: center;
-    padding: 40px;
+    padding: 18px;
     border: 2px dashed #4a6cf7;
     border-radius: 12px;
     cursor: pointer;
     background: #f6f8ff;
+    font-size: 14px;
 }
 
 input[type="file"] {
@@ -75,16 +83,17 @@ input[type="file"] {
 }
 
 .file-name {
-    margin-top: 10px;
+    margin-top: 8px;
     color: green;
     display: none;
+    font-size: 13px;
 }
 
 /* BUTTON */
 button {
     width: 100%;
-    height: 60px;
-    font-size: 18px;
+    height: 46px;
+    font-size: 14px;
     background: #4a6cf7;
     color: white;
     border: none;
