@@ -1,3 +1,12 @@
+<?php
+include "koneksi.php";
+$jenis_surat='';
+$id_surat='';
+$nomor_surat='';
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -107,32 +116,33 @@ button {
 
 <div class="container">
     <h1>SORTIR DOKUMEN</h1>
-
-    <form>
+    <form name="suratForm" action="proses.php" method="POST" enctype="multipart/form-data">
+        <input type="hidden" value="<?= $id_surat ?>" name="id_s"></input>
         <div class="form-group">
             <label>Jenis Surat <span class="required">*</span></label>
-            <select required>
+            <select name="jenis_surat" id="jenis_surat" class="form-select" required>
                 <option value="">-- Pilih Jenis Surat --</option>
-                <option>Surat Masuk</option>
-                <option>Surat Keluar</option>
+                <option <?php if($jenis_surat == 'masuk'){echo "selected";} ?> value="masuk">Surat Masuk</option>
+                <option <?php if($jenis_surat == 'keluar'){echo "selected";} ?> value="keluar">Surat Keluar</option>
             </select>
         </div>
 
         <div class="form-group">
             <label>Nomor Surat <span class="required">*</span></label>
-            <input type="text" placeholder="Contoh: 001/SM/XII/2024" required>
+            <input type="text" name="nomor_surat" id="nomor_surat" placeholder="Contoh: 001/SM/XII/2024" required>
         </div>
 
         <div class="form-group">
             <label>Upload File Surat <span class="required">*</span></label>
             <label class="file-label">
                 Klik untuk memilih file
-                <input type="file" id="fileInput" required>
+                <input type="file" id="fileInput" name="fileInput" required>
             </label>
-            <div class="file-name" id="fileName"></div>
+            <div class="file-name" id="fileName" name="fileName"></div>
+            <div class="file-preview" id="filePreview" style="margin-top:10px;"></div>
         </div>
 
-        <button type="submit">Kirim Surat</button>
+        <button type="submit">Submit</button>
     </form>
 </div>
 
@@ -142,10 +152,40 @@ const fileName = document.getElementById("fileName");
 
 fileInput.addEventListener("change", function () {
     if (this.files.length > 0) {
-        fileName.textContent = "File dipilih: " + this.files[0].name;
+        const file = this.files[0];
+        fileName.textContent = "File dipilih: " + file.name;
         fileName.style.display = "block";
+
+        // Clear preview sebelumnya
+        filePreview.innerHTML = "";
+
+        // Tipe file image
+        if (file.type.startsWith("image/")) {
+            const img = document.createElement("img");
+            img.src = URL.createObjectURL(file);
+            img.style.maxWidth = "200px";
+            img.style.maxHeight = "200px";
+            img.style.marginTop = "8px";
+            filePreview.appendChild(img);
+        }
+        // Tipe file PDF
+        else if (file.type === "application/pdf") {
+            const embed = document.createElement("embed");
+            embed.src = URL.createObjectURL(file);
+            embed.type = "application/pdf";
+            embed.style.width = "100%";
+            embed.style.height = "400px";
+            filePreview.appendChild(embed);
+        }
+        // Lainnya (misal docx, xlsx) hanya tampil nama file
+        else {
+            const p = document.createElement("p");
+            p.textContent = "Preview tidak tersedia untuk tipe file ini.";
+            filePreview.appendChild(p);
+        }
     }
 });
+
 </script>
 
 </body>
