@@ -1,10 +1,10 @@
 <?php
+session_start();
 include "koneksi.php";
-$jenis_surat='';
-$id_surat='';
-$nomor_surat='';
 
-
+$id_surat = $_SESSION['old_id_surat'] ?? '';
+$old_jenis = $_SESSION['old_jenis_surat'] ?? '';
+$old_nomor = $_SESSION['old_nomor_surat'] ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -40,8 +40,6 @@ body {
     box-shadow: 0 25px 60px rgba(0,0,0,0.25);
 }
 
-
-/* JUDUL */
 h1 {
     text-align: center;
     margin-bottom: 22px;
@@ -49,7 +47,6 @@ h1 {
     font-size: 22px;
 }
 
-/* FORM */
 .form-group {
     margin-bottom: 16px;
 }
@@ -75,7 +72,6 @@ select {
     border: 1.8px solid #ddd;
 }
 
-/* FILE */
 .file-label {
     display: block;
     text-align: center;
@@ -98,7 +94,6 @@ input[type="file"] {
     font-size: 13px;
 }
 
-/* BUTTON */
 button {
     width: 100%;
     height: 46px;
@@ -109,83 +104,148 @@ button {
     border-radius: 12px;
     cursor: pointer;
 }
+
+.file-preview {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin-top: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    background: #f5f7fb;
+}
+
+.file-preview iframe,
+.file-preview embed {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.file-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .file-preview {
+        aspect-ratio: 3 / 4;
+    }
+}
+
 </style>
 </head>
 
 <body>
-
 <div class="container">
-    <h1>SORTIR DOKUMEN</h1>
-    <form name="suratForm" action="proses.php" method="POST" enctype="multipart/form-data">
-        <input type="hidden" value="<?= $id_surat ?>" name="id_s"></input>
-        <div class="form-group">
-            <label>Jenis Surat <span class="required">*</span></label>
-            <select name="jenis_surat" id="jenis_surat" class="form-select" required>
-                <option value="">-- Pilih Jenis Surat --</option>
-                <option <?php if($jenis_surat == 'masuk'){echo "selected";} ?> value="masuk">Surat Masuk</option>
-                <option <?php if($jenis_surat == 'keluar'){echo "selected";} ?> value="keluar">Surat Keluar</option>
-            </select>
-        </div>
+<h1>SORTIR DOKUMEN</h1>
 
-        <div class="form-group">
-            <label>Nomor Surat <span class="required">*</span></label>
-            <input type="text" name="nomor_surat" id="nomor_surat" placeholder="Contoh: 001/SM/XII/2024" required>
-        </div>
+<form id="suratForm" name="suratForm" action="proses.php" method="POST" enctype="multipart/form-data">
 
-        <div class="form-group">
-            <label>Upload File Surat <span class="required">*</span></label>
-            <label class="file-label">
-                Klik untuk memilih file
-                <input type="file" id="fileInput" name="fileInput" required>
-            </label>
-            <div class="file-name" id="fileName" name="fileName"></div>
-            <div class="file-preview" id="filePreview" style="margin-top:10px;"></div>
-        </div>
+    <input type="hidden" name="id_s" value="<?= htmlspecialchars($id_surat) ?>">
 
-        <button type="submit">Submit</button>
-    </form>
+    <div class="form-group">
+        <label>Jenis Surat <span class="required">*</span></label>
+        <select name="jenis_surat" id="jenis_surat" required>
+            <option value="">-- Pilih Jenis Surat --</option>
+            <option value="masuk" <?= $old_jenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
+            <option value="keluar" <?= $old_jenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Nomor Surat <span class="required">*</span></label>
+        <input type="text"
+               name="nomor_surat"
+               id="nomor_surat"
+               value="<?= htmlspecialchars($old_nomor) ?>"
+               placeholder="Contoh: 001/SM/XII/2024"
+               required>
+    </div>
+
+    <div class="form-group">
+        <label>Upload File Surat <span class="required">*</span></label>
+        <label class="file-label">
+            Klik untuk memilih file
+            <input type="file" id="fileInput" name="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+        </label>
+        <div class="file-name" id="fileName"></div>
+    </div>
+
+    <div class="file-preview" id="filePreview" style="margin-top:10px;"></div>
+    
+    <button type="submit">SIMPAN</button>
+
+</form>
 </div>
 
 <script>
-const fileInput = document.getElementById("fileInput");
-const fileName = document.getElementById("fileName");
+    document.addEventListener("DOMContentLoaded", function () {
 
-fileInput.addEventListener("change", function () {
-    if (this.files.length > 0) {
-        const file = this.files[0];
-        fileName.textContent = "File dipilih: " + file.name;
-        fileName.style.display = "block";
+        const form        = document.getElementById("suratForm");
+        const nomor       = document.getElementById("nomor_surat");
+        const fileInput   = document.getElementById("fileInput");
+        const fileName    = document.getElementById("fileName");
+        const filePreview = document.getElementById("filePreview");
 
-        // Clear preview sebelumnya
+        /* ========= PREVIEW FILE (PDF & IMAGE) ========= */
+        fileInput.addEventListener("change", function () {
         filePreview.innerHTML = "";
 
-        // Tipe file image
-        if (file.type.startsWith("image/")) {
+        if (!this.files || this.files.length === 0) {
+            fileName.style.display = "none";
+            return;
+        }
+
+        const file = this.files[0];
+        fileName.style.display = "block";
+        fileName.innerText = "File dipilih: " + file.name;
+
+        const fileURL = URL.createObjectURL(file);
+
+        if (file.type === "application/pdf") {
+            const iframe = document.createElement("iframe");
+            iframe.src = fileURL;
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.border = "none";
+            filePreview.appendChild(iframe);
+        }
+        else if (file.type.startsWith("image/")) {
             const img = document.createElement("img");
-            img.src = URL.createObjectURL(file);
-            img.style.maxWidth = "200px";
-            img.style.maxHeight = "200px";
-            img.style.marginTop = "8px";
+            img.src = fileURL;
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.objectFit = "contain";
             filePreview.appendChild(img);
         }
-        // Tipe file PDF
-        else if (file.type === "application/pdf") {
-            const embed = document.createElement("embed");
-            embed.src = URL.createObjectURL(file);
-            embed.type = "application/pdf";
-            embed.style.width = "100%";
-            embed.style.height = "400px";
-            filePreview.appendChild(embed);
-        }
-        // Lainnya (misal docx, xlsx) hanya tampil nama file
         else {
-            const p = document.createElement("p");
-            p.textContent = "Preview tidak tersedia untuk tipe file ini.";
-            filePreview.appendChild(p);
+            filePreview.innerHTML =
+                "<p style='color:#999;text-align:center;margin-top:20px'>Preview tidak tersedia</p>";
         }
-    }
-});
+    });
 
+    /* ========= VALIDASI NOMOR SURAT ========= */
+    form.addEventListener("submit", function (e) {
+        const regex = /^[A-Za-z0-9.\/]+\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/;
+
+        nomor.style.border = "1.8px solid #ddd";
+
+        if (!regex.test(nomor.value.trim())) {
+            e.preventDefault();
+
+            alert(
+                "❌ Format nomor surat tidak valid\n\n"
+            );
+
+            nomor.focus();
+            nomor.style.border = "2px solid red";
+        }
+    });
+
+});
 </script>
 
 </body>
