@@ -1,4 +1,10 @@
 <?php
+include "auth_check.php";
+
+// Ambil data user dari session
+$nama_user = $_SESSION['nama_lengkap'] ?? 'User';
+$username = $_SESSION['username'] ?? '';
+$role = $_SESSION['role'] ?? 'user';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -84,6 +90,54 @@
       font-size: 13px;
     }
 
+    .header-right{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .user-info{
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .user-name{
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .user-role{
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .role-badge{
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .role-badge.admin{
+      background: #ffeaa7;
+      color: #d63031;
+    }
+
+    .role-badge.user{
+      background: #dfe6e9;
+      color: #2d3436;
+    }
+
     .badge{
       display:inline-flex;
       align-items:center;
@@ -96,6 +150,29 @@
       white-space: nowrap;
       box-shadow: 0 10px 25px rgba(15,23,42,.22);
       flex: 0 0 auto;
+    }
+
+    .btn-logout{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.25);
+      flex: 0 0 auto;
+    }
+
+    .btn-logout:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(255, 107, 107, 0.4);
     }
 
     /* area menu (grid) */
@@ -237,6 +314,21 @@
         align-items: stretch;
       }
 
+      .header-right{
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .user-info{
+        align-items: flex-start;
+      }
+
+      .btn-logout{
+        width: 100%;
+        justify-content: center;
+      }
+
       .badge{
         align-self:flex-start;
       }
@@ -265,10 +357,22 @@
       <div class="header">
         <div>
           <h1 class="title">Dashboard Arsip Dokumen</h1>
-          <p class="subtitle">
-          </p>
+          <p class="subtitle">Selamat datang, <?= htmlspecialchars($nama_user) ?>!</p>
         </div>
-        <div class="badge">📁 Arsip System · Prototype</div>
+        <div class="header-right">
+          <div class="user-info">
+            <div class="user-name">
+              <span>👤</span>
+              <span><?= htmlspecialchars($nama_user) ?></span>
+              <span class="role-badge <?= $role ?>"><?= strtoupper($role) ?></span>
+            </div>
+            <div class="user-role">@<?= htmlspecialchars($username) ?></div>
+          </div>
+          <a href="logout.php" class="btn-logout">
+            <span>🚪</span>
+            <span>Logout</span>
+          </a>
+        </div>
       </div>
 
       <div class="content">

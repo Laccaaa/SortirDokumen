@@ -24,27 +24,61 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
 body {
     min-height: 100vh;
     background: linear-gradient(135deg, #4a6cf7, #6fb1c8);
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
 
 .container {
-     width: 80vw;
+    width: 80vw;
     max-width: 900px;
     min-height: auto;
     background: white;
     border-radius: 22px;
-    padding: 40px 50px;
+    overflow: hidden;
     box-shadow: 0 25px 60px rgba(0,0,0,0.25);
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 22px;
-    color: #2f3a5f;
+.header {
+    background: linear-gradient(135deg, #4a6cf7, #6fb1c8);
+    color: white;
+    padding: 25px 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
     font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.btn-home {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-home:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.form-container {
+    padding: 40px 50px;
 }
 
 .form-group {
@@ -70,6 +104,19 @@ select {
     font-size: 14px;
     border-radius: 10px;
     border: 1.8px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+
+input.error,
+select.error {
+    border-color: #ff4444;
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
 .file-label {
@@ -81,6 +128,12 @@ select {
     cursor: pointer;
     background: #f6f8ff;
     font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.file-label.error {
+    border-color: #ff4444;
+    background: #ffe6e6;
 }
 
 input[type="file"] {
@@ -94,7 +147,7 @@ input[type="file"] {
     font-size: 13px;
 }
 
-button {
+button[type="submit"] {
     width: 100%;
     height: 46px;
     font-size: 14px;
@@ -103,6 +156,14 @@ button {
     border: none;
     border-radius: 12px;
     cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background: #3a5ce7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
 }
 
 .file-preview {
@@ -130,13 +191,6 @@ button {
     object-fit: contain;
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-    .file-preview {
-        aspect-ratio: 3 / 4;
-    }
-}
-
 .alert-error {
     background: #ffe6e6;
     color: #b30000;
@@ -148,17 +202,7 @@ button {
     border: 1px solid #f5c2c2;
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
+/* MODAL STYLES */
 .modal {
     display: none;
     position: fixed;
@@ -173,12 +217,6 @@ button {
     display: flex;
 }
 
-.modal-icon {
-    font-size: 48px;
-    color: #2ecc71;
-    margin-bottom: 10px;
-}
-
 .modal-content {
     background: #ffffff;
     padding: 30px 35px;
@@ -191,6 +229,19 @@ button {
     position: relative;
 }
 
+.modal-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.modal-icon.success {
+    color: #2ecc71;
+}
+
+.modal-icon.error {
+    color: #ff4444;
+}
+
 .modal-content h3 {
     margin-bottom: 8px;
     color: #2f3a5f;
@@ -199,6 +250,7 @@ button {
 .modal-content p {
     font-size: 14px;
     margin-bottom: 18px;
+    line-height: 1.6;
 }
 
 .modal-content button {
@@ -208,76 +260,147 @@ button {
     padding: 10px 22px;
     border-radius: 10px;
     cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.modal-content button:hover {
+    background: #3a5ce7;
+    transform: translateY(-2px);
 }
 
 @keyframes scaleIn {
     from { transform: scale(.85); opacity: 0; }
     to   { transform: scale(1); opacity: 1; }
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+    .container {
+        width: 95vw;
+    }
+
+    .header {
+        padding: 20px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .header h1 {
+        font-size: 20px;
+    }
+
+    .btn-home {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-container {
+        padding: 30px 25px;
+    }
+
+    .file-preview {
+        aspect-ratio: 3 / 4;
+    }
+}
 </style>
 </head>
 
 <body>
 <div class="container">
-    <?php if (isset($_SESSION['error_nomor'])): ?>
-    <div class="alert-error">
-        ❌ <?= htmlspecialchars($_SESSION['error_nomor']); ?><br>
-        <small>Contoh benar: IJ.00.00/123/IT/VI/2024</small>
-    </div>
-<?php unset($_SESSION['error_nomor']); endif; ?>
-<h1>SORTIR DOKUMEN</h1>
-
-<form id="suratForm" name="suratForm" action="proses.php" method="POST" enctype="multipart/form-data">
-
-    <input type="hidden" name="id_s" value="<?= htmlspecialchars($id_surat) ?>">
-
-    <div class="form-group">
-        <label>Jenis Surat <span class="required">*</span></label>
-        <select name="jenis_surat" id="jenis_surat" required>
-            <option value="">-- Pilih Jenis Surat --</option>
-            <option value="masuk" <?= $old_jenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
-            <option value="keluar" <?= $old_jenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
-        </select>
+    <div class="header">
+        <h1>📑 Sortir Dokumen</h1>
+        <a href="homepage.php" class="btn-home">
+            <span>🏠</span>
+            <span>Kembali ke Menu</span>
+        </a>
     </div>
 
-    <div class="form-group">
-        <label>Nomor Surat <span class="required">*</span></label>
-        <input type="text"
-               name="nomor_surat"
-               id="nomor_surat"
-               value="<?= htmlspecialchars($old_nomor) ?>"
-               placeholder="Contoh: 001/SM/XII/2024"
-               required>
+    <div class="form-container">
+        <?php if (isset($_SESSION['error_nomor'])): ?>
+        <div class="alert-error">
+            ❌ <?= htmlspecialchars($_SESSION['error_nomor']); ?><br>
+            <small>Contoh benar: IJ.00.00/123/IT/VI/2024</small>
+        </div>
+        <?php unset($_SESSION['error_nomor']); endif; ?>
+
+        <form id="suratForm" name="suratForm" action="proses.php" method="POST" enctype="multipart/form-data" novalidate>
+
+            <input type="hidden" name="id_s" value="<?= htmlspecialchars($id_surat) ?>">
+
+            <div class="form-group">
+                <label>Jenis Surat <span class="required">*</span></label>
+                <select name="jenis_surat" id="jenis_surat">
+                    <option value="">-- Pilih Jenis Surat --</option>
+                    <option value="masuk" <?= $old_jenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
+                    <option value="keluar" <?= $old_jenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Nomor Surat <span class="required">*</span></label>
+                <input type="text"
+                       name="nomor_surat"
+                       id="nomor_surat"
+                       value="<?= htmlspecialchars($old_nomor) ?>"
+                       placeholder="Contoh: 001/SM/XII/2024">
+            </div>
+
+            <div class="form-group">
+                <label>Upload File Surat <span class="required">*</span></label>
+                <label class="file-label" id="fileLabel">
+                    Klik untuk memilih file
+                    <input type="file" id="fileInput" name="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                </label>
+                <div class="file-name" id="fileName"></div>
+            </div>
+
+            <div class="file-preview" id="filePreview" style="margin-top:10px;"></div>
+            
+            <button type="submit">SIMPAN</button>
+
+        </form>
     </div>
+</div>
 
-    <div class="form-group">
-        <label>Upload File Surat <span class="required">*</span></label>
-        <label class="file-label">
-            Klik untuk memilih file
-            <input type="file" id="fileInput" name="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-        </label>
-        <div class="file-name" id="fileName"></div>
+<!-- MODAL VALIDASI ERROR -->
+<div id="errorModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon error">⚠️</div>
+        <h3>Perhatian!</h3>
+        <p id="errorMessage"></p>
+        <button onclick="closeErrorModal()">OK, Saya Mengerti</button>
     </div>
+</div>
 
-    <div class="file-preview" id="filePreview" style="margin-top:10px;"></div>
-    
-    <button type="submit">SIMPAN</button>
-
-</form>
+<!-- MODAL SUKSES -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon success">✔</div>
+        <h3>Berhasil</h3>
+        <p id="modalMessage"></p>
+        <button onclick="closeModal()">OK</button>
+    </div>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
     const form        = document.getElementById("suratForm");
+    const jenisSurat  = document.getElementById("jenis_surat");
     const nomor       = document.getElementById("nomor_surat");
     const fileInput   = document.getElementById("fileInput");
+    const fileLabel   = document.getElementById("fileLabel");
     const fileName    = document.getElementById("fileName");
     const filePreview = document.getElementById("filePreview");
+    const errorModal  = document.getElementById("errorModal");
+    const errorMsg    = document.getElementById("errorMessage");
 
     /* ========= PREVIEW FILE ========= */
     fileInput.addEventListener("change", function () {
         filePreview.innerHTML = "";
+        fileLabel.classList.remove("error");
 
         if (!this.files.length) return;
 
@@ -294,17 +417,57 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    /* ========= VALIDASI NOMOR SURAT ========= */
+    /* ========= VALIDASI FORM SUBMIT ========= */
     form.addEventListener("submit", function (e) {
-        const regex = /^(?:[a-zA-Z]+(?:\.[a-zA-Z]+)+\/)?[A-Z]{2,5}\.[0-9]{2}\.[0-9]{2}\/[0-9]{3}\/[A-Z]{2,10}\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/;
+        e.preventDefault();
 
-        if (!regex.test(nomor.value.trim())) {
-            e.preventDefault();
-            alert("❌ Format nomor surat tidak valid");
-            nomor.focus();
-            nomor.style.border = "2px solid red";
+        // Reset semua error styling
+        jenisSurat.classList.remove("error");
+        nomor.classList.remove("error");
+        fileLabel.classList.remove("error");
+
+        // Cek Jenis Surat
+        if (!jenisSurat.value) {
+            showErrorModal("Jenis Surat belum dipilih!");
+            jenisSurat.classList.add("error");
+            jenisSurat.focus();
+            return;
         }
+
+        // Cek Nomor Surat (kosong)
+        if (!nomor.value.trim()) {
+            showErrorModal("Nomor Surat belum diisi!");
+            nomor.classList.add("error");
+            nomor.focus();
+            return;
+        }
+
+        // Cek Format Nomor Surat
+        const regex = /^(?:[a-zA-Z]+(?:\.[a-zA-Z]+)+\/)?[A-Z]{2,5}\.[0-9]{2}\.[0-9]{2}\/[0-9]{3}\/[A-Z]{2,10}\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/;
+        if (!regex.test(nomor.value.trim())) {
+            showErrorModal("Format Nomor Surat tidak valid!<br><small>Contoh: IJ.00.00/123/IT/VI/2024</small>");
+            nomor.classList.add("error");
+            nomor.focus();
+            return;
+        }
+
+        // Cek File Upload
+        if (!fileInput.files.length) {
+            showErrorModal("File surat belum dipilih!");
+            fileLabel.classList.add("error");
+            fileInput.focus();
+            return;
+        }
+
+        // Semua validasi OK -> submit form
+        form.submit();
     });
+
+    /* ========= FUNGSI SHOW ERROR MODAL ========= */
+    function showErrorModal(message) {
+        errorMsg.innerHTML = message;
+        errorModal.classList.add("show");
+    }
 
     /* ========= TAMPILKAN MODAL SUKSES ========= */
     <?php if (isset($_SESSION['status']) && $_SESSION['status'] === 'success'): ?>
@@ -318,19 +481,14 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* ========= FUNGSI GLOBAL ========= */
+function closeErrorModal() {
+    document.getElementById("errorModal").classList.remove("show");
+}
+
 function closeModal() {
     document.getElementById("successModal").classList.remove("show");
 }
 </script>
 
-    <!-- MODAL SUKSES -->
-    <div id="successModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-icon">✔</div>
-            <h3>Berhasil</h3>
-            <p id="modalMessage"></p>
-            <button onclick="closeModal()">OK</button>
-        </div>
-    </div>
 </body>
 </html>
