@@ -54,6 +54,9 @@ body {
     background: linear-gradient(135deg, #4a6cf7, #6fb1c8);
     color: white;
     padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .header h1 {
@@ -62,6 +65,27 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.btn-home {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-home:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .breadcrumb {
@@ -241,10 +265,18 @@ body {
     
     .header {
         padding: 20px;
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
     }
     
     .header h1 {
         font-size: 22px;
+    }
+    
+    .btn-home {
+        width: 100%;
+        justify-content: center;
     }
     
     .content {
@@ -273,6 +305,10 @@ body {
 
 <div class="header">
     <h1>📁 Arsip Dokumen</h1>
+    <a href="homepage.php" class="btn-home">
+        <span>🏠</span>
+        <span>Kembali ke Menu</span>
+    </a>
 </div>
 
 <!-- BREADCRUMB -->
