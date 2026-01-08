@@ -12,18 +12,19 @@ $nomor_surat = trim($_POST['nomor_surat']);
 $file = $_FILES['fileInput'];
 
 $pattern = '/^
-(?:([a-zA-Z]\.[A-Z])\/)?     
-([A-Z]{2,5})                 
-\.([0-9]{2}\.[0-9]{2})       
-\/([0-9]{3})                 
-\/([A-Z]{2,10})              
+(?:([a-zA-Z]+(?:\.[a-zA-Z]+)+)\/)?
+([A-Z]{2,5})
+\.([0-9]{2}\.[0-9]{2})
+\/([0-9]{3})
+\/([A-Z]{2,10})
 \/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)
 \/([0-9]{4})
 $/x';
 
+
 if (!preg_match($pattern, $nomor_surat, $m)) {
     $_SESSION['error_nomor'] = "Format nomor surat tidak valid";
-    header("Location: index.php");
+    header("Location: form.php");
     exit;
 }
 
@@ -123,11 +124,11 @@ $result = pg_query_params($koneksi, $sql, [
 if ($result) {
     $_SESSION['status'] = 'success';
     $_SESSION['pesan']  = 'Data berhasil disimpan';
-    header("Location: index.php");
+    header("Location: form.php");
     exit;
 }
 
 $_SESSION['status'] = 'error';
 $_SESSION['pesan']  = 'Gagal menyimpan data';
-header("Location: index.php");
+header("Location: form.php");
 exit;
