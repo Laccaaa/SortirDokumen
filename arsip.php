@@ -1,5 +1,22 @@
 <?php
+include "prosesArsip.php";
+
 $path = $_GET['path'] ?? '';
+$action = $_GET['action'] ?? '';
+
+// Handle actions (view/download)
+if ($action === 'view' && isset($_GET['id'])) {
+    viewFile($_GET['id']);
+    exit;
+}
+
+if ($action === 'download' && isset($_GET['id'])) {
+    downloadFile($_GET['id']);
+    exit;
+}
+
+// Get items untuk ditampilkan
+$items = getItems($path);
 $parts = array_filter(explode('/', $path));
 ?>
 
@@ -94,14 +111,26 @@ body {
     border: 1px solid #e9ecef;
     border-radius: 12px;
     transition: all 0.3s ease;
-    cursor: pointer;
     background: white;
 }
 
-.item:hover {
+.item a.item-link {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+}
+
+.item a.item-link:hover {
+    color: inherit;
+}
+
+.item:has(a.item-link):hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(74, 108, 247, 0.15);
     border-color: #4a6cf7;
+    cursor: pointer;
 }
 
 .icon {
@@ -114,6 +143,7 @@ body {
     margin-right: 16px;
     border-radius: 10px;
     flex-shrink: 0;
+    pointer-events: none;
 }
 
 .icon.folder {
@@ -129,11 +159,25 @@ body {
     font-size: 16px;
     color: #2d3748;
     font-weight: 500;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .name a {
     color: inherit;
     text-decoration: none;
+    pointer-events: none;
+}
+
+.file-count {
+    font-size: 13px;
+    color: #6c757d;
+    font-weight: 400;
+    background: #f1f3f5;
+    padding: 2px 10px;
+    border-radius: 12px;
 }
 
 .actions {
@@ -247,52 +291,36 @@ body {
 <div class="content">
     <div class="list">
 
-        <!-- CONTOH FOLDER -->
-        <?php if ($path === ''): ?>
-            <div class="item">
-                <div class="icon folder">📁</div>
-                <div class="name">
-                    <a href="?path=2024">2024</a>
-                </div>
+        <?php if (empty($items)): ?>
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <p>Tidak ada data di folder ini</p>
             </div>
-        <?php endif; ?>
-
-        <?php if ($path === '2024'): ?>
-            <div class="item">
-                <div class="icon folder">📁</div>
-                <div class="name">
-                    <a href="?path=2024/VI">VI (Juni)</a>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($path === '2024/VI'): ?>
-            <div class="item">
-                <div class="icon folder">📁</div>
-                <div class="name">
-                    <a href="?path=2024/VI/IJ">IJ</a>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($path === '2024/VI/IJ'): ?>
-            <div class="item">
-                <div class="icon folder">📁</div>
-                <div class="name">
-                    <a href="?path=2024/VI/IJ/PL.01.00">PL.01.00</a>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($path === '2024/VI/IJ/PL.01.00'): ?>
-            <div class="item">
-                <div class="icon file">📄</div>
-                <div class="name">IJ.00.00-019.pdf</div>
-                <div class="actions">
-                    <a href="#" class="btn btn-view" title="Lihat">👁️</a>
-                    <a href="#" class="btn btn-download" title="Unduh">⬇️</a>
-                </div>
-            </div>
+        <?php else: ?>
+            <?php foreach ($items as $item): ?>
+                <?php if ($item['type'] === 'folder'): ?>
+                    <div class="item">
+                        <a href="<?= htmlspecialchars($item['link']) ?>" class="item-link">
+                            <div class="icon folder">📁</div>
+                            <div class="name">
+                                <span><?= htmlspecialchars($item['name']) ?></span>
+                                <span class="file-count">(<?= $item['count'] ?>)</span>
+                            </div>
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <div class="item">
+                        <div class="icon file">📄</div>
+                        <div class="name">
+                            <span><?= htmlspecialchars($item['name']) ?></span>
+                        </div>
+                        <div class="actions">
+                            <a href="arsip.php?action=view&id=<?= $item['id'] ?>" class="btn btn-view" title="Lihat" target="_blank">👁️</a>
+                            <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">⬇️</a>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
         <?php endif; ?>
 
     </div>
