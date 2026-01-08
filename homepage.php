@@ -287,13 +287,13 @@
             </div>
           </a>
 
-          <a class="card" href="#" aria-label="Sortir Dokumen">
+          <a class="card" href="form.php" aria-label="Sortir Dokumen">
             <div class="cardTop">
               <div class="left">
                 <div class="icon">🗂️</div>
                 <div style="min-width:0;">
                   <p class="cardTitle">Sortir Dokumen</p>
-                  <p class="cardDesc">Halaman untuk sortir dokumen berdasarkan kode/jenis.</p>
+                  <p class="cardDesc">Halaman untuk sortir dokumen berdasarkan kategori.</p>
                 </div>
               </div>
               <span class="pill">Menu</span>
@@ -313,19 +313,18 @@
             </div>
           </a>
 
-          <a class="card" href="#" aria-label="Tabel Sortir Dokumen">
-            <div class="cardTop">
-              <div class="left">
-                <div class="icon">📑</div>
-                <div style="min-width:0;">
-                  <p class="cardTitle">Tabel Sortir Dokumen</p>
-                  <p class="cardDesc">Ringkasan hasil sortir dokumen dalam tabel.</p>
-                </div>
+          <a class="card" href="arsip.php" aria-label="Rekapitulasi Arsip">
+          <div class="cardTop">
+            <div class="left">
+              <div class="icon">🗄️</div>
+              <div style="min-width:0;">
+                <p class="cardTitle">Rekapitulasi Arsip</p>
+                <p class="cardDesc">Lihat arsip dokumen berdasarkan kategori.</p>
               </div>
-              <span class="pill">Tabel</span>
             </div>
-          </a>
-
+            <span class="pill">Rekap</span>
+          </div>
+        </a>
         </div>
 
         <div class="footer">
