@@ -127,7 +127,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <div class="header">
         <div>
           <h1>Form Input Arsip</h1>
-          <div class="sub">Sekarang submit bakal langsung masuk database ✨</div>
         </div>
         <div class="btns">
           <a class="btn secondary" href="tabel_arsip.php">📋 Ke Tabel Arsip</a>
