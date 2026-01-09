@@ -1,5 +1,5 @@
 <?php
-// input_arsip.php — hanya form input, nanti submit-nya baru disambungkan ke database
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
