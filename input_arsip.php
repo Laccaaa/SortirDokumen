@@ -1,5 +1,68 @@
 <?php
-// input_arsip.php — hanya form input, nanti submit-nya baru disambungkan ke database
+require_once "koneksi.php";
+
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  $no_berkas        = trim($_POST["no_berkas"] ?? "");
+  $kode_klasifikasi = trim($_POST["kode_klasifikasi"] ?? "");
+  $nama_berkas      = trim($_POST["nama_berkas"] ?? "");
+
+  $no_isi           = trim($_POST["no_isi_berkas"] ?? "");
+  $pencipta         = trim($_POST["pencipta_arsip"] ?? "");
+  $no_surat         = trim($_POST["no_surat"] ?? "");
+  $tanggal          = trim($_POST["tanggal_surat"] ?? ""); // YYYY-MM-DD
+  $uraian           = trim($_POST["uraian_informasi"] ?? "");
+
+  $jumlah           = trim($_POST["jumlah"] ?? "");
+  $tingkat          = trim($_POST["tingkat_perkembangan"] ?? "");
+  $lokasi           = trim($_POST["lokasi_simpan"] ?? "");
+  $keterangan       = trim($_POST["keterangan"] ?? "");
+
+  // validasi wajib
+  if ($no_berkas === "" || $kode_klasifikasi === "" || $nama_berkas === "") {
+    $error = "Field wajib (*) masih kosong.";
+  } elseif (!ctype_digit($no_berkas)) {
+    $error = "NO BERKAS harus angka.";
+  } elseif ($no_isi !== "" && !ctype_digit($no_isi)) {
+    $error = "NO. ISI BERKAS harus angka (kalau diisi).";
+  } elseif ($tanggal !== "" && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
+    $error = "Tanggal harus format YYYY-MM-DD (contoh: 2019-12-01).";
+  } else {
+    // convert kosong -> NULL utk integer/date
+    $no_isi  = ($no_isi === "") ? null : (int)$no_isi;
+    $tanggal = ($tanggal === "") ? null : $tanggal;
+
+    try {
+      $stmt = $pdo->prepare("
+        INSERT INTO arsip_dimusnahkan
+          (no_berkas, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat, uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at)
+        VALUES
+          (:no_berkas, :kode, :nama, :no_isi, :pencipta, :no_surat, :uraian, :tanggal, :jumlah, :tingkat, :lokasi, :keterangan, NOW())
+      ");
+
+      $stmt->execute([
+        ":no_berkas"  => (int)$no_berkas,
+        ":kode"       => $kode_klasifikasi,
+        ":nama"       => $nama_berkas,
+        ":no_isi"     => $no_isi,
+        ":pencipta"   => $pencipta,
+        ":no_surat"   => $no_surat,
+        ":uraian"     => $uraian,
+        ":tanggal"    => $tanggal,
+        ":jumlah"     => $jumlah,
+        ":tingkat"    => $tingkat,
+        ":lokasi"     => $lokasi,
+        ":keterangan" => $keterangan
+      ]);
+
+      header("Location: tabel_arsip.php?success=1");
+      exit;
+    } catch (PDOException $e) {
+      $error = "Gagal simpan: " . $e->getMessage();
+    }
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -15,85 +78,41 @@
       font-family: Arial, sans-serif;
       padding: 24px;
     }
-    .wrap{
-      width:100%;
-      max-width: 1180px;
-      margin: 0 auto;
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-    }
-    .card{
-      background:#fff;
-      border-radius:20px;
-      padding:22px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    }
-    .header{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom: 14px;
-    }
-    h1{
-      font-size: 20px;
-      color:#1f2a44;
-      margin-bottom:6px;
-    }
-    .sub{
-      font-size: 13px;
-      color:#667085;
-    }
+    .wrap{ width:100%; max-width: 1180px; margin: 0 auto; display:flex; flex-direction:column; gap:18px; }
+    .card{ background:#fff; border-radius:20px; padding:22px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+    .header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom: 14px; }
+    h1{ font-size: 20px; color:#1f2a44; margin-bottom:6px; }
+    .sub{ font-size: 13px; color:#667085; }
     .btns{ display:flex; gap:10px; flex-wrap:wrap; }
     a.btn, button.btn{
-      appearance:none;
-      border:0;
-      cursor:pointer;
-      text-decoration:none;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-weight: 700;
-      background:#1f2a44;
-      color:#fff;
-      transition: transform .12s ease, opacity .12s ease;
-      font-size: 14px;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+      appearance:none; border:0; cursor:pointer; text-decoration:none;
+      padding: 10px 14px; border-radius: 12px; font-weight: 700;
+      background:#1f2a44; color:#fff; transition: transform .12s ease, opacity .12s ease;
+      font-size: 14px; display:inline-flex; align-items:center; gap:8px;
     }
     a.btn:hover, button.btn:hover{ transform: translateY(-1px); opacity:.95; }
-    a.btn.secondary, button.btn.secondary{
-      background:#eef2ff;
-      color:#1f2a44;
-      border: 1px solid #d7ddff;
-    }
+    a.btn.secondary, button.btn.secondary{ background:#eef2ff; color:#1f2a44; border: 1px solid #d7ddff; }
 
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
+    .grid{ display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
     .form-group{ display:flex; flex-direction:column; gap:6px; }
     label{ font-size: 13px; color:#1f2a44; font-weight:700; }
     input, select, textarea{
-      width:100%;
-      border: 1.8px solid #ddd;
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 14px;
-      outline:none;
+      width:100%; border: 1.8px solid #ddd; border-radius: 12px;
+      padding: 10px 12px; font-size: 14px; outline:none;
     }
     textarea{ min-height: 90px; resize: vertical; }
     .span-2{ grid-column: span 2; }
     .span-3{ grid-column: span 3; }
+    .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top: 12px; flex-wrap:wrap; }
 
-    .actions{
-      display:flex;
-      gap:10px;
-      justify-content:flex-end;
-      margin-top: 12px;
-      flex-wrap:wrap;
+    .alert{
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      border: 1px solid #ffd0d0;
+      background: #fff5f5;
+      color: #7a1f1f;
     }
 
     @media (max-width: 900px){
@@ -108,7 +127,7 @@
       <div class="header">
         <div>
           <h1>Form Input Arsip</h1>
-          <div class="sub">Form ini belum nyambung database — nanti tinggal bikin INSERT ✨</div>
+          <div class="sub">Sekarang submit bakal langsung masuk database ✨</div>
         </div>
         <div class="btns">
           <a class="btn secondary" href="tabel_arsip.php">📋 Ke Tabel Arsip</a>
@@ -116,7 +135,11 @@
         </div>
       </div>
 
-      <form method="POST" action="#">
+      <?php if ($error !== ""): ?>
+        <div class="alert"><?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
+
+      <form method="POST" action="input_arsip.php">
         <div class="grid">
           <div class="form-group">
             <label>NO BERKAS *</label>
@@ -145,8 +168,8 @@
             <input name="no_surat" placeholder="contoh: HM.002/001/XII/2018" />
           </div>
           <div class="form-group span-2">
-            <label>TANGGAL SURAT / KURUN WAKTU</label>
-            <input name="tanggal_surat" placeholder="contoh: 2019 / 2019-12-01 / 2018-2019" />
+            <label>TANGGAL SURAT (YYYY-MM-DD)</label>
+            <input name="tanggal_surat" placeholder="contoh: 2019-12-01" />
           </div>
 
           <div class="form-group span-3">
@@ -179,10 +202,7 @@
         </div>
 
         <div class="actions">
-          <button class="btn" type="button"
-            onclick="alert('Database belum disambungkan 😄\\nNanti tombol ini akan melakukan INSERT ke DB.');">
-            Simpan ke Database (belum aktif)
-          </button>
+          <button class="btn" type="submit">Simpan ke Database</button>
           <a class="btn secondary" href="input_arsip.php">Refresh</a>
         </div>
       </form>

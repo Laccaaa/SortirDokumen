@@ -1,5 +1,20 @@
 <?php
-// tabel_arsip.php — TOP ALIGNED, NO BODY SCROLL (X & Y), MOBILE FRIENDLY (table -> cards)
+require_once "koneksi.php";
+
+$error = "";
+$rows = [];
+
+try {
+  $stmt = $pdo->query("
+    SELECT no_berkas, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat, uraian, tanggal, jumlah, tingkat, lokasi, keterangan
+    FROM arsip_dimusnahkan
+    ORDER BY created_at DESC
+  ");
+  $rows = $stmt->fetchAll();
+} catch (PDOException $e) {
+  $error = "Gagal ambil data: " . $e->getMessage();
+  $rows = [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -28,42 +43,35 @@ body{
   margin:0;
   background: linear-gradient(135deg, var(--bg1), var(--bg2));
   height:100vh;
-  overflow:hidden;           /* 🔒 NO SCROLL TOTAL */
-
+  overflow:hidden;
   display:flex;
-  justify-content:center;    /* center horizontal */
-  align-items:flex-start;    /* ✅ NEMPEL ATAS */
+  justify-content:center;
+  align-items:flex-start;
   padding: 18px;
   color:var(--text);
   font-family: Arial, sans-serif;
 }
 
-/* wrapper */
 .wrap{
   width:100%;
   max-width:1180px;
   height:100%;
   display:flex;
-  align-items:flex-start;    /* ✅ NEMPEL ATAS */
+  align-items:flex-start;
   justify-content:center;
 }
 
-/* card utama */
 .card{
   width:100%;
   background: var(--card);
   border-radius: var(--radius);
   padding: 18px;
   box-shadow: var(--shadow);
-
   display:flex;
   flex-direction:column;
-
-  /* ✅ penting: biar card gak “ngambang” dan tetap di atas */
   margin-top: 0;
 }
 
-/* header */
 .header{
   display:flex;
   align-items:flex-start;
@@ -83,7 +91,6 @@ body{
   color:var(--muted);
 }
 
-/* actions */
 .btns{
   display:flex;
   gap:10px;
@@ -111,15 +118,13 @@ a.btn.secondary{
   border:1px solid #d7ddff;
 }
 
-/* table wrapper */
 .table-wrap{
   border:1px solid var(--line);
   border-radius: 14px;
   background:#fff;
-  overflow:hidden;           /* 🔒 NO SCROLL di wrapper juga */
+  overflow:hidden;
 }
 
-/* tabel desktop */
 table{
   width:100%;
   border-collapse:collapse;
@@ -142,64 +147,41 @@ tbody td.muted{
   text-align:center;
 }
 
-/* helper kecil */
-.hint{
-  margin-top:10px;
-  font-size:12px;
-  color:var(--muted);
+.alert-ok{
+  padding: 10px 12px;
+  border-radius: 12px;
+  margin: 10px 0 12px 0;
+  font-size: 13px;
+  border: 1px solid #bfe7c7;
+  background: #f1fff4;
+  color: #14532d;
+}
+.alert-err{
+  padding: 10px 12px;
+  border-radius: 12px;
+  margin: 10px 0 12px 0;
+  font-size: 13px;
+  border: 1px solid #ffd0d0;
+  background: #fff5f5;
+  color: #7a1f1f;
 }
 
-/* =========================
-   ✅ MOBILE MODE: TABLE -> CARDS
-   biar 12 kolom gak bikin layout ancur & tetap NO SCROLL X
-========================= */
 @media (max-width: 768px){
   body{ padding: 12px; }
-
-  .card{
-    padding: 14px;
-    border-radius: 16px;
-  }
-
-  .title h1{
-    font-size: 18px;
-    line-height: 1.15;
-  }
+  .card{ padding: 14px; border-radius: 16px; }
+  .title h1{ font-size: 18px; line-height: 1.15; }
   .sub{ font-size: 12px; }
 
-  /* tombol full width biar rapi */
-  .btns{
-    width:100%;
-  }
-  .btns a.btn{
-    width:100%;
-  }
+  .btns{ width:100%; }
+  .btns a.btn{ width:100%; }
 
-  /* hide header table, transform rows to cards */
-  table{
-    font-size: 13px;
-  }
-  thead{
-    display:none;
-  }
+  table{ font-size: 13px; }
+  thead{ display:none; }
 
-  tbody, tr, td{
-    display:block;
-    width:100%;
-  }
+  tbody, tr, td{ display:block; width:100%; }
+  tr{ border-bottom: 1px solid var(--line); padding: 10px 12px; }
+  td{ border:none !important; padding: 8px 0 !important; text-align:left !important; }
 
-  tr{
-    border-bottom: 1px solid var(--line);
-    padding: 10px 12px;
-  }
-
-  td{
-    border:none !important;
-    padding: 8px 0 !important;
-    text-align:left !important;
-  }
-
-  /* label di kiri, value di kanan */
   td::before{
     content: attr(data-label);
     display:block;
@@ -209,7 +191,6 @@ tbody td.muted{
     font-weight: 700;
   }
 
-  /* row kosong (colspan 12) */
   td.muted{
     text-align:left !important;
     color: var(--muted);
@@ -235,6 +216,14 @@ tbody td.muted{
         </div>
       </div>
 
+      <?php if (isset($_GET["success"]) && $_GET["success"] == "1"): ?>
+        <div class="alert-ok">Data berhasil disimpan ✅</div>
+      <?php endif; ?>
+
+      <?php if ($error !== ""): ?>
+        <div class="alert-err"><?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
+
       <div class="table-wrap">
         <table>
           <thead>
@@ -255,15 +244,32 @@ tbody td.muted{
           </thead>
 
           <tbody>
-            <!-- contoh data kosong -->
-            <tr>
-              <td class="muted" colspan="12">Belum ada data (menunggu database)</td>
-            </tr>
+            <?php if (count($rows) === 0): ?>
+              <tr>
+                <td class="muted" colspan="12">Belum ada data</td>
+              </tr>
+            <?php else: ?>
+              <?php foreach ($rows as $r): ?>
+                <tr>
+                  <td data-label="No Berkas"><?= htmlspecialchars($r["no_berkas"]) ?></td>
+                  <td data-label="Kode Klasifikasi"><?= htmlspecialchars($r["kode_klasifikasi"]) ?></td>
+                  <td data-label="Nama Berkas"><?= htmlspecialchars($r["nama_berkas"]) ?></td>
+                  <td data-label="No. Isi"><?= htmlspecialchars($r["no_isi"] ?? "") ?></td>
+                  <td data-label="Pencipta"><?= htmlspecialchars($r["pencipta"] ?? "") ?></td>
+                  <td data-label="No. Surat"><?= htmlspecialchars($r["no_surat"] ?? "") ?></td>
+                  <td data-label="Uraian"><?= htmlspecialchars($r["uraian"] ?? "") ?></td>
+                  <td data-label="Tanggal"><?= htmlspecialchars($r["tanggal"] ?? "") ?></td>
+                  <td data-label="Jumlah"><?= htmlspecialchars($r["jumlah"] ?? "") ?></td>
+                  <td data-label="Tingkat"><?= htmlspecialchars($r["tingkat"] ?? "") ?></td>
+                  <td data-label="Lokasi"><?= htmlspecialchars($r["lokasi"] ?? "") ?></td>
+                  <td data-label="Keterangan"><?= htmlspecialchars($r["keterangan"] ?? "") ?></td>
+                </tr>
+              <?php endforeach; ?>
+            <?php endif; ?>
           </tbody>
         </table>
       </div>
 
-      <div class="hint"></div>
     </div>
   </div>
 </body>
