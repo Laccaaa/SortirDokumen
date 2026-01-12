@@ -431,6 +431,19 @@ $role = $_SESSION['role'] ?? 'user';
         </a>
         </div>
 
+        <a class="card" href="export_menu.php" aria-label="Export CSV">
+          <div class="cardTop">
+            <div class="left">
+              <div class="icon">📥</div>
+              <div style="min-width:0;">
+                <p class="cardTitle">Export CSV</p>
+                <p class="cardDesc">Export data rekapitulasi arsip dan pemusnahan dokumen ke format CSV.</p>
+              </div>
+            </div>
+            <span class="pill">Export</span>
+          </div>
+        </a>
+
         <div class="footer">
           <div class="hint"><span class="dot"></span> Tampilan full-screen, compact, dan no-scroll.</div>
           <div>© <?= date('Y'); ?> · Arsip Dokumen</div>
