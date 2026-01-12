@@ -321,7 +321,7 @@ button[type="submit"]:hover {
         <?php if (isset($_SESSION['error_nomor'])): ?>
         <div class="alert-error">
             ❌ <?= htmlspecialchars($_SESSION['error_nomor']); ?><br>
-            <small>Contoh benar: IJ.00.00/123/IT/VI/2024</small>
+            <small>Contoh benar: ME.002/003/DI/XII/2016 atau e.B/PL.01.00/001/KSUB/V/2024</small>
         </div>
         <?php unset($_SESSION['error_nomor']); endif; ?>
 
@@ -344,7 +344,7 @@ button[type="submit"]:hover {
                        name="nomor_surat"
                        id="nomor_surat"
                        value="<?= htmlspecialchars($old_nomor) ?>"
-                       placeholder="Contoh: 001/SM/XII/2024">
+                       placeholder="Contoh: ME.002/003/DI/XII/2016">
             </div>
 
             <div class="form-group">
@@ -442,10 +442,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Cek Format Nomor Surat
-        const regex = /^(?:[a-zA-Z]+(?:\.[a-zA-Z]+)+\/)?[A-Z]{2,5}\.[0-9]{2}\.[0-9]{2}\/[0-9]{3}\/[A-Z]{2,10}\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/;
+        // Cek Format Nomor Surat (Dinamis - hanya validasi bulan romawi & tahun)
+        const regex = /^(?:[a-zA-Z0-9.]+\/)?[^\/]+\/[^\/]+\/[^\/]+\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/;
         if (!regex.test(nomor.value.trim())) {
-            showErrorModal("Format Nomor Surat tidak valid!<br><small>Contoh: IJ.00.00/123/IT/VI/2024</small>");
+            showErrorModal("Format Nomor Surat tidak valid!<br><small>Contoh: ME.002/003/DI/XII/2016 atau e.B/PL.01.00/001/KSUB/V/2024</small>");
             nomor.classList.add("error");
             nomor.focus();
             return;
