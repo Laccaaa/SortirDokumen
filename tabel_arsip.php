@@ -41,35 +41,56 @@ html, body{ height:100%; }
 
 body{
   margin:0;
-  background: linear-gradient(135deg, var(--bg1), var(--bg2));
-  height:100vh;
-  overflow:hidden;
+  min-height:100vh;
+
+  background:
+    radial-gradient(
+      150% 90% at 50% 120%,
+      #4d8879ff 0%,     
+      #47a084ff 25%,    
+      #7ccfb3 45%,    
+      #cfeee2 60%,    
+      transparent 75%
+    ),
+    
+    linear-gradient(
+      180deg,
+      #f4f4f4ff 0%,
+      #f2fbf7 55%,
+      #e6f7f1 100%
+    );
+
   display:flex;
   justify-content:center;
   align-items:flex-start;
-  padding: 18px;
-  color:var(--text);
-  font-family: Arial, sans-serif;
+  padding: 56px 20px;
+  font-family: Inter, Arial, sans-serif;
 }
 
+
+
+
 .wrap{
+  height: 100%;
   width:100%;
   max-width:1180px;
-  height:100%;
   display:flex;
   align-items:flex-start;
   justify-content:center;
 }
+
 
 .card{
   width:100%;
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: var(--shadow);
+  max-width:1200px;
+  background:#ffffff;
+  border-radius:22px;
+  padding: 22px;
+  box-shadow:
+    0 10px 30px rgba(15,23,42,0.08),
+    0 30px 60px rgba(15,23,42,0.06);
   display:flex;
   flex-direction:column;
-  margin-top: 0;
 }
 
 .header{
@@ -119,10 +140,12 @@ a.btn.secondary{
 }
 
 .table-wrap{
-  border:1px solid var(--line);
-  border-radius: 14px;
-  background:#fff;
+  margin-top: 12px;
+  border-radius:16px;
+  background:#ffffff;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.06);
   overflow:hidden;
+  border:1px solid #eef2f7;
 }
 
 table{
@@ -131,17 +154,31 @@ table{
   font-size:12px;
 }
 thead th{
-  background:var(--soft);
-  padding:10px 10px;
-  border:1px solid var(--line);
-  text-align:left;
+  background:#f8fafc;
+  padding:14px 14px;
+  border-bottom:1px solid #e5e7eb;
+  font-size:12px;
+  font-weight:700;
+  color:#475569;
+  white-space:nowrap;
 }
+
 tbody td{
-  padding:12px 10px;
-  border:1px solid var(--line);
-  text-align:left;
-  color: var(--text);
+  padding:14px 14px;
+  border-bottom:1px solid #eef2f7;
+  font-size:13px;
+  color:#1f2937;
+  vertical-align:top;
 }
+
+tbody tr:nth-child(even){
+  background:#fafbff;
+}
+
+tbody tr:hover{
+  background:#f1f5ff;
+}
+
 tbody td.muted{
   color: var(--muted);
   text-align:center;
