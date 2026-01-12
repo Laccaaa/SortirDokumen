@@ -22,28 +22,14 @@ $sql = "
 ";
 
 try {
-
-  if (isset($pdo)) {
-    // === MODE PDO ===
-    $stmt = $pdo->query($sql);
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-  } elseif (isset($conn)) {
-    // === MODE pg_connect ===
-    $res = pg_query($conn, $sql);
-    if (!$res) {
-      throw new Exception(pg_last_error($conn));
-    }
-    $rows = pg_fetch_all($res) ?: [];
-
-  } else {
-    throw new Exception("Koneksi database tidak ditemukan");
-  }
-
-} catch (Exception $e) {
+  // PAKAI $dbhandle (PDO)
+  $stmt = $dbhandle->query($sql);
+  $rows = $stmt->fetchAll();
+} catch (PDOException $e) {
   $error = "Gagal ambil data: " . $e->getMessage();
   $rows  = [];
 }
+
 
 ?>
 <!DOCTYPE html>
