@@ -1,18 +1,25 @@
 <?php
-// koneksi.php (PDO)
-$host = "127.0.0.1";
-$port = "5432";
-$dbname = "surat";
-$user = "postgres";
-$pass = "muhammad";
+function koneksiDB() {
+    $host = "localhost";
+    $port = "5433";
+    $dbname = "surat";
+    $user = "postgres";
+    $password = "cantikitu5";
 
-$dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    // Connection string
+    $conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+    
+    // Koneksi ke database
+    $db_handle = pg_connect($conn_string);
 
-try {
-  $pdo = new PDO($dsn, $user, $pass, [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-  ]);
-} catch (PDOException $e) {
-  die("Koneksi DB gagal: " . $e->getMessage());
+    if (!$db_handle) {
+        // Log error untuk debugging (jangan tampilkan ke user)
+        error_log("Koneksi database gagal: " . pg_last_error());
+        
+        // Return false atau throw exception (jangan die)
+        return false;
+    }
+
+    return $db_handle; 
 }
+?>
