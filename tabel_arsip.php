@@ -2,29 +2,49 @@
 require_once "koneksi.php";
 
 $error = "";
-$rows = [];
+$rows  = [];
+
+$sql = "
+  SELECT
+    kode_klasifikasi,
+    nama_berkas,
+    no_isi,
+    pencipta,
+    no_surat,
+    uraian,
+    tanggal,
+    jumlah,
+    tingkat,
+    lokasi,
+    keterangan
+  FROM arsip_dimusnahkan
+  ORDER BY created_at DESC
+";
 
 try {
-  $stmt = $pdo->query("
-    SELECT 
-      kode_klasifikasi,
-      nama_berkas,
-      no_isi,
-      pencipta,
-      no_surat,
-      uraian,
-      tanggal,
-      jumlah,
-      tingkat,
-      lokasi,
-      keterangan
-    FROM arsip_dimusnahkan
-    ORDER BY created_at DESC
-  ");
-  $rows = $stmt->fetchAll();
-} catch (PDOException $e) {
+
+  if (isset($pdo)) {
+    // === MODE PDO ===
+    $stmt = $pdo->query($sql);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  } elseif (isset($conn)) {
+    // === MODE pg_connect ===
+    $res = pg_query($conn, $sql);
+    if (!$res) {
+      throw new Exception(pg_last_error($conn));
+    }
+    $rows = pg_fetch_all($res) ?: [];
+
+  } else {
+    throw new Exception("Koneksi database tidak ditemukan");
+  }
+
+} catch (Exception $e) {
   $error = "Gagal ambil data: " . $e->getMessage();
+  $rows  = [];
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
