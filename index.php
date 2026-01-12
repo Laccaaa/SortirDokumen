@@ -1,10 +1,14 @@
 <?php
-require_once "bootstrap.php";
+session_start();
 
+// Cek apakah user sudah login
 if (isset($_SESSION['user_id'])) {
-  header("Location: homepage.php");
-  exit;
+    // Sudah login → ke homepage
+    header("Location: homepage.php");
+    exit;
+} else {
+    // Belum login → ke login
+    header("Location: login.php");
+    exit;
 }
-
-header("Location: login.php");
-exit;
+?>
