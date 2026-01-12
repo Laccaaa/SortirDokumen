@@ -44,18 +44,19 @@ body{
   min-height:100vh;
 
   background:
+    /* HALF DOME HIJAU PEKAT DARI BAWAH */
     radial-gradient(
       150% 90% at 50% 120%,
-      #4d8879ff 0%,     
-      #47a084ff 25%,    
-      #7ccfb3 45%,    
-      #cfeee2 60%,    
+      #1f8a70 0%,     /* hijau tua pekat */
+      #34a37f 25%,    /* hijau kuat */
+      #7ccfb3 45%,    /* transisi */
+      #cfeee2 60%,    /* hijau muda */
       transparent 75%
     ),
     
     linear-gradient(
       180deg,
-      #f4f4f4ff 0%,
+      #ffffff 0%,
       #f2fbf7 55%,
       #e6f7f1 100%
     );
@@ -66,6 +67,7 @@ body{
   padding: 56px 20px;
   font-family: Inter, Arial, sans-serif;
 }
+
 
 
 
