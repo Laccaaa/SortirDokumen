@@ -378,7 +378,7 @@ $role = $_SESSION['role'] ?? 'user';
       <div class="content">
         <div class="grid">
 
-          <a class="card" href="#" aria-label="Pemusnahan Dokumen">
+          <a class="card" href="#input_arsip" aria-label="Pemusnahan Dokumen">
             <div class="cardTop">
               <div class="left">
                 <div class="icon">🧾</div>
@@ -404,7 +404,7 @@ $role = $_SESSION['role'] ?? 'user';
             </div>
           </a>
 
-          <a class="card" href="#" aria-label="Tabel Pemusnahan Dokumen">
+          <a class="card" href="#tabel_arsip" aria-label="Tabel Pemusnahan Dokumen">
             <div class="cardTop">
               <div class="left">
                 <div class="icon">📊</div>
