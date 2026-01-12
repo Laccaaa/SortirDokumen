@@ -1,19 +1,18 @@
 <?php
-function koneksiDB() {
-    $host = "localhost";
-    $port = "5433";
-    $dbname = "surat";
-    $user = "postgres";
-    $password = "cantikitu5";
+// koneksi.php (PDO)
+$host = "127.0.0.1";
+$port = "5432";
+$dbname = "surat";
+$user = "postgres";
+$pass = "muhammad";
 
-    $db_handle = pg_connect(
-        "host=$host port=$port dbname=$dbname user=$user password=$password"
-    );
+$dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
 
-    if (!$db_handle) {
-        die("Koneksi gagal: " . pg_last_error());
-    }
-
-    return $db_handle; 
+try {
+  $pdo = new PDO($dsn, $user, $pass, [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+  ]);
+} catch (PDOException $e) {
+  die("Koneksi DB gagal: " . $e->getMessage());
 }
-?>
