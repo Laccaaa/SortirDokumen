@@ -1,36 +1,6 @@
 <?php
-require_once "koneksi.php";
-
-$error = "";
-$rows  = [];
-
-$sql = "
-  SELECT
-    kode_klasifikasi,
-    nama_berkas,
-    no_isi,
-    pencipta,
-    no_surat,
-    uraian,
-    tanggal,
-    jumlah,
-    tingkat,
-    lokasi,
-    keterangan
-  FROM arsip_dimusnahkan
-  ORDER BY created_at DESC
-";
-
-try {
-  // PAKAI $dbhandle (PDO)
-  $stmt = $dbhandle->query($sql);
-  $rows = $stmt->fetchAll();
-} catch (PDOException $e) {
-  $error = "Gagal ambil data: " . $e->getMessage();
-  $rows  = [];
-}
-
-
+// daftar_arsip.php (FRONTEND)
+require_once "proses_tabel.php";
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -204,70 +174,70 @@ td.muted{
 
 <body>
 <div class="wrap">
-<div class="card">
+  <div class="card">
 
-<div class="header">
-  <div class="title">
-    <h1>DAFTAR ARSIP YANG DIMUSNAHKAN</h1>
-    <div class="sub">Stasiun Meteorologi Kelas I Juanda – Sidoarjo</div>
+    <div class="header">
+      <div class="title">
+        <h1>DAFTAR ARSIP YANG DIMUSNAHKAN</h1>
+        <div class="sub">Stasiun Meteorologi Kelas I Juanda – Sidoarjo</div>
+      </div>
+      <div class="btns">
+        <a class="btn" href="index.php">⬅️ Balik</a>
+        <a class="btn secondary" href="input_arsip.php">➕ Form Input</a>
+      </div>
+    </div>
+
+    <?php if (!empty($error)): ?>
+      <div class="alert-err"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>No Berkas</th>
+            <th>Kode Klasifikasi</th>
+            <th>Nama Berkas</th>
+            <th>No. Isi</th>
+            <th>Pencipta</th>
+            <th>No. Surat</th>
+            <th>Uraian</th>
+            <th>Tanggal</th>
+            <th>Jumlah</th>
+            <th>Tingkat</th>
+            <th>Lokasi</th>
+            <th>Keterangan</th>
+          </tr>
+        </thead>
+
+        <tbody>
+        <?php if (count($rows) === 0): ?>
+          <tr>
+            <td class="muted" colspan="12">Belum ada data</td>
+          </tr>
+        <?php else: ?>
+          <?php $no = 1; foreach ($rows as $r): ?>
+          <tr>
+            <td data-label="No Berkas"><?= $no++ ?></td>
+            <td data-label="Kode Klasifikasi"><?= htmlspecialchars($r["kode_klasifikasi"] ?? "") ?></td>
+            <td data-label="Nama Berkas"><?= htmlspecialchars($r["nama_berkas"] ?? "") ?></td>
+            <td data-label="No. Isi"><?= htmlspecialchars($r["no_isi"] ?? "") ?></td>
+            <td data-label="Pencipta"><?= htmlspecialchars($r["pencipta"] ?? "") ?></td>
+            <td data-label="No. Surat"><?= htmlspecialchars($r["no_surat"] ?? "") ?></td>
+            <td data-label="Uraian"><?= htmlspecialchars($r["uraian"] ?? "") ?></td>
+            <td data-label="Tanggal"><?= htmlspecialchars($r["tanggal"] ?? "") ?></td>
+            <td data-label="Jumlah"><?= htmlspecialchars($r["jumlah"] ?? "") ?></td>
+            <td data-label="Tingkat"><?= htmlspecialchars($r["tingkat"] ?? "") ?></td>
+            <td data-label="Lokasi"><?= htmlspecialchars($r["lokasi"] ?? "") ?></td>
+            <td data-label="Keterangan"><?= htmlspecialchars($r["keterangan"] ?? "") ?></td>
+          </tr>
+          <?php endforeach; ?>
+        <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+
   </div>
-  <div class="btns">
-    <a class="btn" href="index.php">⬅️ Balik</a>
-    <a class="btn secondary" href="input_arsip.php">➕ Form Input</a>
-  </div>
-</div>
-
-<?php if ($error): ?>
-  <div class="alert-err"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
-
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-  <th>No Berkas</th>
-  <th>Kode Klasifikasi</th>
-  <th>Nama Berkas</th>
-  <th>No. Isi</th>
-  <th>Pencipta</th>
-  <th>No. Surat</th>
-  <th>Uraian</th>
-  <th>Tanggal</th>
-  <th>Jumlah</th>
-  <th>Tingkat</th>
-  <th>Lokasi</th>
-  <th>Keterangan</th>
-</tr>
-</thead>
-
-<tbody>
-<?php if (count($rows) === 0): ?>
-<tr>
-  <td class="muted" colspan="12">Belum ada data</td>
-</tr>
-<?php else: ?>
-<?php $no = 1; foreach ($rows as $r): ?>
-<tr>
-  <td data-label="No Berkas"><?= $no++ ?></td>
-  <td data-label="Kode Klasifikasi"><?= htmlspecialchars($r["kode_klasifikasi"]) ?></td>
-  <td data-label="Nama Berkas"><?= htmlspecialchars($r["nama_berkas"]) ?></td>
-  <td data-label="No. Isi"><?= htmlspecialchars($r["no_isi"] ?? "") ?></td>
-  <td data-label="Pencipta"><?= htmlspecialchars($r["pencipta"] ?? "") ?></td>
-  <td data-label="No. Surat"><?= htmlspecialchars($r["no_surat"] ?? "") ?></td>
-  <td data-label="Uraian"><?= htmlspecialchars($r["uraian"] ?? "") ?></td>
-  <td data-label="Tanggal"><?= htmlspecialchars($r["tanggal"] ?? "") ?></td>
-  <td data-label="Jumlah"><?= htmlspecialchars($r["jumlah"] ?? "") ?></td>
-  <td data-label="Tingkat"><?= htmlspecialchars($r["tingkat"] ?? "") ?></td>
-  <td data-label="Lokasi"><?= htmlspecialchars($r["lokasi"] ?? "") ?></td>
-  <td data-label="Keterangan"><?= htmlspecialchars($r["keterangan"] ?? "") ?></td>
-</tr>
-<?php endforeach; ?>
-<?php endif; ?>
-</tbody>
-</table>
-</div>
-
-</div>
 </div>
 </body>
 </html>
