@@ -1,24 +1,26 @@
 <?php
 session_start();
 
-/* =======================
-   SESSION MESSAGE HANDLER
-======================= */
 $error      = $_SESSION['error'] ?? '';
 $success    = $_SESSION['success'] ?? '';
 $old_input  = $_SESSION['old_input'] ?? [];
+$errorField = $_SESSION['error_field'] ?? '';
 
-unset($_SESSION['error'], $_SESSION['success']);
+if ($success) {
+    unset($_SESSION['success'], $_SESSION['old_input']);
+}
+if ($error) {
+    unset($_SESSION['error'], $_SESSION['error_field']);
+    // old_input tetap ada untuk mengisi form
+}
 
-/* =======================
-   HELPER OLD INPUT
-======================= */
 function old($field, $default = '')
 {
     global $old_input;
     return $old_input[$field] ?? $default;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -27,14 +29,12 @@ function old($field, $default = '')
     <title>Input Arsip Dimusnahkan</title>
 
     <style>
-        /* ===== RESET ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* ===== BASE ===== */
         body {
             min-height: 100vh;
             padding: 24px;
@@ -57,7 +57,6 @@ function old($field, $default = '')
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
         }
 
-        /* ===== HEADER ===== */
         .header {
             display: flex;
             justify-content: space-between;
@@ -83,7 +82,6 @@ function old($field, $default = '')
             flex-wrap: wrap;
         }
 
-        /* ===== BUTTON ===== */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -211,6 +209,58 @@ function old($field, $default = '')
                 flex-direction: column;
             }
         }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: #fff;
+            padding: 26px;
+            border-radius: 18px;
+            text-align: center;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 20px 50px rgba(0,0,0,.25);
+            animation: zoomIn .2s ease;
+        }
+
+        .modal-icon {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        .modal-box h3 {
+            margin-bottom: 8px;
+            color: #1f2a44;
+        }
+
+        .modal-box p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 16px;
+        }
+
+        .modal-box button {
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: none;
+            background: #4a6cf7;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(.9); opacity: 0 }
+            to   { transform: scale(1); opacity: 1 }
+        }
     </style>
 </head>
 
@@ -230,77 +280,62 @@ function old($field, $default = '')
             </div>
         </div>
 
-        <!-- ALERT -->
-        <?php if ($error): ?>
-            <div class="alert error">
-                <span>⚠️</span>
-                <span><?= $error ?></span>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($success): ?>
-            <div class="alert success">
-                <span>✅</span>
-                <span><?= htmlspecialchars($success) ?></span>
-            </div>
-        <?php endif; ?>
-
         <!-- FORM -->
-        <form method="POST" action="proses_input_arsip.php">
+        <form method="POST" action="proses_input_arsip.php" novalidate>
             <div class="grid">
 
                 <div class="form-group">
                     <label>KODE KLASIFIKASI <span class="required">*</span></label>
-                    <input name="kode_klasifikasi" required
-                           placeholder="contoh: HM.002"
-                           value="<?= htmlspecialchars(old('kode_klasifikasi')) ?>">
+                    <input name="kode_klasifikasi"
+                        placeholder="contoh: HM.002"
+                        value="<?= htmlspecialchars(old('kode_klasifikasi')) ?>">
                 </div>
 
                 <div class="form-group span-2">
                     <label>NAMA BERKAS <span class="required">*</span></label>
-                    <input name="nama_berkas" required
-                           placeholder="contoh: Informasi Meteorologi Publik"
-                           value="<?= htmlspecialchars(old('nama_berkas')) ?>">
+                    <input name="nama_berkas"
+                        placeholder="contoh: Informasi Meteorologi Publik"
+                        value="<?= htmlspecialchars(old('nama_berkas')) ?>">
                 </div>
 
                 <div class="form-group">
                     <label>NO. ISI <span class="required">*</span></label>
-                    <input type="number" name="no_isi" required
-                           placeholder="contoh: 1"
-                           value="<?= htmlspecialchars($old_input['no_isi'] ?? '') ?>">
+                    <input type="number" name="no_isi"
+                        placeholder="contoh: 1"
+                        value="<?= htmlspecialchars($old_input['no_isi'] ?? '') ?>">
                 </div>
 
                 <div class="form-group span-2">
                     <label>PENCIPTA ARSIP</label>
                     <input name="pencipta"
-                           placeholder="contoh: BMKG Stasiun ..."
-                           value="<?= htmlspecialchars(old('pencipta')) ?>">
+                        placeholder="contoh: BMKG Stasiun ..."
+                        value="<?= htmlspecialchars(old('pencipta')) ?>">
                 </div>
 
                 <div class="form-group">
                     <label>TANGGAL SURAT</label>
                     <input type="date" name="tanggal"
-                           value="<?= htmlspecialchars(old('tanggal')) ?>">
+                        value="<?= htmlspecialchars(old('tanggal')) ?>">
                 </div>
 
                 <div class="form-group span-3">
                     <label>NO. SURAT</label>
                     <input name="no_surat"
-                           placeholder="contoh: HM.002/001/XII/2018"
-                           value="<?= htmlspecialchars(old('no_surat')) ?>">
+                        placeholder="contoh: HM.002/001/XII/2018"
+                        value="<?= htmlspecialchars(old('no_surat')) ?>">
                 </div>
 
                 <div class="form-group span-3">
                     <label>URAIAN INFORMASI DOKUMEN</label>
                     <textarea name="uraian"
-                              placeholder="Jelaskan singkat isi informasi arsip..."><?= htmlspecialchars(old('uraian')) ?></textarea>
+                            placeholder="Jelaskan singkat isi informasi arsip..."><?= htmlspecialchars(old('uraian')) ?></textarea>
                 </div>
 
                 <div class="form-group">
                     <label>JUMLAH</label>
                     <input name="jumlah"
-                           placeholder="contoh: 3 lembar / 1 berkas"
-                           value="<?= htmlspecialchars(old('jumlah')) ?>">
+                        placeholder="contoh: 3 lembar / 1 berkas"
+                        value="<?= htmlspecialchars(old('jumlah')) ?>">
                 </div>
 
                 <div class="form-group">
@@ -316,15 +351,15 @@ function old($field, $default = '')
                 <div class="form-group">
                     <label>LOKASI SIMPAN</label>
                     <input name="lokasi"
-                           placeholder="contoh: Rak A1 / Lemari 1"
-                           value="<?= htmlspecialchars(old('lokasi')) ?>">
+                        placeholder="contoh: Rak A1 / Lemari 1"
+                        value="<?= htmlspecialchars(old('lokasi')) ?>">
                 </div>
 
                 <div class="form-group span-3">
                     <label>KETERANGAN</label>
                     <input name="keterangan"
-                           placeholder="contoh: Baik / Perlu Perbaikan"
-                           value="<?= htmlspecialchars(old('keterangan')) ?>">
+                        placeholder="contoh: Baik / Perlu Perbaikan"
+                        value="<?= htmlspecialchars(old('keterangan')) ?>">
                 </div>
 
             </div>
@@ -334,8 +369,139 @@ function old($field, $default = '')
                 <a href="input_arsip.php" class="btn secondary">🔄 Reset Form</a>
             </div>
         </form>
-
     </div>
 </div>
+
+<?php if ($success): ?>
+<div id="successModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon">✅</div>
+        <h3>Berhasil</h3>
+        <p><?= htmlspecialchars($success) ?></p>
+        <button onclick="closeModal()">OK</button>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if ($error): ?>
+<div id="errorModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon">⚠️</div>
+        <h3>Form Belum Lengkap</h3>
+        <p><?= $error ?></p>
+        <button onclick="closeErrorModal()">OK</button>
+    </div>
+</div>
+<?php endif; ?>
+
+<script>
+function closeModal() {
+    const modal = document.getElementById('successModal');
+    if (modal) modal.remove();
+}
+
+function closeErrorModal() {
+    const modal = document.getElementById('errorModal');
+    if (modal) modal.remove();
+
+    <?php if (!empty($errorField)): ?>
+        const field = document.querySelector('[name="<?= $errorField ?>"]');
+        if (field) {
+            field.focus();
+            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    <?php endif; ?>
+}
+
+// ============================================
+// VALIDASI FORM DENGAN JAVASCRIPT
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    
+    // Fungsi untuk menampilkan modal error
+    function showErrorModal(message, fieldName) {
+        // Hapus modal yang ada
+        const existingModal = document.getElementById('errorModal');
+        if (existingModal) existingModal.remove();
+        
+        // Buat modal baru
+        const modal = document.createElement('div');
+        modal.id = 'errorModal';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-box">
+                <div class="modal-icon">⚠️</div>
+                <h3>Form Belum Lengkap</h3>
+                <p>${message}</p>
+                <button onclick="closeValidationModal('${fieldName}')">OK</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    // Fungsi untuk menutup modal validasi dan fokus ke field
+    window.closeValidationModal = function(fieldName) {
+        const modal = document.getElementById('errorModal');
+        if (modal) modal.remove();
+        
+        if (fieldName) {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (field) {
+                field.focus();
+                field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Tambahkan efek highlight
+                field.style.borderColor = '#e53e3e';
+                setTimeout(() => {
+                    field.style.borderColor = '';
+                }, 2000);
+            }
+        }
+    };
+    
+    // Event listener untuk form submit
+    form.addEventListener('submit', function(e) {
+        // Reset semua styling error
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.style.borderColor = '';
+        });
+        
+        // Validasi Kode Klasifikasi
+        const kodeKlasifikasi = document.querySelector('[name="kode_klasifikasi"]');
+        if (!kodeKlasifikasi.value.trim()) {
+            e.preventDefault();
+            showErrorModal('Kode klasifikasi belum diisi', 'kode_klasifikasi');
+            return;
+        }
+        
+        // Validasi Nama Berkas
+        const namaBerkas = document.querySelector('[name="nama_berkas"]');
+        if (!namaBerkas.value.trim()) {
+            e.preventDefault();
+            showErrorModal('Nama berkas belum diisi', 'nama_berkas');
+            return;
+        }
+        
+        // Validasi No. Isi
+        const noIsi = document.querySelector('[name="no_isi"]');
+        if (!noIsi.value.trim()) {
+            e.preventDefault();
+            showErrorModal('Nomor isi belum diisi', 'no_isi');
+            return;
+        }
+        
+        // Validasi No. Isi harus angka
+        if (isNaN(noIsi.value) || noIsi.value <= 0) {
+            e.preventDefault();
+            showErrorModal('Nomor isi harus berupa angka yang valid', 'no_isi');
+            return;
+        }
+        
+        // Jika semua validasi OK, form akan ter-submit
+    });
+});
+</script>
+
 </body>
 </html>

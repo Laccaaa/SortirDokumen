@@ -2,11 +2,6 @@
 session_start();
 require_once "koneksi.php";
 
-/**
- * ======================================================
- * VALIDASI INPUT
- * ======================================================
- */
 function validasiInput($data) {
     $errors = [];
 
@@ -89,11 +84,6 @@ function insertArsip($data) {
     return $stmt->fetchColumn();
 }
 
-/**
- * ======================================================
- * PROSES FORM SUBMIT
- * ======================================================
- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $data = [
@@ -114,7 +104,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = validasiInput($data);
 
     if ($errors) {
-        $_SESSION['error'] = implode('<br>', $errors);
+        $_SESSION['error'] = "Masih ada bagian yang belum diisi. Silakan periksa kembali.";
+
+        // tentukan field pertama yang error
+        if (empty($data['kode_klasifikasi'])) {
+            $_SESSION['error'] = "Kode klasifikasi belum diisi";
+            $_SESSION['error_field'] = 'kode_klasifikasi';
+        } elseif (empty($data['nama_berkas'])) {
+            $_SESSION['error'] = "Nama berkas belum diisi";
+            $_SESSION['error_field'] = 'nama_berkas';
+        } elseif (empty($data['no_isi'])) {
+            $_SESSION['error'] = "Nomor isi belum diisi";
+            $_SESSION['error_field'] = 'no_isi';
+        }
+
         $_SESSION['old_input'] = $data;
         header("Location: input_arsip.php");
         exit;
@@ -124,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $id = insertArsip($data);
 
-        $_SESSION['success'] = "Data arsip berhasil disimpan (ID: $id)";
+        $_SESSION['success'] = "Data arsip pemusnahan berhasil disimpan";
         unset($_SESSION['old_input']);
 
     } catch (PDOException $e) {
