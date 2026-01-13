@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "koneksi.php";
+require_once "koneksi.php";
 
 $id_surat = $_SESSION['old_id_surat'] ?? '';
 $old_jenis = $_SESSION['old_jenis_surat'] ?? '';

@@ -1,8 +1,6 @@
 <?php
 session_start();
-include "koneksi.php";
-
-$koneksi = koneksiDB();
+require_once "koneksi.php";
 
 if (!isset($_POST['jenis_surat'], $_POST['nomor_surat'], $_FILES['fileInput'])) {
     die("Form tidak lengkap");
@@ -12,16 +10,6 @@ $jenis_surat = $_POST['jenis_surat'];
 $nomor_surat = trim($_POST['nomor_surat']);
 $file = $_FILES['fileInput'];
 
-/**
- * Regex Dinamis untuk Nomor Surat
- * Format: [prefix_opsional]/[kode]/[nomor]/[unit]/[BULAN_ROMAWI]/[TAHUN]
- * 
- * Yang WAJIB:
- * - Bulan Romawi (I-XII)
- * - Tahun (4 digit)
- * 
- * Sisanya bebas dan fleksibel
- */
 $pattern = '/^
     (?:([a-zA-Z0-9.]+)\/)?      # Group 1: Prefix opsional (e.B, ME.002, dll)
     ([^\/]+)                     # Group 2: Bagian pertama
@@ -49,9 +37,6 @@ $tahun         = $matches[6];
 
 // Parsing cerdas untuk menentukan struktur
 if (!empty($prefix_kode)) {
-    // Format: prefix/kode/nomor/unit/bulan/tahun
-    // Contoh: e.B/PL.01.00/001/KSUB/V/2024
-    // Split kode menjadi huruf dan angka
     preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
     if ($kode_match) {
         $kode_utama = $kode_match[1];      // PL
@@ -152,10 +137,11 @@ INSERT INTO surat (
     nomor_urut, unit_pengirim, bulan, tahun,
     nama_file, path_file
 ) VALUES (
-    $1,$2,$3,$4,$5,$6,$7,$8,$9,$10
+    ?,?,?,?,?,?,?,?,?,?
 )";
 
-$result = pg_query_params($koneksi, $sql, [
+$stmt = $dbhandle->prepare($sql);
+$result = $stmt->execute([
     $jenis_surat,
     $nomor_surat,
     $kode_utama,

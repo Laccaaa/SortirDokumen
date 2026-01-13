@@ -1,25 +1,24 @@
 <?php
-function koneksiDB() {
-    $host = "localhost";
-    $port = "5433";
-    $dbname = "surat";
-    $user = "postgres";
-    $password = "cantikitu5";
 
-    // Connection string
-    $conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
-    
-    // Koneksi ke database
-    $db_handle = pg_connect($conn_string);
+$DB_HOST = "localhost";
+$DB_PORT = "5433";
+$DB_NAME = "surat";
+$DB_USER = "postgres";
+$DB_PASS = "cantikitu5";
 
-    if (!$db_handle) {
-        // Log error untuk debugging (jangan tampilkan ke user)
-        error_log("Koneksi database gagal: " . pg_last_error());
-        
-        // Return false atau throw exception (jangan die)
-        return false;
-    }
-
-    return $db_handle; 
+try {
+    $dbhandle = new PDO(
+        "pgsql:host=$DB_HOST;port=$DB_PORT;dbname=$DB_NAME",
+        $DB_USER,
+        $DB_PASS,
+        [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false
+        ]
+    );
+} catch (PDOException $e) {
+    // Jangan tampilkan detail error ke user
+    error_log("DB Connection Error: " . $e->getMessage());
+    die("Koneksi database gagal. Silakan hubungi administrator.");
 }
-?>

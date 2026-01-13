@@ -1,272 +1,247 @@
 <?php
-include "koneksi.php";
+require_once "koneksi.php";
 
-// Global connection
+/**
+ * ======================================================
+ * GLOBAL CONNECTION (PDO SINGLETON)
+ * ======================================================
+ */
 $GLOBALS['db_conn'] = null;
 
-// Fungsi untuk mendapatkan koneksi (singleton pattern)
 function getConnection() {
     if ($GLOBALS['db_conn'] === null) {
-        $GLOBALS['db_conn'] = koneksiDB();
+        global $dbhandle;
+        $GLOBALS['db_conn'] = $dbhandle;
     }
     return $GLOBALS['db_conn'];
 }
 
-// Fungsi untuk menutup koneksi
-function closeConnection() {
-    if ($GLOBALS['db_conn'] !== null) {
-        pg_close($GLOBALS['db_conn']);
-        $GLOBALS['db_conn'] = null;
-    }
-}
-
-// Fungsi untuk menghitung jumlah file
+/**
+ * ======================================================
+ * HITUNG JUMLAH FILE
+ * ======================================================
+ */
 function hitungFile($jenis = null, $tahun = null, $bulan = null, $kode = null, $subkode = null) {
     $conn = getConnection();
-    
-    $query = "SELECT COUNT(*) as total FROM surat WHERE 1=1";
-    
+    $query = "SELECT COUNT(*) AS total FROM surat WHERE 1=1";
+    $params = [];
+
     if ($jenis) {
-        $jenis = pg_escape_string($conn, $jenis);
-        $query .= " AND jenis_surat = '$jenis'";
+        $query .= " AND jenis_surat = ?";
+        $params[] = $jenis;
     }
     if ($tahun) {
-        $query .= " AND tahun = " . (int)$tahun;
+        $query .= " AND tahun = ?";
+        $params[] = (int)$tahun;
     }
     if ($bulan) {
-        $bulan = pg_escape_string($conn, $bulan);
-        $query .= " AND TRIM(bulan) ILIKE TRIM('$bulan')";
+        $query .= " AND TRIM(bulan) ILIKE TRIM(?)";
+        $params[] = $bulan;
     }
     if ($kode) {
-        $kode = pg_escape_string($conn, $kode);
-        $query .= " AND kode_utama = '$kode'";
+        $query .= " AND kode_utama = ?";
+        $params[] = $kode;
     }
     if ($subkode) {
-        $subkode = pg_escape_string($conn, $subkode);
-        $query .= " AND subkode = '$subkode'";
+        $query .= " AND subkode = ?";
+        $params[] = $subkode;
     }
-    
-    $result = pg_query($conn, $query);
-    $row = pg_fetch_assoc($result);
-    
-    return $row['total'];
+
+    $stmt = $conn->prepare($query);
+    $stmt->execute($params);
+    return $stmt->fetchColumn();
 }
 
-// Fungsi untuk mendapatkan daftar folder/file berdasarkan path
+/**
+ * ======================================================
+ * AMBIL FOLDER / FILE BERDASARKAN PATH
+ * ======================================================
+ */
 function getItems($path) {
-    // Decode URL terlebih dahulu
     $path = urldecode($path);
-    
     $conn = getConnection();
     $items = [];
-    
+
+    // HOME
     if ($path === '') {
-        // Home: tampilkan Surat Masuk & Keluar
-        $items[] = [
-            'type' => 'folder',
-            'name' => 'Surat Masuk',
-            'link' => '?path=Surat Masuk',
-            'count' => hitungFile('masuk')
-        ];
-        $items[] = [
-            'type' => 'folder',
-            'name' => 'Surat Keluar',
-            'link' => '?path=Surat Keluar',
-            'count' => hitungFile('keluar')
+        return [
+            [
+                'type' => 'folder',
+                'name' => 'Surat Masuk',
+                'link' => '?path=Surat Masuk',
+                'count' => hitungFile('masuk')
+            ],
+            [
+                'type' => 'folder',
+                'name' => 'Surat Keluar',
+                'link' => '?path=Surat Keluar',
+                'count' => hitungFile('keluar')
+            ]
         ];
     }
-    elseif ($path === 'Surat Masuk' || $path === 'Surat Keluar') {
-        // Level 1: Tampilkan tahun
+
+    // LEVEL 1 - TAHUN
+    if ($path === 'Surat Masuk' || $path === 'Surat Keluar') {
         $jenis = ($path === 'Surat Masuk') ? 'masuk' : 'keluar';
-        $jenis_escaped = pg_escape_string($conn, $jenis);
-        
-        $query = "SELECT DISTINCT tahun FROM surat WHERE jenis_surat = '$jenis_escaped' AND tahun IS NOT NULL ORDER BY tahun DESC";
-        $result = pg_query($conn, $query);
-        
-        while ($row = pg_fetch_assoc($result)) {
-            $tahun = $row['tahun'];
+        $stmt = $conn->prepare(
+            "SELECT DISTINCT tahun FROM surat WHERE jenis_surat = ? ORDER BY tahun DESC"
+        );
+        $stmt->execute([$jenis]);
+
+        while ($row = $stmt->fetch()) {
             $items[] = [
                 'type' => 'folder',
-                'name' => $tahun,
-                'link' => "?path=" . urlencode($path) . "/$tahun",
-                'count' => hitungFile($jenis, $tahun)
+                'name' => $row['tahun'],
+                'link' => "?path=$path/{$row['tahun']}",
+                'count' => hitungFile($jenis, $row['tahun'])
             ];
         }
+        return $items;
     }
-    elseif (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})$#', $path, $matches)) {
-        // Level 2: Tampilkan bulan
-        $jenis = ($matches[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
-        $tahun = (int)$matches[2];
-        
-        $jenis_escaped = pg_escape_string($conn, $jenis);
-        
-        $query = "SELECT DISTINCT bulan, 
-            CASE bulan 
-                WHEN 'Januari' THEN 1 WHEN 'Februari' THEN 2 WHEN 'Maret' THEN 3 
-                WHEN 'April' THEN 4 WHEN 'Mei' THEN 5 WHEN 'Juni' THEN 6 
-                WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9 
+
+    // LEVEL 2 - BULAN
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})$#', $path, $m)) {
+        $jenis = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
+        $tahun = (int)$m[2];
+
+        $stmt = $conn->prepare("
+            SELECT DISTINCT bulan,
+            CASE bulan
+                WHEN 'Januari' THEN 1 WHEN 'Februari' THEN 2 WHEN 'Maret' THEN 3
+                WHEN 'April' THEN 4 WHEN 'Mei' THEN 5 WHEN 'Juni' THEN 6
+                WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9
                 WHEN 'Oktober' THEN 10 WHEN 'November' THEN 11 WHEN 'Desember' THEN 12
-            END as bulan_order
-            FROM surat WHERE jenis_surat = '$jenis_escaped' AND tahun = $tahun AND bulan IS NOT NULL 
-            ORDER BY bulan_order";
-        $result = pg_query($conn, $query);
-        
-        while ($row = pg_fetch_assoc($result)) {
-            $bulan = $row['bulan'];
+            END AS urut
+            FROM surat
+            WHERE jenis_surat = ? AND tahun = ?
+            ORDER BY urut
+        ");
+        $stmt->execute([$jenis, $tahun]);
+
+        while ($row = $stmt->fetch()) {
             $items[] = [
                 'type' => 'folder',
-                'name' => $bulan,
-                'link' => "?path=" . urlencode($path) . "/" . urlencode($bulan),
-                'count' => hitungFile($jenis, $tahun, $bulan)
+                'name' => $row['bulan'],
+                'link' => "?path=$path/{$row['bulan']}",
+                'count' => hitungFile($jenis, $tahun, $row['bulan'])
             ];
         }
+        return $items;
     }
-    elseif (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/(Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)$#', $path, $matches)) {
-        // Level 3: Tampilkan kode utama
-        $jenis = ($matches[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
-        $tahun = (int)$matches[2];
-        $bulan = $matches[3];
-        
-        $jenis_escaped = pg_escape_string($conn, $jenis);
-        $bulan_escaped = pg_escape_string($conn, $bulan);
-        
-        $query = "SELECT DISTINCT kode_utama FROM surat 
-                  WHERE jenis_surat = '$jenis_escaped' 
-                  AND tahun = $tahun 
-                  AND TRIM(bulan) ILIKE TRIM('$bulan_escaped') 
-                  AND kode_utama IS NOT NULL 
-                  ORDER BY kode_utama";
-        $result = pg_query($conn, $query);
-        
-        while ($row = pg_fetch_assoc($result)) {
-            $kode = $row['kode_utama'];
+
+    // LEVEL 3 - KODE
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)$#', $path, $m)) {
+        $jenis = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
+
+        $stmt = $conn->prepare("
+            SELECT DISTINCT kode_utama FROM surat
+            WHERE jenis_surat = ? AND tahun = ? AND bulan = ?
+            ORDER BY kode_utama
+        ");
+        $stmt->execute([$jenis, $m[2], $m[3]]);
+
+        while ($row = $stmt->fetch()) {
             $items[] = [
                 'type' => 'folder',
-                'name' => $kode,
-                'link' => "?path=" . urlencode($path) . "/" . urlencode($kode),
-                'count' => hitungFile($jenis, $tahun, $bulan, $kode)
+                'name' => $row['kode_utama'],
+                'link' => "?path=$path/{$row['kode_utama']}",
+                'count' => hitungFile($jenis, $m[2], $m[3], $row['kode_utama'])
             ];
         }
+        return $items;
     }
-    elseif (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/(Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)/([A-Z]+)$#', $path, $matches)) {
-        // Level 4: Tampilkan subkode
-        $jenis = ($matches[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
-        $tahun = (int)$matches[2];
-        $bulan = $matches[3];
-        $kode = $matches[4];
-        
-        $jenis_escaped = pg_escape_string($conn, $jenis);
-        $bulan_escaped = pg_escape_string($conn, $bulan);
-        $kode_escaped = pg_escape_string($conn, $kode);
-        
-        $query = "SELECT DISTINCT subkode FROM surat 
-                  WHERE jenis_surat = '$jenis_escaped' 
-                  AND tahun = $tahun 
-                  AND TRIM(bulan) ILIKE TRIM('$bulan_escaped')
-                  AND kode_utama = '$kode_escaped' 
-                  AND subkode IS NOT NULL 
-                  ORDER BY subkode";
-        
-        $result = pg_query($conn, $query);
-        
-        if ($result) {
-            while ($row = pg_fetch_assoc($result)) {
-                $subkode = $row['subkode'];
-                
-                $items[] = [
-                    'type' => 'folder',
-                    'name' => $kode . '.' . $subkode, // Tampilkan dengan kode utama di depan
-                    'link' => "?path=" . urlencode($path . "/" . $subkode),
-                    'count' => hitungFile($jenis, $tahun, $bulan, $kode, $subkode)
-                ];
-            }
+
+    // LEVEL 4 - SUBKODE
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([A-Z]+)$#', $path, $m)) {
+        $jenis = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
+
+        $stmt = $conn->prepare("
+            SELECT DISTINCT subkode FROM surat
+            WHERE jenis_surat = ? AND tahun = ? AND bulan = ? AND kode_utama = ?
+            ORDER BY subkode
+        ");
+        $stmt->execute([$jenis, $m[2], $m[3], $m[4]]);
+
+        while ($row = $stmt->fetch()) {
+            $items[] = [
+                'type' => 'folder',
+                'name' => $m[4] . '.' . $row['subkode'],
+                'link' => "?path=$path/{$row['subkode']}",
+                'count' => hitungFile($jenis, $m[2], $m[3], $m[4], $row['subkode'])
+            ];
         }
+        return $items;
     }
-    elseif (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/(Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)/([A-Z]+)/(.+)$#', $path, $matches)) {
-        // Level 5: Tampilkan file
-        $jenis = ($matches[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
-        $tahun = (int)$matches[2];
-        $bulan = $matches[3];
-        $kode = $matches[4];
-        $subkode = $matches[5];
-        
-        $jenis_escaped = pg_escape_string($conn, $jenis);
-        $bulan_escaped = pg_escape_string($conn, $bulan);
-        $kode_escaped = pg_escape_string($conn, $kode);
-        $subkode_escaped = pg_escape_string($conn, $subkode);
-        
-        $query = "SELECT id_surat, nama_file, path_file FROM surat 
-                  WHERE jenis_surat = '$jenis_escaped' 
-                  AND tahun = $tahun 
-                  AND TRIM(bulan) ILIKE TRIM('$bulan_escaped')
-                  AND kode_utama = '$kode_escaped' 
-                  AND subkode = '$subkode_escaped' 
-                  ORDER BY nama_file";
-        $result = pg_query($conn, $query);
-        
-        while ($row = pg_fetch_assoc($result)) {
+
+    // LEVEL 5 - FILE
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([A-Z]+)/(.+)$#', $path, $m)) {
+        $jenis = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
+
+        $stmt = $conn->prepare("
+            SELECT id_surat, nama_file, path_file FROM surat
+            WHERE jenis_surat = ? AND tahun = ? AND bulan = ?
+            AND kode_utama = ? AND subkode = ?
+            ORDER BY nama_file
+        ");
+        $stmt->execute([$jenis, $m[2], $m[3], $m[4], $m[5]]);
+
+        while ($row = $stmt->fetch()) {
             $items[] = [
                 'type' => 'file',
-                'name' => $row['nama_file'],
                 'id' => $row['id_surat'],
+                'name' => $row['nama_file'],
                 'path_file' => $row['path_file']
             ];
         }
+        return $items;
     }
-    
-    return $items;
+
+    return [];
 }
 
-// Fungsi untuk view file
+/**
+ * ======================================================
+ * VIEW FILE
+ * ======================================================
+ */
 function viewFile($id) {
-    $conn = koneksiDB();
-    $id = (int)$id;
-    
-    $query = "SELECT * FROM surat WHERE id_surat = $id";
-    $result = pg_query($conn, $query);
-    $file = pg_fetch_assoc($result);
-    
-    pg_close($conn);
-    
-    if ($file && file_exists($file['path_file'])) {
-        $filepath = $file['path_file'];
-        $ext = strtolower(pathinfo($filepath, PATHINFO_EXTENSION));
-        
-        if ($ext === 'pdf') {
-            header('Content-Type: application/pdf');
-        } elseif (in_array($ext, ['jpg', 'jpeg'])) {
-            header('Content-Type: image/jpeg');
-        } elseif ($ext === 'png') {
-            header('Content-Type: image/png');
-        }
-        
-        readfile($filepath);
-    } else {
-        echo "File tidak ditemukan";
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM surat WHERE id_surat = ?");
+    $stmt->execute([(int)$id]);
+    $file = $stmt->fetch();
+
+    if (!$file || !file_exists($file['path_file'])) {
+        die("File tidak ditemukan");
     }
+
+    $ext = strtolower(pathinfo($file['path_file'], PATHINFO_EXTENSION));
+    $mime = [
+        'pdf' => 'application/pdf',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png'
+    ][$ext] ?? 'application/octet-stream';
+
+    header("Content-Type: $mime");
+    readfile($file['path_file']);
 }
 
-// Fungsi untuk download file
+/**
+ * ======================================================
+ * DOWNLOAD FILE
+ * ======================================================
+ */
 function downloadFile($id) {
-    $conn = koneksiDB();
-    $id = (int)$id;
-    
-    $query = "SELECT * FROM surat WHERE id_surat = $id";
-    $result = pg_query($conn, $query);
-    $file = pg_fetch_assoc($result);
-    
-    pg_close($conn);
-    
-    if ($file && file_exists($file['path_file'])) {
-        $filepath = $file['path_file'];
-        $filename = $file['nama_file'];
-        
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Content-Length: ' . filesize($filepath));
-        readfile($filepath);
-    } else {
-        echo "File tidak ditemukan";
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM surat WHERE id_surat = ?");
+    $stmt->execute([(int)$id]);
+    $file = $stmt->fetch();
+
+    if (!$file || !file_exists($file['path_file'])) {
+        die("File tidak ditemukan");
     }
+
+    header("Content-Disposition: attachment; filename=\"{$file['nama_file']}\"");
+    header("Content-Length: " . filesize($file['path_file']));
+    readfile($file['path_file']);
 }
-?>
