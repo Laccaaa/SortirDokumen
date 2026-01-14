@@ -89,8 +89,8 @@ $role = $_SESSION['role'] ?? 'user';
 
     /* ✅ kotak putih lebih besar & ngisi layar */
     .shell{
-      width: min(1080px, 92%);
-      height: min(680px, 88vh);
+      width: min(1320px, 196%);
+      height: min(820px, 92vh);
       background: rgba(255,255,255,.94);
       border: 1px solid rgba(255,255,255,.65);
       border-radius: var(--radius);
