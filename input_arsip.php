@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data["lokasi"]           = trim($_POST["lokasi"] ?? "");
     $data["keterangan"]       = trim($_POST["keterangan"] ?? "");
 
-    // validasi minimal (biar gak kosong banget)
+    // validasi minimal
     if ($data["kode_klasifikasi"] === "" || $data["nama_berkas"] === "" || $data["no_isi"] === "") {
       $error = "Kode Klasifikasi, Nama Berkas, dan No. Isi wajib diisi.";
     } else {
@@ -184,16 +184,25 @@ $btnText   = $isEdit ? "💾 Update ke Database" : "💾 Simpan ke Database";
 }
 
 *{ box-sizing:border-box; }
-html, body{ width:100%; height:100%; margin:0; }
 
+/* ✅ KUNCI SCROLL BACKGROUND */
+html, body{
+  width:100%;
+  height:100%;
+  margin:0;
+  overflow:hidden;                 /* 🔒 body ga bisa geser */
+}
+
+/* ✅ BACKGROUND FIXED */
 body{
-  min-height:100vh;
+  height:100vh;
   background: var(--dark-bg);
   position:relative;
   font-family: Inter, Arial, sans-serif;
-  padding: 32px 18px;
+
+  padding: 14px;                   /* compact */
   display:flex;
-  align-items:flex-start;
+  align-items:stretch;             /* shell bisa tinggi */
   justify-content:center;
 }
 
@@ -217,59 +226,79 @@ body::after{
   opacity: .90;
 }
 
+/* wrapper */
 .wrap{
   width: min(1320px, 100%);
+  height: 100%;
   position:relative;
   z-index:2;
+
+  display:flex;
 }
 
-/* ✅ Shell ala screenshot (besar, rounded, clean) */
+/* ✅ shell SCROLL INTERNAL (yang bisa digeser cuma ini) */
 .shell{
+  width: 100%;
+  height: 100%;
+
   background: var(--card);
   border: 1px solid rgba(255,255,255,.55);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 22px 22px 18px;
-  overflow:hidden;
+
+  padding: 16px 16px 14px;
+
+  overflow:auto;                   /* ✅ scroll di sini */
+  overflow-x:hidden;               /* ✅ no scroll kanan-kiri */
+  -webkit-overflow-scrolling: touch;
+
+  backdrop-filter: blur(10px);
 }
+
+/* cegah overflow horizontal dari elemen dalam */
+.shell *{ max-width:100%; }
+input, textarea, select{ max-width:100%; }
 
 /* header */
 .top{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
-  gap:14px;
+  gap:12px;
   flex-wrap:wrap;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
+
 .titles h1{
   margin:0;
-  font-size: 26px;
+  font-size: 24px;
   letter-spacing:.2px;
+  line-height: 1.15;
 }
 .titles p{
   margin:6px 0 0;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .actionsTop{
   display:flex;
-  gap:12px;
+  gap:10px;
   align-items:center;
+  flex-wrap:wrap;
 }
 
 a.btn{
   display:inline-flex;
   gap:8px;
   align-items:center;
-  padding:12px 16px;
+  padding:10px 14px;
   border-radius: 14px;
   text-decoration:none;
   font-weight:900;
   border: 1px solid transparent;
+  white-space:nowrap;
 }
-
 a.btn.light{
   background: var(--btn2);
   color: #1f2a44;
@@ -282,7 +311,7 @@ a.btn.dark{
 
 /* alerts */
 .alert-err{
-  margin: 8px 0 14px;
+  margin: 8px 0 12px;
   padding: 12px 14px;
   border-radius: 14px;
   background:#fff5f5;
@@ -292,11 +321,11 @@ a.btn.dark{
   font-size: 13px;
 }
 
-/* form grid - mirip screenshot */
+/* form */
 .form{
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px 18px;
+  gap: 12px 14px;                  /* compact */
   margin-top: 10px;
 }
 
@@ -309,26 +338,25 @@ a.btn.dark{
 label{
   font-weight:900;
   color:#1f2a44;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing:.2px;
   text-transform: uppercase;
 }
-
 .req{ color:#ef4444; }
 
 input, textarea, select{
   width:100%;
-  padding: 14px 16px;
-  border-radius: 14px;
+  padding: 12px 14px;              /* compact */
+  border-radius: 12px;
   border: 1px solid var(--line);
   outline:none;
-  font-size: 16px;
+  font-size: 15px;
   background:#fff;
   color:#0f172a;
 }
 
 textarea{
-  min-height: 120px;
+  min-height: 110px;
   resize: vertical;
 }
 
@@ -339,72 +367,80 @@ input:focus, textarea:focus, select:focus{
 
 .full{ grid-column: 1 / -1; }
 
-/* row 3 kolom seperti screenshot */
+/* row3 */
 .row3{
   display:grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 14px 18px;
+  gap: 12px 14px;
+  width:100%;
 }
 .row3.full{ grid-column: 1 / -1; }
 
-/* helper text */
 .help{
-  font-size: 13px;
+  font-size: 12.5px;
   color: #64748b;
   margin-top: -2px;
 }
 
-/* footer buttons bottom-right */
+/* bottom actions */
 .bottomActions{
   display:flex;
-  gap:12px;
+  gap:10px;
   justify-content:flex-end;
-  margin-top: 14px;
+  margin-top: 12px;
   flex-wrap:wrap;
+  padding-bottom: 4px;
 }
 
 button.primary{
   border:none;
-  padding: 14px 18px;
-  border-radius: 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
   background: #0f172a;
   color:#fff;
   font-weight:900;
-  font-size: 16px;
+  font-size: 15px;
   cursor:pointer;
   display:inline-flex;
   gap:10px;
   align-items:center;
 }
-button.primary:hover{ filter: brightness(1.03); }
 button.primary:active{ transform: translateY(1px); }
 
 button.ghost{
   border:1px solid #d7ddff;
-  padding: 14px 18px;
-  border-radius: 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
   background: #eef2ff;
   color:#1f2a44;
   font-weight:900;
-  font-size: 16px;
+  font-size: 15px;
   cursor:pointer;
   display:inline-flex;
   gap:10px;
   align-items:center;
 }
-button.ghost:hover{ filter: brightness(0.99); }
 button.ghost:active{ transform: translateY(1px); }
 
+/* ✅ MOBILE */
 @media (max-width: 980px){
-  .titles h1{ font-size:22px; }
-  label{ font-size:13px; }
-  input, textarea, select{ font-size:15px; }
+  body{ padding: 10px; }
+  .shell{ padding: 14px; border-radius: 20px; }
+
+  .titles h1{ font-size: 20px; }
   .form{ grid-template-columns: 1fr; }
   .row3{ grid-template-columns: 1fr; }
+
   .bottomActions{ justify-content:stretch; }
   button.primary, button.ghost{ width:100%; justify-content:center; }
+
   .actionsTop{ width:100%; }
   a.btn{ flex:1; justify-content:center; }
+}
+
+/* ✅ super small */
+@media (max-width: 380px){
+  input, textarea, select{ font-size: 14px; }
 }
 </style>
 </head>
