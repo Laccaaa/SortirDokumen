@@ -384,7 +384,7 @@ $role = $_SESSION['role'] ?? 'user';
                 <div class="icon">🧾</div>
                 <div style="min-width:0;">
                   <p class="cardTitle">Pemusnahan Dokumen</p>
-                  <p class="cardDesc">Masuk ke halaman proses pemusnahan dokumen (input & alur).</p>
+                  <p class="cardDesc">Hapus dokumen tidak terpakai.</p>
                 </div>
               </div>
               <span class="pill">Menu</span>
@@ -397,7 +397,7 @@ $role = $_SESSION['role'] ?? 'user';
                 <div class="icon">🗂️</div>
                 <div style="min-width:0;">
                   <p class="cardTitle">Sortir Dokumen</p>
-                  <p class="cardDesc">Halaman untuk sortir dokumen berdasarkan kategori.</p>
+                  <p class="cardDesc">Kelola kategori dokumen</p>
                 </div>
               </div>
               <span class="pill">Menu</span>
@@ -410,7 +410,7 @@ $role = $_SESSION['role'] ?? 'user';
                 <div class="icon">📊</div>
                 <div style="min-width:0;">
                   <p class="cardTitle">Tabel Pemusnahan Dokumen</p>
-                  <p class="cardDesc">Lihat daftar arsip pemusnahan dalam bentuk tabel.</p>
+                  <p class="cardDesc">Lihat riwayat penghapusan.</p>
                 </div>
               </div>
               <span class="pill">Tabel</span>
@@ -423,7 +423,7 @@ $role = $_SESSION['role'] ?? 'user';
               <div class="icon">🗄️</div>
               <div style="min-width:0;">
                 <p class="cardTitle">Rekapitulasi Arsip</p>
-                <p class="cardDesc">Lihat arsip dokumen berdasarkan kategori.</p>
+                <p class="cardDesc">Cek ringkasan seluruh arsip.</p>
               </div>
             </div>
             <span class="pill">Rekap</span>
@@ -437,7 +437,7 @@ $role = $_SESSION['role'] ?? 'user';
               <div class="icon">📥</div>
               <div style="min-width:0;">
                 <p class="cardTitle">Export CSV</p>
-                <p class="cardDesc">Export data rekapitulasi arsip dan pemusnahan dokumen ke format CSV.</p>
+                <p class="cardDesc">Unduh data ke format CSV/Excel.</p>
               </div>
             </div>
             <span class="pill">Export</span>

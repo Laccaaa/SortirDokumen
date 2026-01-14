@@ -1,5 +1,4 @@
 <?php
-// daftar_arsip.php (FRONTEND)
 require_once "proses_tabel.php";
 ?>
 <!DOCTYPE html>
@@ -21,6 +20,8 @@ require_once "proses_tabel.php";
 
 body{
   margin:0;
+  height:100vh;
+  overflow:hidden;
   min-height:100vh;
   background:
     radial-gradient(
@@ -61,7 +62,7 @@ body{
   justify-content:space-between;
   gap:12px;
   flex-wrap:wrap;
-  margin-bottom:16px;
+  margin-bottom:10px;
 }
 
 .title h1{
@@ -73,10 +74,16 @@ body{
   color:var(--muted);
 }
 
+/* tombol */
 .btns{
   display:flex;
   gap:10px;
+  align-items:center;
 }
+
+/* urutan tombol: Form Input kiri, Balik kanan */
+.btns .secondary{ order: 1; }
+.btns .primary{ order: 2; }
 
 a.btn{
   padding:10px 14px;
@@ -86,11 +93,66 @@ a.btn{
   font-size:14px;
   background:#1f2a44;
   color:#fff;
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
 }
 a.btn.secondary{
   background:#eef2ff;
   color:#1f2a44;
   border:1px solid #d7ddff;
+}
+
+/* search bar */
+.search-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin: 6px 0 12px;
+}
+
+.search{
+  flex:1;
+  min-width: 280px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.search input{
+  width:100%;
+  padding:11px 14px;
+  border-radius:12px;
+  border:1px solid #e5e7eb;
+  outline:none;
+  font-size:14px;
+  background:#fff;
+}
+
+.search input:focus{
+  border-color:#b7c3ff;
+  box-shadow:0 0 0 4px rgba(99,102,241,.12);
+}
+
+.search button{
+  padding:11px 14px;
+  border-radius:12px;
+  border:1px solid #d7ddff;
+  background:#eef2ff;
+  color:#1f2a44;
+  font-weight:800;
+  cursor:pointer;
+}
+
+a.clear{
+  font-size:13px;
+  color:#475569;
+  text-decoration:none;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #e5e7eb;
+  background:#fff;
 }
 
 .table-wrap{
@@ -147,28 +209,127 @@ td.muted{
 }
 
 @media (max-width:768px){
+
+  body{
+    padding:14px;                 
+    align-items:flex-start;
+    overflow:auto;                
+  }
+
+  .card{
+    padding:14px;
+    border-radius:18px;
+  }
+
+  .header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:10px;
+  }
+
+  .title h1{
+    font-size:18px;
+    line-height:1.15;
+  }
+
+  .sub{
+    font-size:12px;
+  }
+
+  .btns{
+    width:100%;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:10px;
+  }
+
+  a.btn{
+    width:100%;
+    justify-content:center;
+    padding:10px 12px;
+    border-radius:14px;
+  }
+
+  .search-row{
+    width:100%;
+    flex-direction:column;
+    gap:10px;
+    margin: 6px 0 12px;
+  }
+
+  .search{
+    width:100%;
+    min-width:unset;
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap:10px;
+  }
+
+  .search input{
+    width:100%;
+    min-width:0;
+  }
+
+  .search button{
+    white-space:nowrap;
+  }
+
+  a.clear{
+    width:100%;
+    text-align:center;
+    padding:10px 12px;
+    border-radius:14px;
+  }
+
+  .table-wrap{
+    border-radius:16px;
+    overflow:hidden;              
+  }
+
   thead{ display:none; }
   table, tbody, tr, td{ display:block; width:100%; }
+
   tr{
-    margin-bottom:14px;
+    margin:0;
+    border-bottom:1px solid #eef2f7;
+    border-radius:0;
+    box-shadow:none;
+    padding:12px 14px;
     background:#fff;
-    border-radius:14px;
-    box-shadow:0 6px 18px rgba(15,23,42,.06);
-    padding:12px;
   }
+
+  tbody tr:nth-child(even){
+    background:#fbfcff;
+  }
+
   td{
     border:none;
-    padding:6px 0;
+    padding:10px 0;
   }
+
   td::before{
     content: attr(data-label);
     display:block;
     font-size:12px;
     color:var(--muted);
-    font-weight:700;
-    margin-bottom:2px;
+    font-weight:800;
+    margin-bottom:4px;
+  }
+
+  /* Biar value gak kepotong */
+  td{
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  /* baris "Belum ada data" */
+  td.muted{
+    padding:14px;
+    text-align:center;
   }
 }
+
 </style>
 </head>
 
@@ -181,10 +342,29 @@ td.muted{
         <h1>DAFTAR ARSIP YANG DIMUSNAHKAN</h1>
         <div class="sub">Stasiun Meteorologi Kelas I Juanda – Sidoarjo</div>
       </div>
+
+      <!-- Form Input di kiri, Balik di kanan -->
       <div class="btns">
-        <a class="btn" href="index.php">⬅️ Balik</a>
         <a class="btn secondary" href="input_arsip.php">➕ Form Input</a>
+        <a class="btn primary" href="index.php">⬅️ Balik</a>
       </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-row">
+      <form class="search" method="GET" action="">
+        <input
+          type="text"
+          name="q"
+          placeholder="Cari: kode, nama berkas, pencipta, uraian, tanggal, dll..."
+          value="<?= htmlspecialchars($q ?? '') ?>"
+        />
+        <button type="submit">🔎 Cari</button>
+      </form>
+
+      <?php if (!empty($q)): ?>
+        <a class="clear" href="tabel_arsip.php">✖ Reset</a>
+      <?php endif; ?>
     </div>
 
     <?php if (!empty($error)): ?>
@@ -213,7 +393,9 @@ td.muted{
         <tbody>
         <?php if (count($rows) === 0): ?>
           <tr>
-            <td class="muted" colspan="12">Belum ada data</td>
+            <td class="muted" colspan="12">
+              <?= !empty($q) ? "Data tidak ditemukan untuk pencarian: " . htmlspecialchars($q) : "Belum ada data" ?>
+            </td>
           </tr>
         <?php else: ?>
           <?php $no = 1; foreach ($rows as $r): ?>
