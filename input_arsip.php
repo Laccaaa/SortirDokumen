@@ -478,10 +478,10 @@ button.ghost:active{ transform: translateY(1px); }
             <input
               name="kode_klasifikasi"
               value="<?= htmlspecialchars($data["kode_klasifikasi"]) ?>"
-              placeholder="Contoh: HM.002"
+              placeholder="HM.002"
               required
             >
-            <div class="help">Isi kode klasifikasi sesuai aturan arsip (contoh: HM.002 / KU.01.02).</div>
+            <div class="help">Isi kode klasifikasi sesuai aturan arsip (HM.002 / KU.01.02).</div>
           </div>
 
           <div class="field">
@@ -489,7 +489,7 @@ button.ghost:active{ transform: translateY(1px); }
             <input
               name="nama_berkas"
               value="<?= htmlspecialchars($data["nama_berkas"]) ?>"
-              placeholder="Contoh: Informasi Meteorologi Publik"
+              placeholder="Informasi Meteorologi Publik"
               required
             >
             <div class="help">Nama berkas yang jelas biar gampang dicari.</div>
@@ -500,7 +500,7 @@ button.ghost:active{ transform: translateY(1px); }
             <input
               name="no_isi"
               value="<?= htmlspecialchars($data["no_isi"]) ?>"
-              placeholder="contoh: 1"
+              placeholder="1"
               required
             >
             <div class="help">Nomor urut isi dokumen di berkas (misal: 1, 2, 3...).</div>
@@ -511,7 +511,7 @@ button.ghost:active{ transform: translateY(1px); }
             <input
               name="pencipta"
               value="<?= htmlspecialchars($data["pencipta"]) ?>"
-              placeholder="Contoh: BMKG Pusat Penelitian dan Pengembangan"
+              placeholder="BMKG Pusat Penelitian dan Pengembangan"
             >
             <div class="help">Unit/instansi yang membuat dokumen.</div>
           </div>
@@ -523,7 +523,7 @@ button.ghost:active{ transform: translateY(1px); }
               value="<?= htmlspecialchars($data["tanggal"]) ?>"
               placeholder="YYYY atau YYYY-MM-DD"
             >
-            <div class="help">Contoh: 2018 atau 2018-12-31 (boleh rentang: 2018-01 s/d 2018-12).</div>
+            <div class="help">2018 atau 2018-12-31 (boleh rentang: 2018-01 s/d 2018-12).</div>
           </div>
 
           <div class="field full">
@@ -531,7 +531,7 @@ button.ghost:active{ transform: translateY(1px); }
             <input
               name="no_surat"
               value="<?= htmlspecialchars($data["no_surat"]) ?>"
-              placeholder="Contoh: HM.002/001/DI/XII/2018"
+              placeholder="HM.002/001/DI/XII/2018"
             >
             <div class="help">Isi kalau dokumen berbentuk surat. Kalau bukan, boleh dikosongin.</div>
           </div>
@@ -551,7 +551,7 @@ button.ghost:active{ transform: translateY(1px); }
               <input
                 name="jumlah"
                 value="<?= htmlspecialchars($data["jumlah"]) ?>"
-                placeholder="Contoh: 3 lembar"
+                placeholder="3 lembar"
               >
               <div class="help">Isi jumlah + satuan (lembar/berkas/map).</div>
             </div>
@@ -581,7 +581,7 @@ button.ghost:active{ transform: translateY(1px); }
               <input
                 name="lokasi"
                 value="<?= htmlspecialchars($data["lokasi"]) ?>"
-                placeholder="Contoh: Rak A1 / Lemari 1"
+                placeholder="Rak A1 / Lemari 1"
               >
               <div class="help">Lokasi fisik penyimpanan dokumen.</div>
             </div>
@@ -592,7 +592,7 @@ button.ghost:active{ transform: translateY(1px); }
             <input
               name="keterangan"
               value="<?= htmlspecialchars($data["keterangan"]) ?>"
-              placeholder="Contoh: Baik / Perlu Perbaikan"
+              placeholder="Baik / Perlu Perbaikan"
             >
             <div class="help">Catatan tambahan (status, sifat dokumen, dll).</div>
           </div>
