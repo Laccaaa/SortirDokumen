@@ -14,8 +14,11 @@ $role = $_SESSION['role'] ?? 'user';
   <title>Homepage - Arsip Dokumen</title>
   <style>
     :root{
-      --bg1:#4a6cf7;
-      --bg2:#6fb1c8;
+      /* ✅ 3 warna flat (NO GRADIENT) */
+      --dark-bg: #1c2229;      /* abu-abu gelap */
+      --purple-dark: #5b2a86;  /* ungu tua */
+      --purple-light: #8e6bbf; /* ungu muda */
+
       --card:#ffffff;
       --text:#0f172a;
       --muted:#64748b;
@@ -30,17 +33,46 @@ $role = $_SESSION['role'] ?? 'user';
     html, body{
       width:100%;
       height:100vh;
-      overflow:hidden;   /* kunci scroll X & Y */
+      overflow:hidden;
       margin:0;
     }
 
     body{
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
       color:var(--text);
-      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+
+      /* ✅ base flat */
+      background: var(--dark-bg);
+      position: relative;
+      overflow: hidden;
+
       display:flex;
-      align-items:center;     /* center vertikal */
-      justify-content:center; /* center horizontal */
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* ✅ layer shape (3 warna total: dark + 2 ungu) */
+    body::before,
+    body::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+    }
+
+    /* ungu tua: bidang besar kanan */
+    body::before{
+      background: var(--purple-dark);
+      clip-path: polygon(55% 0, 100% 0, 100% 100%, 70% 100%);
+      opacity: .92;
+    }
+
+    /* ungu muda: bidang tengah */
+    body::after{
+      background: var(--purple-light);
+      clip-path: polygon(35% 0, 65% 0, 85% 100%, 55% 100%);
+      opacity: .88;
     }
 
     /* wrapper fullscreen */
@@ -51,12 +83,14 @@ $role = $_SESSION['role'] ?? 'user';
       align-items:center;
       justify-content:center;
       padding: 16px; /* aman buat mobile notch */
+      position: relative;
+      z-index: 2; /* ✅ di atas background */
     }
 
     /* ✅ kotak putih lebih besar & ngisi layar */
     .shell{
-      width: min(1200px, 100%);
-      height: min(760px, calc(100vh - 32px));  /* shell gede tapi tetap muat 1 layar */
+      width: min(1080px, 92%);
+      height: min(680px, 88vh);
       background: rgba(255,255,255,.94);
       border: 1px solid rgba(255,255,255,.65);
       border-radius: var(--radius);
@@ -65,7 +99,7 @@ $role = $_SESSION['role'] ?? 'user';
       display:flex;
       flex-direction:column;
       gap: 14px;
-      overflow:hidden; /* biar gak ada "ketarik" */
+      overflow:hidden;
       backdrop-filter: blur(10px);
     }
 
@@ -138,27 +172,13 @@ $role = $_SESSION['role'] ?? 'user';
       color: #2d3436;
     }
 
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:9px 12px;
-      border-radius: 999px;
-      background: #0f172a;
-      color:#fff;
-      font-size: 12px;
-      white-space: nowrap;
-      box-shadow: 0 10px 25px rgba(15,23,42,.22);
-      flex: 0 0 auto;
-    }
-
     .btn-logout{
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 8px 14px;
       border-radius: 999px;
-      background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+      background: #ee5a6f;
       color: white;
       font-size: 12px;
       font-weight: 600;
@@ -166,18 +186,18 @@ $role = $_SESSION['role'] ?? 'user';
       border: none;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.25);
+      box-shadow: 0 8px 20px rgba(238, 90, 111, 0.25);
       flex: 0 0 auto;
     }
 
     .btn-logout:hover{
       transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(255, 107, 107, 0.4);
+      box-shadow: 0 12px 28px rgba(238, 90, 111, 0.35);
     }
 
     /* area menu (grid) */
     .content{
-      flex:1;                 /* isi tinggi shell */
+      flex:1;
       display:flex;
       flex-direction:column;
       gap:12px;
@@ -212,7 +232,7 @@ $role = $_SESSION['role'] ?? 'user';
     .card:hover{
       transform: translateY(-2px);
       box-shadow: 0 16px 35px rgba(0,0,0,.12);
-      border-color: rgba(74,108,247,.35);
+      border-color: rgba(91,42,134,.35);
     }
 
     .card::after{
@@ -221,7 +241,7 @@ $role = $_SESSION['role'] ?? 'user';
       inset:auto -60px -60px auto;
       width:160px;
       height:160px;
-      background: radial-gradient(circle at 30% 30%, rgba(74,108,247,.18), rgba(111,177,200,.0) 70%);
+      background: rgba(142,107,191,.18);
       transform: rotate(18deg);
     }
 
@@ -245,8 +265,8 @@ $role = $_SESSION['role'] ?? 'user';
       border-radius: 14px;
       display:grid;
       place-items:center;
-      background: linear-gradient(135deg, rgba(74,108,247,.14), rgba(111,177,200,.14));
-      border: 1px solid rgba(74,108,247,.16);
+      background: rgba(142,107,191,.14);
+      border: 1px solid rgba(91,42,134,.16);
       font-size: 18px;
       flex: 0 0 auto;
     }
@@ -305,7 +325,7 @@ $role = $_SESSION['role'] ?? 'user';
     /* ✅ MOBILE */
     @media (max-width: 820px){
       .shell{
-        height: calc(100vh - 28px); /* full layar mobile */
+        height: calc(100vh - 28px);
         padding: 16px;
       }
 
@@ -329,12 +349,8 @@ $role = $_SESSION['role'] ?? 'user';
         justify-content: center;
       }
 
-      .badge{
-        align-self:flex-start;
-      }
-
       .grid{
-        grid-template-columns: 1fr; /* 1 kolom di mobile */
+        grid-template-columns: 1fr;
       }
 
       .card{
@@ -359,15 +375,17 @@ $role = $_SESSION['role'] ?? 'user';
           <h1 class="title">Dashboard Arsip Dokumen</h1>
           <p class="subtitle">Selamat datang, <?= htmlspecialchars($nama_user) ?>!</p>
         </div>
+
         <div class="header-right">
           <div class="user-info">
             <div class="user-name">
               <span>👤</span>
               <span><?= htmlspecialchars($nama_user) ?></span>
-              <span class="role-badge <?= $role ?>"><?= strtoupper($role) ?></span>
+              <span class="role-badge <?= htmlspecialchars($role) ?>"><?= strtoupper(htmlspecialchars($role)) ?></span>
             </div>
             <div class="user-role">@<?= htmlspecialchars($username) ?></div>
           </div>
+
           <a href="logout.php" class="btn-logout">
             <span>🚪</span>
             <span>Logout</span>
@@ -397,7 +415,7 @@ $role = $_SESSION['role'] ?? 'user';
                 <div class="icon">🗂️</div>
                 <div style="min-width:0;">
                   <p class="cardTitle">Sortir Dokumen</p>
-                  <p class="cardDesc">Kelola kategori dokumen</p>
+                  <p class="cardDesc">Kelola kategori dokumen.</p>
                 </div>
               </div>
               <span class="pill">Menu</span>
@@ -418,17 +436,18 @@ $role = $_SESSION['role'] ?? 'user';
           </a>
 
           <a class="card" href="arsip.php" aria-label="Rekapitulasi Arsip">
-          <div class="cardTop">
-            <div class="left">
-              <div class="icon">🗄️</div>
-              <div style="min-width:0;">
-                <p class="cardTitle">Rekapitulasi Arsip</p>
-                <p class="cardDesc">Cek ringkasan seluruh arsip.</p>
+            <div class="cardTop">
+              <div class="left">
+                <div class="icon">🗄️</div>
+                <div style="min-width:0;">
+                  <p class="cardTitle">Rekapitulasi Arsip</p>
+                  <p class="cardDesc">Cek ringkasan seluruh arsip.</p>
+                </div>
               </div>
+              <span class="pill">Rekap</span>
             </div>
-            <span class="pill">Rekap</span>
-          </div>
-        </a>
+          </a>
+
         </div>
 
         <a class="card" href="export_menu.php" aria-label="Export CSV">
@@ -445,7 +464,7 @@ $role = $_SESSION['role'] ?? 'user';
         </a>
 
         <div class="footer">
-          <div class="hint"><span class="dot"></span> Tampilan full-screen, compact, dan no-scroll.</div>
+          <div class="hint"><span class="dot"></span>Tips: Gunakan menu Sortir untuk mempercepat pencarian arsip.</div>
           <div>© <?= date('Y'); ?> · Arsip Dokumen</div>
         </div>
       </div>
