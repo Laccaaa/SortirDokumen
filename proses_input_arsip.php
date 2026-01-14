@@ -18,20 +18,21 @@ function validasiInput($data) {
         $errors[] = "No. Isi harus berupa angka!";
     }
     if (!empty($data['tanggal'])) {
+    if (preg_match('/^\d{4}$/', $data['tanggal'])) {
+    } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['tanggal'])) {
         $d = DateTime::createFromFormat('Y-m-d', $data['tanggal']);
         if (!$d || $d->format('Y-m-d') !== $data['tanggal']) {
             $errors[] = "Format tanggal tidak valid!";
         }
+    } else {
+        $errors[] = "Tanggal harus format YYYY atau YYYY-MM-DD";
     }
+}
+
 
     return $errors;
 }
 
-/**
- * ======================================================
- * INSERT DATA ARSIP (PDO)
- * ======================================================
- */
 function insertArsip($data) {
     global $dbhandle;
 
@@ -99,6 +100,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'lokasi'           => trim($_POST['lokasi'] ?? ''),
         'keterangan'       => trim($_POST['keterangan'] ?? '')
     ];
+
+    $no_isi = intval($data['no_isi']);
+
+    if ($no_isi < 1) {
+        $_SESSION['error'] = 'Nomor isi harus berupa angka lebih dari 0';
+        $_SESSION['error_field'] = 'no_isi';
+        $_SESSION['old_input'] = $data;
+        header("Location: input_arsip.php");
+        exit;
+    }
+
+    if (!empty($data['tanggal'])) {
+        if (!preg_match('/^\d{4}(-\d{2}-\d{2})?$/', $data['tanggal'])) {
+            $_SESSION['error'] = 'Tanggal harus diisi dalam format YYYY atau YYYY-MM-DD';
+            $_SESSION['error_field'] = 'tanggal';
+            $_SESSION['old_input'] = $data;
+            header("Location: input_arsip.php");
+            exit;
+        }
+    }
 
     // VALIDASI
     $errors = validasiInput($data);

@@ -287,41 +287,45 @@ function old($field, $default = '')
                 <div class="form-group">
                     <label>KODE KLASIFIKASI <span class="required">*</span></label>
                     <input name="kode_klasifikasi"
-                        placeholder="contoh: HM.002"
+                        placeholder="HM.002"
                         value="<?= htmlspecialchars(old('kode_klasifikasi')) ?>">
                 </div>
 
                 <div class="form-group span-2">
                     <label>NAMA BERKAS <span class="required">*</span></label>
                     <input name="nama_berkas"
-                        placeholder="contoh: Informasi Meteorologi Publik"
+                        placeholder="Informasi Meteorologi Publik"
                         value="<?= htmlspecialchars(old('nama_berkas')) ?>">
                 </div>
 
                 <div class="form-group">
-                    <label>NO. ISI <span class="required">*</span></label>
+                    <label>NO. ISI BERKAS<span class="required">*</span></label>
                     <input type="number" name="no_isi"
-                        placeholder="contoh: 1"
+                        placeholder="contoh: 1" min="1" step="1" 
+                        oninput="this.value = this.value.replace(/[^0-9]/g,'')"
                         value="<?= htmlspecialchars($old_input['no_isi'] ?? '') ?>">
                 </div>
 
                 <div class="form-group span-2">
                     <label>PENCIPTA ARSIP</label>
                     <input name="pencipta"
-                        placeholder="contoh: BMKG Stasiun ..."
+                        placeholder="BMKG Pusat Penelitian dan Pengembangan"
                         value="<?= htmlspecialchars(old('pencipta')) ?>">
                 </div>
 
                 <div class="form-group">
-                    <label>TANGGAL SURAT</label>
-                    <input type="date" name="tanggal"
+                    <label>TANGGAL SURAT/ KURUN WAKTU</label>
+                    <input type="text" name="tanggal" 
+                        placeholder="YYYY atau YYYY-MM-DD"
+                        pattern="^\d{4}(-\d{2}-\d{2})?$"
+                        title="Isi dengan tahun (YYYY) atau tanggal lengkap (YYYY-MM-DD)"
                         value="<?= htmlspecialchars(old('tanggal')) ?>">
                 </div>
 
                 <div class="form-group span-3">
                     <label>NO. SURAT</label>
                     <input name="no_surat"
-                        placeholder="contoh: HM.002/001/XII/2018"
+                        placeholder="HM.002/001/DI/XII/2018"
                         value="<?= htmlspecialchars(old('no_surat')) ?>">
                 </div>
 
@@ -334,7 +338,7 @@ function old($field, $default = '')
                 <div class="form-group">
                     <label>JUMLAH</label>
                     <input name="jumlah"
-                        placeholder="contoh: 3 lembar / 1 berkas"
+                        placeholder="3 lembar"
                         value="<?= htmlspecialchars(old('jumlah')) ?>">
                 </div>
 
@@ -351,14 +355,14 @@ function old($field, $default = '')
                 <div class="form-group">
                     <label>LOKASI SIMPAN</label>
                     <input name="lokasi"
-                        placeholder="contoh: Rak A1 / Lemari 1"
+                        placeholder="Rak A1 / Lemari 1"
                         value="<?= htmlspecialchars(old('lokasi')) ?>">
                 </div>
 
                 <div class="form-group span-3">
                     <label>KETERANGAN</label>
                     <input name="keterangan"
-                        placeholder="contoh: Baik / Perlu Perbaikan"
+                        placeholder="Baik / Perlu Perbaikan"
                         value="<?= htmlspecialchars(old('keterangan')) ?>">
                 </div>
 
@@ -413,11 +417,9 @@ function closeErrorModal() {
     <?php endif; ?>
 }
 
-// ============================================
-// VALIDASI FORM DENGAN JAVASCRIPT
-// ============================================
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
+    const noIsi = document.querySelector('[name="no_isi"]');
     
     // Fungsi untuk menampilkan modal error
     function showErrorModal(message, fieldName) {
@@ -438,6 +440,20 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         document.body.appendChild(modal);
+
+    noIsi.addEventListener('input', function () {
+        // Hapus nilai minus atau nol
+        if (this.value !== '' && parseInt(this.value) < 1) {
+            this.value = '';
+        }
+    });
+
+    noIsi.addEventListener('keydown', function (e) {
+        // Blok tombol minus
+        if (e.key === '-' || e.key === 'e') {
+            e.preventDefault();
+        }
+    });
     }
     
     // Fungsi untuk menutup modal validasi dan fokus ke field
