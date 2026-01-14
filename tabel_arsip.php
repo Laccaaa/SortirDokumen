@@ -10,7 +10,6 @@ require_once "proses_tabel.php";
 
 <style>
 :root{
-  /* ✅ Background 3 warna flat */
   --dark-bg: #1c2229;
   --purple-dark: #5b2a86;
   --purple-light:#8e6bbf;
@@ -28,7 +27,7 @@ html, body{
   margin:0;
 }
 
-/* ✅ body NO scroll, scroll ada di shell-body */
+/* ✅ body NO scroll */
 body{
   height:100vh;
   overflow:hidden;
@@ -38,11 +37,11 @@ body{
 
   display:flex;
   justify-content:center;
-  align-items:flex-start;
-  padding:56px 20px;
+  align-items:stretch;      /* ✅ biar shell bisa full tinggi */
+  padding:14px;             /* ✅ compact + besar */
 }
 
-/* ✅ 2 bidang ungu (3 warna bareng base dark) */
+/* ✅ 2 bidang ungu */
 body::before,
 body::after{
   content:"";
@@ -63,49 +62,60 @@ body::after{
 }
 
 .wrap{
-  width:100%;
-  max-width:1180px;
+  width: min(1320px, 100%);   /* ✅ lebih besar, mirip form input */
+  height: 100%;
   position:relative;
   z-index:2;
+
+  display:flex;
 }
 
-/* ✅ ini shell utama: fixed height -> isi bisa scroll */
+/* ✅ Shell utama */
 .card{
   width:100%;
+  height:100%;               /* ✅ full tinggi layar */
   background:#fff;
   border-radius:22px;
   box-shadow:
     0 10px 30px rgba(15,23,42,.14),
     0 30px 60px rgba(15,23,42,.12);
 
-  /* kunci tinggi agar scroll jalan */
-  height: calc(100vh - 112px); /* 56px top/bottom padding total = 112 */
   overflow:hidden;
-
   display:flex;
   flex-direction:column;
 }
 
-/* ✅ header tetap di atas */
+/* ✅ HEAD (fixed) */
 .shell-head{
-  padding:22px 22px 12px;
+  padding:18px 18px 12px;
   border-bottom:1px solid #eef2f7;
   flex:0 0 auto;
+  background:#fff;
 }
 
-/* ✅ bagian ini yang scroll */
+/* ✅ TOOLS (fixed) */
+.shell-tools{
+  padding:12px 18px 14px;
+  border-bottom:1px solid #eef2f7;
+  flex:0 0 auto;
+  background:#fff;
+}
+
+/* ✅ BODY (bukan scroll) */
 .shell-body{
-  padding:14px 22px 22px;
-  overflow:auto;
-  -webkit-overflow-scrolling: touch;
+  padding:14px 18px 18px;
   flex:1 1 auto;
+  min-height:0;              /* penting */
+  overflow:hidden;           /* ✅ jangan scroll di sini */
 }
 
+/* header */
 .header{
   display:flex;
   justify-content:space-between;
   gap:12px;
   flex-wrap:wrap;
+  align-items:flex-start;
 }
 
 .title h1{
@@ -135,6 +145,7 @@ a.btn{
   display:inline-flex;
   gap:8px;
   align-items:center;
+  white-space:nowrap;
 }
 a.btn.secondary{
   background:#eef2ff;
@@ -170,7 +181,6 @@ a.btn.secondary{
   justify-content:space-between;
   gap:12px;
   flex-wrap:wrap;
-  margin: 6px 0 12px;
 }
 .search{
   flex:1;
@@ -211,19 +221,22 @@ a.clear{
   background:#fff;
 }
 
-/* table */
+/* ✅ table-wrap sekarang yang scroll */
 .table-wrap{
-  margin-top:12px;
+  height: 100%;
   border-radius:16px;
-  overflow:hidden;
+  overflow:auto;                 /* ✅ SCROLL DI SINI */
+  -webkit-overflow-scrolling: touch;
   border:1px solid #eef2f7;
   box-shadow:0 8px 24px rgba(15,23,42,.06);
 }
 
+/* table */
 table{
   width:100%;
   border-collapse:collapse;
   font-size:13px;
+  min-width: 1100px;             /* ✅ biar desktop rapi */
 }
 
 thead th{
@@ -235,10 +248,10 @@ thead th{
   color:#475569;
   white-space:nowrap;
 
-  /* ✅ sticky biar keren pas scroll */
+  /* ✅ sticky header tabel */
   position: sticky;
   top: 0;
-  z-index: 3;
+  z-index: 5;
 }
 
 tbody td{
@@ -246,14 +259,16 @@ tbody td{
   border-bottom:1px solid #eef2f7;
   color:#1f2937;
   vertical-align:top;
+  background:#fff;
 }
 
-tbody tr:nth-child(even){ background:#fafbff; }
-tbody tr:hover{ background:#f1f5ff; }
+tbody tr:nth-child(even) td{ background:#fafbff; }
+tbody tr:hover td{ background:#f1f5ff; }
 
 td.muted{
   text-align:center;
   color:var(--muted);
+  background:#fff;
 }
 
 /* aksi */
@@ -292,23 +307,14 @@ a.btn-edit:hover{ filter:brightness(.98); }
 .btn-del:hover{ filter:brightness(.98); }
 .btn-del:active{ transform: translateY(1px); }
 
-/* ✅ Mobile */
+/* ✅ Mobile: jadi card mode dan table-wrap scroll off */
 @media (max-width:768px){
-  body{
-    padding:14px;
-  }
+  body{ padding:10px; }
+  .card{ border-radius:18px; }
 
-  .card{
-    height: calc(100vh - 28px);
-    border-radius:18px;
-  }
-
-  .shell-head{
-    padding:14px 14px 10px;
-  }
-  .shell-body{
-    padding:12px 14px 14px;
-  }
+  .shell-head{ padding:14px 14px 10px; }
+  .shell-tools{ padding:12px 14px 12px; }
+  .shell-body{ padding:12px 14px 14px; }
 
   .header{
     flex-direction:column;
@@ -316,27 +322,15 @@ a.btn-edit:hover{ filter:brightness(.98); }
     gap:10px;
   }
 
-  .title h1{ font-size:18px; line-height:1.15; }
-  .sub{ font-size:12px; }
-
   .btns{
     width:100%;
     display:grid;
     grid-template-columns: 1fr 1fr;
     gap:10px;
   }
-  a.btn{
-    width:100%;
-    justify-content:center;
-    border-radius:14px;
-  }
+  a.btn{ width:100%; justify-content:center; border-radius:14px; }
 
-  .search-row{
-    width:100%;
-    flex-direction:column;
-    gap:10px;
-  }
-
+  .search-row{ width:100%; flex-direction:column; gap:10px; }
   .search{
     width:100%;
     min-width:unset;
@@ -344,14 +338,15 @@ a.btn-edit:hover{ filter:brightness(.98); }
     grid-template-columns: 1fr auto;
     gap:10px;
   }
+  a.clear{ width:100%; text-align:center; border-radius:14px; }
 
-  a.clear{
-    width:100%;
-    text-align:center;
-    border-radius:14px;
+  /* card mode */
+  .table-wrap{
+    overflow: auto;
+    height: 100%;
   }
 
-  /* mobile table -> card mode */
+  table{ min-width: 0; width:100%; }
   thead{ display:none; }
   table, tbody, tr, td{ display:block; width:100%; }
 
@@ -360,7 +355,6 @@ a.btn-edit:hover{ filter:brightness(.98); }
     padding:12px 14px;
     background:#fff;
   }
-
   tbody tr:nth-child(even){ background:#fbfcff; }
 
   td{
@@ -368,6 +362,7 @@ a.btn-edit:hover{ filter:brightness(.98); }
     padding:10px 0;
     overflow-wrap:anywhere;
     word-break:break-word;
+    background: transparent !important;
   }
 
   td::before{
@@ -394,7 +389,7 @@ a.btn-edit:hover{ filter:brightness(.98); }
   <div class="wrap">
     <div class="card">
 
-      <!-- ✅ HEAD -->
+      <!-- ✅ HEAD (fixed) -->
       <div class="shell-head">
         <div class="header">
           <div class="title">
@@ -409,9 +404,8 @@ a.btn-edit:hover{ filter:brightness(.98); }
         </div>
       </div>
 
-      <!-- ✅ BODY (scroll) -->
-      <div class="shell-body">
-
+      <!-- ✅ TOOLS (fixed) -->
+      <div class="shell-tools">
         <?php if (!empty($_GET['msg']) && $_GET['msg'] === 'deleted'): ?>
           <div class="alert-ok">✅ Data berhasil dihapus.</div>
         <?php elseif (!empty($_GET['msg']) && $_GET['msg'] === 'updated'): ?>
@@ -424,7 +418,6 @@ a.btn-edit:hover{ filter:brightness(.98); }
           <div class="alert-err"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
-        <!-- SEARCH -->
         <div class="search-row">
           <form class="search" method="GET" action="">
             <input
@@ -440,7 +433,10 @@ a.btn-edit:hover{ filter:brightness(.98); }
             <a class="clear" href="tabel_arsip.php">✖ Reset</a>
           <?php endif; ?>
         </div>
+      </div>
 
+      <!-- ✅ BODY (scroll cuma tabel via table-wrap) -->
+      <div class="shell-body">
         <div class="table-wrap">
           <table>
             <thead>
@@ -470,7 +466,7 @@ a.btn-edit:hover{ filter:brightness(.98); }
               </tr>
             <?php else: ?>
               <?php $no = 1; foreach ($rows as $r): ?>
-              <?php $rowId = $r["id"]; ?>
+              <?php $rowId = $r["id"] ?? null; ?>
               <tr>
                 <td data-label="No"><?= $no++ ?></td>
                 <td data-label="Kode Klasifikasi"><?= htmlspecialchars($r["kode_klasifikasi"] ?? "") ?></td>
@@ -487,14 +483,16 @@ a.btn-edit:hover{ filter:brightness(.98); }
 
                 <td data-label="Aksi">
                   <div class="actions">
-                    <a class="btn-edit" href="input_arsip.php?edit=<?= urlencode((string)$rowId) ?>">✏️ Edit</a>
+                    <?php if ($rowId !== null): ?>
+                      <a class="btn-edit" href="input_arsip.php?edit=<?= urlencode((string)$rowId) ?>">✏️ Edit</a>
 
-                    <form method="POST" action="" onsubmit="return confirm('Yakin mau hapus data ini? 😬');">
-                      <input type="hidden" name="action" value="delete">
-                      <input type="hidden" name="id" value="<?= htmlspecialchars((string)$rowId) ?>">
-                      <input type="hidden" name="token" value="<?= htmlspecialchars($token ?? '') ?>">
-                      <button class="btn-del" type="submit">🗑️ Hapus</button>
-                    </form>
+                      <form method="POST" action="proses_hapus.php" onsubmit="return confirm('Yakin mau hapus data ini? 😬');">
+                        <input type="hidden" name="id" value="<?= htmlspecialchars((string)$rowId) ?>">
+                        <button class="btn-del" type="submit">🗑️ Hapus</button>
+                      </form>
+                    <?php else: ?>
+                      <span class="muted">-</span>
+                    <?php endif; ?>
                   </div>
                 </td>
               </tr>
@@ -503,8 +501,8 @@ a.btn-edit:hover{ filter:brightness(.98); }
             </tbody>
           </table>
         </div>
-
       </div>
+
     </div>
   </div>
 </body>
