@@ -1,5 +1,5 @@
 <?php
-include "prosesArsip.php";
+require_once __DIR__ . "/../config/koneksi.php";
 
 $path = $_GET['path'] ?? '';
 $action = $_GET['action'] ?? '';

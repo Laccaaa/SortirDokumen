@@ -1,5 +1,5 @@
 <?php
-require_once "koneksi.php";
+require_once __DIR__ . "/../actions/proses_tabel.php";
 
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
@@ -457,7 +457,7 @@ button.ghost:active{ transform: translateY(1px); }
 
         <div class="actionsTop">
           <a class="btn light" href="tabel_arsip.php">📁 Lihat Data</a>
-          <a class="btn dark" href="index.php">⬅️ Kembali</a>
+          <a class="btn dark" href="homepage.php">⬅️ Kembali</a>
         </div>
       </div>
 

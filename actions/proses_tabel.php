@@ -1,19 +1,24 @@
 <?php
-require_once "koneksi.php";
+if (session_status() === PHP_SESSION_NONE) session_start();
 
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
-}
+require_once __DIR__ . "/../config/koneksi.php";
 
 $error = "";
-$rows  = [];
+$rows = [];
+
+try {
+  $sql = "SELECT * FROM arsip_dimusnahkan ORDER BY created_at DESC";
+  $stmt = $dbhandle->query($sql);
+  $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Throwable $e) {
+  $error = $e->getMessage();
+}
 
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
 }
 $token = $_SESSION['csrf_token'];
 
-/* ✅ DELETE */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
   $postToken = $_POST['token'] ?? '';
   $id = $_POST['id'] ?? '';

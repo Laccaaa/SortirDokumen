@@ -1,5 +1,5 @@
 <?php
-include "auth_check.php";
+include "auth/auth_check.php";
 
 // Ambil data user dari session
 $nama_user = $_SESSION['nama_lengkap'] ?? 'User';
@@ -87,7 +87,6 @@ $role = $_SESSION['role'] ?? 'user';
       z-index: 2; /* ✅ di atas background */
     }
 
-    /* ✅ kotak putih lebih besar & ngisi layar */
     .shell{
       width: min(1320px, 196%);
       height: min(820px, 92vh);
@@ -386,7 +385,7 @@ $role = $_SESSION['role'] ?? 'user';
             <div class="user-role">@<?= htmlspecialchars($username) ?></div>
           </div>
 
-          <a href="logout.php" class="btn-logout">
+          <a href="/auth/logout.php" class="btn-logout">
             <span>🚪</span>
             <span>Logout</span>
           </a>
@@ -396,7 +395,7 @@ $role = $_SESSION['role'] ?? 'user';
       <div class="content">
         <div class="grid">
 
-          <a class="card" href="input_arsip.php" aria-label="Pemusnahan Dokumen">
+          <a class="card" href="/SortirDokumen/pages/input_arsip.php" aria-label="Pemusnahan Dokumen">
             <div class="cardTop">
               <div class="left">
                 <div class="icon">🧾</div>
@@ -409,7 +408,7 @@ $role = $_SESSION['role'] ?? 'user';
             </div>
           </a>
 
-          <a class="card" href="form.php" aria-label="Sortir Dokumen">
+          <a class="card" href="/SortirDokumen/pages/form.php" aria-label="Sortir Dokumen">
             <div class="cardTop">
               <div class="left">
                 <div class="icon">🗂️</div>
@@ -435,7 +434,8 @@ $role = $_SESSION['role'] ?? 'user';
             </div>
           </a>
 
-          <a class="card" href="arsip.php" aria-label="Rekapitulasi Arsip">
+          <a class="card" href="/SortirDokumen/pages/arsip.php" aria-label="Rekapitulasi Arsip">
+          
             <div class="cardTop">
               <div class="left">
                 <div class="icon">🗄️</div>

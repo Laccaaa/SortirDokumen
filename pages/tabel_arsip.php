@@ -1,5 +1,8 @@
 <?php
-require_once "proses_tabel.php";
+
+require_once __DIR__ . "/../config/koneksi.php";
+
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -37,8 +40,8 @@ body{
 
   display:flex;
   justify-content:center;
-  align-items:stretch;      /* ✅ biar shell bisa full tinggi */
-  padding:14px;             /* ✅ compact + besar */
+  align-items:stretch;
+  padding:14px;
 }
 
 /* ✅ 2 bidang ungu */
@@ -62,18 +65,17 @@ body::after{
 }
 
 .wrap{
-  width: min(1320px, 100%);   /* ✅ lebih besar, mirip form input */
+  width: min(1320px, 100%);
   height: 100%;
   position:relative;
   z-index:2;
-
   display:flex;
 }
 
 /* ✅ Shell utama */
 .card{
   width:100%;
-  height:100%;               /* ✅ full tinggi layar */
+  height:100%;
   background:#fff;
   border-radius:22px;
   box-shadow:
@@ -101,12 +103,12 @@ body::after{
   background:#fff;
 }
 
-/* ✅ BODY (bukan scroll) */
+/* ✅ BODY (tidak scroll) */
 .shell-body{
   padding:14px 18px 18px;
   flex:1 1 auto;
-  min-height:0;              /* penting */
-  overflow:hidden;           /* ✅ jangan scroll di sini */
+  min-height:0;
+  overflow:hidden;
 }
 
 /* header */
@@ -221,11 +223,11 @@ a.clear{
   background:#fff;
 }
 
-/* ✅ table-wrap sekarang yang scroll */
+/* ✅ table-wrap yang scroll */
 .table-wrap{
   height: 100%;
   border-radius:16px;
-  overflow:auto;                 /* ✅ SCROLL DI SINI */
+  overflow:auto;                 /* ✅ scroll cuma di sini */
   -webkit-overflow-scrolling: touch;
   border:1px solid #eef2f7;
   box-shadow:0 8px 24px rgba(15,23,42,.06);
@@ -236,7 +238,7 @@ table{
   width:100%;
   border-collapse:collapse;
   font-size:13px;
-  min-width: 1100px;             /* ✅ biar desktop rapi */
+  min-width: 1100px;
 }
 
 thead th{
@@ -248,7 +250,6 @@ thead th{
   color:#475569;
   white-space:nowrap;
 
-  /* ✅ sticky header tabel */
   position: sticky;
   top: 0;
   z-index: 5;
@@ -292,7 +293,6 @@ a.btn-edit{
   color:#1f2a44;
   border:1px solid #d7ddff;
 }
-a.btn-edit:hover{ filter:brightness(.98); }
 
 .btn-del{
   border:1px solid #ffd0d0;
@@ -304,14 +304,12 @@ a.btn-edit:hover{ filter:brightness(.98); }
   border-radius:12px;
   cursor:pointer;
 }
-.btn-del:hover{ filter:brightness(.98); }
 .btn-del:active{ transform: translateY(1px); }
 
-/* ✅ Mobile: jadi card mode dan table-wrap scroll off */
+/* ✅ Mobile */
 @media (max-width:768px){
   body{ padding:10px; }
   .card{ border-radius:18px; }
-
   .shell-head{ padding:14px 14px 10px; }
   .shell-tools{ padding:12px 14px 12px; }
   .shell-body{ padding:12px 14px 14px; }
@@ -339,12 +337,6 @@ a.btn-edit:hover{ filter:brightness(.98); }
     gap:10px;
   }
   a.clear{ width:100%; text-align:center; border-radius:14px; }
-
-  /* card mode */
-  .table-wrap{
-    overflow: auto;
-    height: 100%;
-  }
 
   table{ min-width: 0; width:100%; }
   thead{ display:none; }
@@ -389,7 +381,7 @@ a.btn-edit:hover{ filter:brightness(.98); }
   <div class="wrap">
     <div class="card">
 
-      <!-- ✅ HEAD (fixed) -->
+      <!-- ✅ HEAD fixed -->
       <div class="shell-head">
         <div class="header">
           <div class="title">
@@ -398,13 +390,14 @@ a.btn-edit:hover{ filter:brightness(.98); }
           </div>
 
           <div class="btns">
+            <!-- karena file ini ada di /pages, link cukup relatif -->
             <a class="btn secondary" href="input_arsip.php">➕ Form Input</a>
-            <a class="btn primary" href="index.php">⬅️ Balik</a>
+            <a class="btn primary" href="/SortirDokumen/pages/homepage.php">⬅️ Balik</a>
           </div>
         </div>
       </div>
 
-      <!-- ✅ TOOLS (fixed) -->
+      <!-- ✅ TOOLS fixed (alert + search gak ikut scroll) -->
       <div class="shell-tools">
         <?php if (!empty($_GET['msg']) && $_GET['msg'] === 'deleted'): ?>
           <div class="alert-ok">✅ Data berhasil dihapus.</div>
@@ -435,7 +428,7 @@ a.btn-edit:hover{ filter:brightness(.98); }
         </div>
       </div>
 
-      <!-- ✅ BODY (scroll cuma tabel via table-wrap) -->
+      <!-- ✅ BODY (scroll cuma tabel) -->
       <div class="shell-body">
         <div class="table-wrap">
           <table>
@@ -458,7 +451,7 @@ a.btn-edit:hover{ filter:brightness(.98); }
             </thead>
 
             <tbody>
-            <?php if (count($rows) === 0): ?>
+            <?php if (empty($rows) || count($rows) === 0): ?>
               <tr>
                 <td class="muted" colspan="13">
                   <?= !empty($q) ? "Data tidak ditemukan untuk pencarian: " . htmlspecialchars($q) : "Belum ada data" ?>
@@ -486,8 +479,11 @@ a.btn-edit:hover{ filter:brightness(.98); }
                     <?php if ($rowId !== null): ?>
                       <a class="btn-edit" href="input_arsip.php?edit=<?= urlencode((string)$rowId) ?>">✏️ Edit</a>
 
-                      <form method="POST" action="proses_hapus.php" onsubmit="return confirm('Yakin mau hapus data ini? 😬');">
+                      <!-- ✅ hapus diarahkan ke actions/proses_tabel.php -->
+                      <form method="POST" action="../actions/proses_tabel.php" onsubmit="return confirm('Yakin mau hapus data ini? 😬');">
+                        <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="id" value="<?= htmlspecialchars((string)$rowId) ?>">
+                        <input type="hidden" name="token" value="<?= htmlspecialchars($token ?? '') ?>">
                         <button class="btn-del" type="submit">🗑️ Hapus</button>
                       </form>
                     <?php else: ?>
