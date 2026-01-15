@@ -1,9 +1,7 @@
 <?php
-
-require_once __DIR__ . "/../config/koneksi.php";
-
-
+require_once __DIR__ . "/../actions/proses_tabel.php";
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>

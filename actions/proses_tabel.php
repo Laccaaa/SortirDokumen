@@ -1,17 +1,32 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-
+// actions/proses_tabel.php
 require_once __DIR__ . "/../config/koneksi.php";
 
 $error = "";
 $rows = [];
+$q = trim($_GET["q"] ?? "");
 
 try {
-  $sql = "SELECT * FROM arsip_dimusnahkan ORDER BY created_at DESC";
-  $stmt = $dbhandle->query($sql);
-  $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  if ($q !== "") {
+    $sql = "SELECT * FROM arsip_dimusnahkan
+            WHERE kode_klasifikasi ILIKE :q
+               OR nama_berkas ILIKE :q
+               OR pencipta ILIKE :q
+               OR no_surat ILIKE :q
+               OR uraian ILIKE :q
+               OR tanggal ILIKE :q
+               OR keterangan ILIKE :q
+            ORDER BY id DESC";
+    $stmt = $dbhandle->prepare($sql);
+    $stmt->execute([":q" => "%$q%"]);
+  } else {
+    $stmt = $dbhandle->prepare("SELECT * FROM arsip_dimusnahkan ORDER BY id DESC");
+    $stmt->execute();
+  }
+
+  $rows = $stmt->fetchAll();
 } catch (Throwable $e) {
-  $error = $e->getMessage();
+  $error = "Query gagal: " . $e->getMessage();
 }
 
 if (empty($_SESSION['csrf_token'])) {
