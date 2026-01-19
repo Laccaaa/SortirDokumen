@@ -184,7 +184,7 @@ body {
         </div>
         <?php endif; ?>
 
-        <form action="proses_login.php" method="POST">
+        <form action="/SortirDokumen/auth/proses_login.php" method="POST">
             <div class="form-group">
                 <label>Username</label>
                 <div class="input-wrapper">

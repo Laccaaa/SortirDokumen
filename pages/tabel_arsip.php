@@ -471,7 +471,7 @@ a.btn-edit{
                 <td data-label="Tingkat"><?= htmlspecialchars($r["tingkat"] ?? "") ?></td>
                 <td data-label="Lokasi"><?= htmlspecialchars($r["lokasi"] ?? "") ?></td>
                 <td data-label="Keterangan"><?= htmlspecialchars($r["keterangan"] ?? "") ?></td>
-
+                
                 <td data-label="Aksi">
                   <div class="actions">
                     <?php if ($rowId !== null): ?>

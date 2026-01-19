@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "koneksi.php";
+require_once __DIR__ . "/../actions/proses_tabel.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':id_user' => (int)$user['id_user']
                 ]);
 
-                header("Location: homepage.php");
+                header("Location: /SortirDokumen/pages/homepage.php");
                 exit;
             } else {
                 $_SESSION['error'] = 'Password salah!';

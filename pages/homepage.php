@@ -385,9 +385,7 @@ $role = $_SESSION['role'] ?? 'user';
             <div class="user-role">@<?= htmlspecialchars($username) ?></div>
           </div>
 
-          <a href="/auth/logout.php" class="btn-logout">
-            <span>🚪</span>
-            <span>Logout</span>
+          <a href="/SortirDokumen/auth/logout.php" class="btn-logout"> 🚪 Logout</a>
           </a>
         </div>
       </div>
