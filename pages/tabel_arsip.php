@@ -235,7 +235,7 @@ a.clear{
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:13px;
+  font-size:12px;
   min-width: 1100px;
 }
 
@@ -243,7 +243,7 @@ thead th{
   background:#f8fafc;
   padding:14px;
   border-bottom:1px solid #e5e7eb;
-  font-size:12px;
+  font-size:11px;
   font-weight:900;
   color:#475569;
   white-space:nowrap;

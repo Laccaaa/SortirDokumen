@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../config/koneksi.php";
+require_once __DIR__ . "/../actions/prosesArsip.php";
 
 $path = $_GET['path'] ?? '';
 $action = $_GET['action'] ?? '';
