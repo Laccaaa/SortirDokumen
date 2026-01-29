@@ -14,10 +14,9 @@ $role = $_SESSION['role'] ?? 'user';
   <title>Homepage - Arsip Dokumen</title>
   <style>
     :root{
-      /* ✅ 3 warna flat (NO GRADIENT) */
-      --dark-bg: #1c2229;      /* abu-abu gelap */
-      --purple-dark: #5b2a86;  /* ungu tua */
-      --purple-light: #8e6bbf; /* ungu muda */
+      /* ✅ Background sederhana dengan gradasi halus */
+      --bg-start: #7384a2;   
+      --bg-end: #c3ace9;     
 
       --card:#ffffff;
       --text:#0f172a;
@@ -41,8 +40,8 @@ $role = $_SESSION['role'] ?? 'user';
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
       color:var(--text);
 
-      /* ✅ base flat */
-      background: var(--dark-bg);
+      /* ✅ gradasi simpel */
+      background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
       position: relative;
       overflow: hidden;
 
@@ -51,29 +50,7 @@ $role = $_SESSION['role'] ?? 'user';
       justify-content:center;
     }
 
-    /* ✅ layer shape (3 warna total: dark + 2 ungu) */
-    body::before,
-    body::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      z-index:0;
-      pointer-events:none;
-    }
-
-    /* ungu tua: bidang besar kanan */
-    body::before{
-      background: var(--purple-dark);
-      clip-path: polygon(55% 0, 100% 0, 100% 100%, 70% 100%);
-      opacity: .92;
-    }
-
-    /* ungu muda: bidang tengah */
-    body::after{
-      background: var(--purple-light);
-      clip-path: polygon(35% 0, 65% 0, 85% 100%, 55% 100%);
-      opacity: .88;
-    }
+    /* background bersih tanpa layer tambahan */
 
     /* wrapper fullscreen */
     .wrap{
@@ -134,7 +111,8 @@ $role = $_SESSION['role'] ?? 'user';
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 4px;
+      gap: 2px;
+      min-width: 140px;
     }
 
     .user-name{
@@ -143,12 +121,14 @@ $role = $_SESSION['role'] ?? 'user';
       color: var(--text);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      white-space: nowrap;
     }
 
     .user-role{
       font-size: 11px;
       color: var(--muted);
+      line-height: 1.1;
     }
 
     .role-badge{
@@ -213,8 +193,8 @@ $role = $_SESSION['role'] ?? 'user';
     }
 
     .card{
-      background: var(--card);
-      border: 1px solid var(--line);
+      background: #f8fafc; /* sedikit beda dari shell */
+      border: 2px solid #d6dbe3;
       border-radius: 18px;
       padding: 14px;
       transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
@@ -226,6 +206,7 @@ $role = $_SESSION['role'] ?? 'user';
       display:flex;
       flex-direction:column;
       justify-content:space-between;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
     }
 
     .card:hover{
@@ -240,7 +221,7 @@ $role = $_SESSION['role'] ?? 'user';
       inset:auto -60px -60px auto;
       width:160px;
       height:160px;
-      background: rgba(142,107,191,.18);
+      background: rgba(142,107,191,.14);
       transform: rotate(18deg);
     }
 
@@ -273,7 +254,7 @@ $role = $_SESSION['role'] ?? 'user';
     .cardTitle{
       font-weight: 800;
       margin:0;
-      font-size: 15px;
+      font-size: 17px;
       letter-spacing:.2px;
       line-height:1.2;
     }
@@ -281,7 +262,7 @@ $role = $_SESSION['role'] ?? 'user';
     .cardDesc{
       margin:6px 0 0 0;
       color: var(--muted);
-      font-size: 12.5px;
+      font-size: 14px;
       line-height: 1.4;
       max-width: 52ch;
     }
@@ -386,7 +367,6 @@ $role = $_SESSION['role'] ?? 'user';
           </div>
 
           <a href="/SortirDokumen/auth/logout.php" class="btn-logout"> 🚪 Logout</a>
-          </a>
         </div>
       </div>
 

@@ -11,9 +11,8 @@ require_once __DIR__ . "/../actions/proses_tabel.php";
 
 <style>
 :root{
-  --dark-bg: #1c2229;
-  --purple-dark: #5b2a86;
-  --purple-light:#8e6bbf;
+  --bg-start: #f3f5f9;
+  --bg-end: #e2e7f1;
 
   --text:#1f2a44;
   --muted:#667085;
@@ -32,7 +31,7 @@ html, body{
 body{
   height:100vh;
   overflow:hidden;
-  background: var(--dark-bg);
+  background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
   position:relative;
   font-family: Inter, Arial, sans-serif;
 
@@ -42,25 +41,7 @@ body{
   padding:14px;
 }
 
-/* ✅ 2 bidang ungu */
-body::before,
-body::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-}
-body::before{
-  background: var(--purple-dark);
-  clip-path: polygon(55% 0, 100% 0, 100% 100%, 70% 100%);
-  opacity: .95;
-}
-body::after{
-  background: var(--purple-light);
-  clip-path: polygon(35% 0, 65% 0, 85% 100%, 55% 100%);
-  opacity: .90;
-}
+/* background bersih tanpa layer tambahan */
 
 .wrap{
   width: min(1320px, 100%);
@@ -70,10 +51,100 @@ body::after{
   display:flex;
 }
 
+/* layout */
+.layout{
+  width:100%;
+  height:100%;
+  display:flex;
+  gap:14px;
+}
+
+/* sidebar */
+.sidebar{
+  width: 260px;
+  height: 100%;
+  background: #1f2430;
+  border: 1px solid #2b3242;
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.18);
+  padding: 14px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow:auto;
+}
+
+.side-title{
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing:.3px;
+  color:#e2e8f0;
+  text-transform: uppercase;
+}
+
+.side-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.side-link{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:10px 12px;
+  border-radius: 14px;
+  text-decoration:none;
+  color:#e2e8f0;
+  background: #232a38;
+  border:1px solid #2f3747;
+  transition: all .15s ease;
+}
+.side-link:hover{
+  transform: translateY(-1px);
+  border-color:#5a63ff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+}
+.side-link.active{
+  background:#2a3350;
+  border-color:#5a63ff;
+  box-shadow: inset 0 0 0 1px rgba(90, 99, 255, .25);
+}
+.side-icon{
+  width:36px;
+  height:36px;
+  border-radius: 12px;
+  display:grid;
+  place-items:center;
+  background: rgba(90, 99, 255, .18);
+  border:1px solid rgba(90, 99, 255, .25);
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+.side-text{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+.side-text strong{
+  font-size: 14px;
+  line-height:1.2;
+}
+.side-text span{
+  font-size: 12px;
+  color: #94a3b8;
+  line-height:1.25;
+}
+
 /* ✅ Shell utama */
 .card{
   width:100%;
   height:100%;
+  max-width: 1050px;
   background:#fff;
   border-radius:22px;
   box-shadow:
@@ -120,10 +191,10 @@ body::after{
 
 .title h1{
   margin:0 0 6px;
-  font-size:20px;
+  font-size:18px;
 }
 .sub{
-  font-size:13px;
+  font-size:12px;
   color:var(--muted);
 }
 
@@ -139,7 +210,7 @@ a.btn{
   border-radius:12px;
   text-decoration:none;
   font-weight:800;
-  font-size:14px;
+  font-size:13px;
   background:#1f2a44;
   color:#fff;
   display:inline-flex;
@@ -307,7 +378,12 @@ a.btn-edit{
 /* ✅ Mobile */
 @media (max-width:768px){
   body{ padding:10px; }
-  .card{ border-radius:18px; }
+  .layout{ flex-direction:column; }
+  .sidebar{
+    width:100%;
+    height:auto;
+  }
+  .card{ border-radius:18px; max-width:100%; }
   .shell-head{ padding:14px 14px 10px; }
   .shell-tools{ padding:12px 14px 12px; }
   .shell-body{ padding:12px 14px 14px; }
@@ -377,7 +453,59 @@ a.btn-edit{
 
 <body>
   <div class="wrap">
-    <div class="card">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="side-title">Menu Utama</div>
+        <ul class="side-list">
+          <li>
+            <a class="side-link" href="/SortirDokumen/pages/form.php">
+              <div class="side-icon">🗂️</div>
+              <div class="side-text">
+                <strong>Sortir Dokumen</strong>
+                <span>Kelola kategori dokumen.</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="side-link" href="/SortirDokumen/pages/arsip.php">
+              <div class="side-icon">🗄️</div>
+              <div class="side-text">
+                <strong>Rekapitulasi Arsip</strong>
+                <span>Ringkasan seluruh arsip.</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="side-link" href="/SortirDokumen/pages/input_arsip.php">
+              <div class="side-icon">🧾</div>
+              <div class="side-text">
+                <strong>Pemusnahan Dokumen</strong>
+                <span>Input arsip dimusnahkan.</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="side-link active" href="/SortirDokumen/pages/tabel_arsip.php">
+              <div class="side-icon">📊</div>
+              <div class="side-text">
+                <strong>Tabel Pemusnahan</strong>
+                <span>Riwayat penghapusan.</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="side-link" href="/SortirDokumen/pages/export_menu.php">
+              <div class="side-icon">📥</div>
+              <div class="side-text">
+                <strong>Export CSV</strong>
+                <span>Unduh data CSV/Excel.</span>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </aside>
+
+      <div class="card">
 
       <!-- ✅ HEAD fixed -->
       <div class="shell-head">
@@ -497,6 +625,7 @@ a.btn-edit{
         </div>
       </div>
 
+      </div>
     </div>
   </div>
 </body>

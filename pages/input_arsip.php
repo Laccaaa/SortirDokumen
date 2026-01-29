@@ -167,10 +167,9 @@ $btnText   = $isEdit ? "💾 Update ke Database" : "💾 Simpan ke Database";
 
 <style>
 :root{
-  /* ✅ Background 3 warna flat */
-  --dark-bg: #1c2229;
-  --purple-dark: #5b2a86;
-  --purple-light:#8e6bbf;
+  /* ✅ Background gradasi seperti homepage */
+  --bg-start: #f3f5f9;
+  --bg-end: #e2e7f1;
 
   --card: rgba(255,255,255,.96);
   --text:#0f172a;
@@ -196,7 +195,7 @@ html, body{
 /* ✅ BACKGROUND FIXED */
 body{
   height:100vh;
-  background: var(--dark-bg);
+  background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
   position:relative;
   font-family: Inter, Arial, sans-serif;
 
@@ -206,25 +205,7 @@ body{
   justify-content:center;
 }
 
-/* 2 bidang ungu */
-body::before,
-body::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-}
-body::before{
-  background: var(--purple-dark);
-  clip-path: polygon(55% 0, 100% 0, 100% 100%, 70% 100%);
-  opacity: .95;
-}
-body::after{
-  background: var(--purple-light);
-  clip-path: polygon(35% 0, 65% 0, 85% 100%, 55% 100%);
-  opacity: .90;
-}
+/* background bersih tanpa layer tambahan */
 
 /* wrapper */
 .wrap{
@@ -232,14 +213,103 @@ body::after{
   height: 100%;
   position:relative;
   z-index:2;
-
   display:flex;
+}
+
+/* layout */
+.layout{
+  width:100%;
+  height:100%;
+  display:flex;
+  gap:14px;
+}
+
+/* sidebar */
+.sidebar{
+  width: 260px;
+  height: 100%;
+  background: #1f2430;
+  border: 1px solid #2b3242;
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.18);
+  padding: 14px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow:auto;
+}
+
+.side-title{
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing:.3px;
+  color:#e2e8f0;
+  text-transform: uppercase;
+}
+
+.side-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.side-link{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:10px 12px;
+  border-radius: 14px;
+  text-decoration:none;
+  color:#e2e8f0;
+  background: #232a38;
+  border:1px solid #2f3747;
+  transition: all .15s ease;
+}
+.side-link:hover{
+  transform: translateY(-1px);
+  border-color:#5a63ff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+}
+.side-link.active{
+  background:#2a3350;
+  border-color:#5a63ff;
+  box-shadow: inset 0 0 0 1px rgba(90, 99, 255, .25);
+}
+.side-icon{
+  width:36px;
+  height:36px;
+  border-radius: 12px;
+  display:grid;
+  place-items:center;
+  background: rgba(90, 99, 255, .18);
+  border:1px solid rgba(90, 99, 255, .25);
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+.side-text{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+.side-text strong{
+  font-size: 14px;
+  line-height:1.2;
+}
+.side-text span{
+  font-size: 12px;
+  color: #94a3b8;
+  line-height:1.25;
 }
 
 /* ✅ shell SCROLL INTERNAL (yang bisa digeser cuma ini) */
 .shell{
   width: 100%;
   height: 100%;
+  max-width: 1050px;
 
   background: var(--card);
   border: 1px solid rgba(255,255,255,.55);
@@ -425,7 +495,16 @@ button.ghost:active{ transform: translateY(1px); }
 /* ✅ MOBILE */
 @media (max-width: 980px){
   body{ padding: 10px; }
-  .shell{ padding: 14px; border-radius: 20px; }
+  .layout{ flex-direction:column; }
+  .sidebar{
+    width:100%;
+    height:auto;
+  }
+  .shell{
+    max-width: 100%;
+    padding: 14px;
+    border-radius: 20px;
+  }
 
   .titles h1{ font-size: 20px; }
   .form{ grid-template-columns: 1fr; }
@@ -447,7 +526,59 @@ button.ghost:active{ transform: translateY(1px); }
 
 <body>
   <div class="wrap">
-    <div class="shell">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="side-title">Menu Utama</div>
+        <ul class="side-list">
+          <li>
+            <a class="side-link" href="/SortirDokumen/pages/form.php">
+              <div class="side-icon">🗂️</div>
+              <div class="side-text">
+                <strong>Sortir Dokumen</strong>
+                <span>Kelola kategori dokumen.</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="side-link" href="/SortirDokumen/pages/arsip.php">
+              <div class="side-icon">🗄️</div>
+              <div class="side-text">
+                <strong>Rekapitulasi Arsip</strong>
+                <span>Ringkasan seluruh arsip.</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="side-link active" href="/SortirDokumen/pages/input_arsip.php">
+              <div class="side-icon">🧾</div>
+              <div class="side-text">
+                <strong>Pemusnahan Dokumen</strong>
+                <span>Input arsip dimusnahkan.</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="side-link" href="/SortirDokumen/pages/tabel_arsip.php">
+              <div class="side-icon">📊</div>
+              <div class="side-text">
+                <strong>Tabel Pemusnahan</strong>
+                <span>Riwayat penghapusan.</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="side-link" href="/SortirDokumen/pages/export_menu.php">
+              <div class="side-icon">📥</div>
+              <div class="side-text">
+                <strong>Export CSV</strong>
+                <span>Unduh data CSV/Excel.</span>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </aside>
+
+      <div class="shell">
 
       <div class="top">
         <div class="titles">
@@ -456,8 +587,8 @@ button.ghost:active{ transform: translateY(1px); }
         </div>
 
         <div class="actionsTop">
-          <a class="btn light" href="tabel_arsip.php">📁 Lihat Data</a>
-          <a class="btn dark" href="homepage.php">⬅️ Kembali</a>
+          <a class="btn light" href="tabel_arsip.php"> Lihat Data</a>
+          <a class="btn dark" href="homepage.php"> Kembali</a>
         </div>
       </div>
 
@@ -481,7 +612,7 @@ button.ghost:active{ transform: translateY(1px); }
               placeholder="HM.002"
               required
             >
-            <div class="help">Isi kode klasifikasi sesuai aturan arsip (HM.002 / KU.01.02).</div>
+            
           </div>
 
           <div class="field">
@@ -492,7 +623,7 @@ button.ghost:active{ transform: translateY(1px); }
               placeholder="Informasi Meteorologi Publik"
               required
             >
-            <div class="help">Nama berkas yang jelas biar gampang dicari.</div>
+            
           </div>
 
           <div class="field">
@@ -503,7 +634,7 @@ button.ghost:active{ transform: translateY(1px); }
               placeholder="1"
               required
             >
-            <div class="help">Nomor urut isi dokumen di berkas (misal: 1, 2, 3...).</div>
+            
           </div>
 
           <div class="field">
@@ -513,7 +644,7 @@ button.ghost:active{ transform: translateY(1px); }
               value="<?= htmlspecialchars($data["pencipta"]) ?>"
               placeholder="BMKG Pusat Penelitian dan Pengembangan"
             >
-            <div class="help">Unit/instansi yang membuat dokumen.</div>
+            
           </div>
 
           <div class="field">
@@ -523,7 +654,7 @@ button.ghost:active{ transform: translateY(1px); }
               value="<?= htmlspecialchars($data["tanggal"]) ?>"
               placeholder="YYYY atau YYYY-MM-DD"
             >
-            <div class="help">2018 atau 2018-12-31 (boleh rentang: 2018-01 s/d 2018-12).</div>
+            
           </div>
 
           <div class="field full">
@@ -533,7 +664,7 @@ button.ghost:active{ transform: translateY(1px); }
               value="<?= htmlspecialchars($data["no_surat"]) ?>"
               placeholder="HM.002/001/DI/XII/2018"
             >
-            <div class="help">Isi kalau dokumen berbentuk surat. Kalau bukan, boleh dikosongin.</div>
+            
           </div>
 
           <div class="field full">
@@ -542,7 +673,7 @@ button.ghost:active{ transform: translateY(1px); }
               name="uraian"
               placeholder="Jelaskan singkat isi informasi arsip..."
             ><?= htmlspecialchars($data["uraian"]) ?></textarea>
-            <div class="help">Ringkasan isi dokumen (ini kepake banget buat pencarian).</div>
+            
           </div>
 
           <div class="row3 full">
@@ -553,7 +684,7 @@ button.ghost:active{ transform: translateY(1px); }
                 value="<?= htmlspecialchars($data["jumlah"]) ?>"
                 placeholder="3 lembar"
               >
-              <div class="help">Isi jumlah + satuan (lembar/berkas/map).</div>
+              
             </div>
 
             <div class="field">
@@ -573,7 +704,7 @@ button.ghost:active{ transform: translateY(1px); }
                   }
                 ?>
               </select>
-              <div class="help">Pilih jenis dokumen: asli/copy/scan.</div>
+              
             </div>
 
             <div class="field">
@@ -583,7 +714,7 @@ button.ghost:active{ transform: translateY(1px); }
                 value="<?= htmlspecialchars($data["lokasi"]) ?>"
                 placeholder="Rak A1 / Lemari 1"
               >
-              <div class="help">Lokasi fisik penyimpanan dokumen.</div>
+              
             </div>
           </div>
 
@@ -594,7 +725,7 @@ button.ghost:active{ transform: translateY(1px); }
               value="<?= htmlspecialchars($data["keterangan"]) ?>"
               placeholder="Baik / Perlu Perbaikan"
             >
-            <div class="help">Catatan tambahan (status, sifat dokumen, dll).</div>
+            
           </div>
         </div>
 
@@ -604,6 +735,7 @@ button.ghost:active{ transform: translateY(1px); }
         </div>
       </form>
 
+      </div>
     </div>
   </div>
 </body>

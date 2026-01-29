@@ -21,7 +21,7 @@ $items = getItems($path);
 $parts = array_filter(explode('/', $path));
 ?>
 
-<!DOCTYPE html>
+<!DOCTYPE htqml>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
