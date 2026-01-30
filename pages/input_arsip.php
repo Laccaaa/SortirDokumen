@@ -209,7 +209,8 @@ body{
 
 /* wrapper */
 .wrap{
-  width: min(1320px, 100%);
+  width: 100%;
+  max-width: none;
   height: 100%;
   position:relative;
   z-index:2;
@@ -226,7 +227,7 @@ body{
 
 /* sidebar */
 .sidebar{
-  width: 260px;
+  width: 340px;
   height: 100%;
   background: #1f2430;
   border: 1px solid #2b3242;
@@ -305,21 +306,21 @@ body{
   line-height:1.25;
 }
 
-/* ✅ shell SCROLL INTERNAL (yang bisa digeser cuma ini) */
 .shell{
   width: 100%;
   height: 100%;
-  max-width: 1050px;
+  max-width: none;
+  flex: 1 1 auto;
 
   background: var(--card);
   border: 1px solid rgba(255,255,255,.55);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 
-  padding: 16px 16px 14px;
+  padding: 12px 12px 10px;
 
   overflow:auto;                   /* ✅ scroll di sini */
-  overflow-x:hidden;               /* ✅ no scroll kanan-kiri */
+  overflow-x:hidden;
   -webkit-overflow-scrolling: touch;
 
   backdrop-filter: blur(10px);
@@ -341,14 +342,14 @@ input, textarea, select{ max-width:100%; }
 
 .titles h1{
   margin:0;
-  font-size: 24px;
+  font-size: 20px;
   letter-spacing:.2px;
   line-height: 1.15;
 }
 .titles p{
   margin:6px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .actionsTop{
@@ -362,10 +363,11 @@ a.btn{
   display:inline-flex;
   gap:8px;
   align-items:center;
-  padding:10px 14px;
+  padding:8px 12px;
   border-radius: 14px;
   text-decoration:none;
   font-weight:900;
+  font-size: 12px;
   border: 1px solid transparent;
   white-space:nowrap;
 }
@@ -395,7 +397,7 @@ a.btn.dark{
 .form{
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px 14px;                  /* compact */
+  gap: 10px 12px;                  /* lebih compact */
   margin-top: 10px;
 }
 
@@ -408,7 +410,7 @@ a.btn.dark{
 label{
   font-weight:900;
   color:#1f2a44;
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing:.2px;
   text-transform: uppercase;
 }
@@ -416,17 +418,17 @@ label{
 
 input, textarea, select{
   width:100%;
-  padding: 12px 14px;              /* compact */
+  padding: 10px 12px;              /* lebih compact */
   border-radius: 12px;
   border: 1px solid var(--line);
   outline:none;
-  font-size: 15px;
+  font-size: 14px;
   background:#fff;
   color:#0f172a;
 }
 
 textarea{
-  min-height: 110px;
+  min-height: 90px;
   resize: vertical;
 }
 
@@ -441,7 +443,7 @@ input:focus, textarea:focus, select:focus{
 .row3{
   display:grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px 14px;
+  gap: 10px 12px;
   width:100%;
 }
 .row3.full{ grid-column: 1 / -1; }
@@ -464,12 +466,12 @@ input:focus, textarea:focus, select:focus{
 
 button.primary{
   border:none;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: 14px;
   background: #0f172a;
   color:#fff;
   font-weight:900;
-  font-size: 15px;
+  font-size: 13px;
   cursor:pointer;
   display:inline-flex;
   gap:10px;
@@ -479,12 +481,12 @@ button.primary:active{ transform: translateY(1px); }
 
 button.ghost{
   border:1px solid #d7ddff;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: 14px;
   background: #eef2ff;
   color:#1f2a44;
   font-weight:900;
-  font-size: 15px;
+  font-size: 13px;
   cursor:pointer;
   display:inline-flex;
   gap:10px;
@@ -727,6 +729,7 @@ button.ghost:active{ transform: translateY(1px); }
             >
             
           </div>
+
         </div>
 
         <div class="bottomActions">

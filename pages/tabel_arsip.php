@@ -44,7 +44,8 @@ body{
 /* background bersih tanpa layer tambahan */
 
 .wrap{
-  width: min(1320px, 100%);
+  width: 100%;
+  max-width: none;
   height: 100%;
   position:relative;
   z-index:2;
@@ -61,7 +62,7 @@ body{
 
 /* sidebar */
 .sidebar{
-  width: 260px;
+  width: 340px;
   height: 100%;
   background: #1f2430;
   border: 1px solid #2b3242;
@@ -144,9 +145,11 @@ body{
 .card{
   width:100%;
   height:100%;
-  max-width: 1050px;
+  max-width:none;
+  flex: 1 1 auto;
+  margin-left: 0;
   background:#fff;
-  border-radius:22px;
+  border-radius:24px;
   box-shadow:
     0 10px 30px rgba(15,23,42,.14),
     0 30px 60px rgba(15,23,42,.12);
@@ -158,7 +161,7 @@ body{
 
 /* ✅ HEAD (fixed) */
 .shell-head{
-  padding:18px 18px 12px;
+  padding:12px 12px 10px;
   border-bottom:1px solid #eef2f7;
   flex:0 0 auto;
   background:#fff;
@@ -166,7 +169,7 @@ body{
 
 /* ✅ TOOLS (fixed) */
 .shell-tools{
-  padding:12px 18px 14px;
+  padding:10px 12px 10px;
   border-bottom:1px solid #eef2f7;
   flex:0 0 auto;
   background:#fff;
@@ -174,7 +177,7 @@ body{
 
 /* ✅ BODY (tidak scroll) */
 .shell-body{
-  padding:14px 18px 18px;
+  padding:10px 12px 12px;
   flex:1 1 auto;
   min-height:0;
   overflow:hidden;
@@ -191,7 +194,7 @@ body{
 
 .title h1{
   margin:0 0 6px;
-  font-size:18px;
+  font-size:20px;
 }
 .sub{
   font-size:12px;
@@ -296,7 +299,8 @@ a.clear{
 .table-wrap{
   height: 100%;
   border-radius:16px;
-  overflow:auto;                 /* ✅ scroll cuma di sini */
+  overflow:auto;                 /* ✅ scroll vertikal di sini */
+  overflow-x:hidden;             /* ✅ no scroll kanan-kiri */
   -webkit-overflow-scrolling: touch;
   border:1px solid #eef2f7;
   box-shadow:0 8px 24px rgba(15,23,42,.06);
@@ -306,15 +310,15 @@ a.clear{
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:12px;
-  min-width: 1100px;
+  font-size:11px;
+  table-layout: fixed;
 }
 
 thead th{
   background:#f8fafc;
-  padding:14px;
+  padding:10px 8px;
   border-bottom:1px solid #e5e7eb;
-  font-size:11px;
+  font-size:10px;
   font-weight:900;
   color:#475569;
   white-space:nowrap;
@@ -325,11 +329,12 @@ thead th{
 }
 
 tbody td{
-  padding:14px;
+  padding:10px 8px;
   border-bottom:1px solid #eef2f7;
   color:#1f2937;
   vertical-align:top;
   background:#fff;
+  word-break: break-word;
 }
 
 tbody tr:nth-child(even) td{ background:#fafbff; }
@@ -344,7 +349,7 @@ td.muted{
 /* aksi */
 .actions{
   display:flex;
-  gap:8px;
+  gap:6px;
   flex-wrap:wrap;
   align-items:center;
 }
@@ -353,11 +358,11 @@ a.btn-edit{
   display:inline-flex;
   align-items:center;
   gap:6px;
-  padding:8px 12px;
+  padding:6px 8px;
   border-radius:12px;
   text-decoration:none;
   font-weight:900;
-  font-size:12px;
+  font-size:11px;
   background:#eef2ff;
   color:#1f2a44;
   border:1px solid #d7ddff;
@@ -368,8 +373,8 @@ a.btn-edit{
   background:#fff5f5;
   color:#7a1f1f;
   font-weight:900;
-  font-size:12px;
-  padding:8px 12px;
+  font-size:11px;
+  padding:6px 8px;
   border-radius:12px;
   cursor:pointer;
 }

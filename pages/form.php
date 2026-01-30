@@ -15,191 +15,352 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
 <title>Sortir Dokumen</title>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+:root{
+  --bg-start: #f3f5f9;
+  --bg-end: #e2e7f1;
+
+  --card: rgba(255,255,255,.96);
+  --text:#0f172a;
+  --muted:#64748b;
+  --line:#e5e7eb;
+  --shadow: 0 22px 70px rgba(0,0,0,.18);
+  --radius: 24px;
+
+  --btn: #0f172a;
+  --btn2:#eef2ff;
 }
 
-body {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #4a6cf7, #6fb1c8);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html, body{
+  width:100%;
+  height:100%;
+  margin:0;
+  overflow:hidden;
 }
 
-.container {
-    width: 80vw;
-    max-width: 900px;
-    min-height: auto;
-    background: white;
-    border-radius: 22px;
-    overflow: hidden;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+body{
+  height:100vh;
+  background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+  position:relative;
+  font-family: Inter, Arial, sans-serif;
+  padding: 14px;
+  display:flex;
+  align-items:stretch;
+  justify-content:center;
 }
 
-.header {
-    background: linear-gradient(135deg, #4a6cf7, #6fb1c8);
-    color: white;
-    padding: 25px 35px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.wrap{
+  width:100%;
+  max-width:none;
+  height:100%;
+  position:relative;
+  z-index:2;
+  display:flex;
 }
 
-.header h1 {
-    font-size: 22px;
-    font-weight: 600;
-    margin: 0;
+.layout{
+  width:100%;
+  height:100%;
+  display:flex;
+  gap:14px;
 }
 
-.btn-home {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: 8px 18px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.3s ease;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+.sidebar{
+  width: 340px;
+  height: 100%;
+  background: #1f2430;
+  border: 1px solid #2b3242;
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.18);
+  padding: 14px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow:auto;
 }
 
-.btn-home:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.side-title{
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing:.3px;
+  color:#e2e8f0;
+  text-transform: uppercase;
 }
 
-.form-container {
-    padding: 40px 50px;
+.side-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin:0;
+  padding:0;
+  list-style:none;
 }
 
-.form-group {
-    margin-bottom: 16px;
+.side-link{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:10px 12px;
+  border-radius: 14px;
+  text-decoration:none;
+  color:#e2e8f0;
+  background: #232a38;
+  border:1px solid #2f3747;
+  transition: all .15s ease;
+}
+.side-link:hover{
+  transform: translateY(-1px);
+  border-color:#5a63ff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+}
+.side-link.active{
+  background:#2a3350;
+  border-color:#5a63ff;
+  box-shadow: inset 0 0 0 1px rgba(90, 99, 255, .25);
+}
+.side-icon{
+  width:36px;
+  height:36px;
+  border-radius: 12px;
+  display:grid;
+  place-items:center;
+  background: rgba(90, 99, 255, .18);
+  border:1px solid rgba(90, 99, 255, .25);
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+.side-text{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+.side-text strong{
+  font-size: 14px;
+  line-height:1.2;
+}
+.side-text span{
+  font-size: 12px;
+  color: #94a3b8;
+  line-height:1.25;
 }
 
-label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: bold;
-    font-size: 14px;
+.shell{
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  flex: 1 1 auto;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px 12px 10px;
+  overflow:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling: touch;
+  backdrop-filter: blur(10px);
 }
 
-.required {
-    color: red;
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom: 10px;
 }
 
-input,
-select {
-    width: 100%;
-    height: 44px;
-    padding: 0 14px;
-    font-size: 14px;
-    border-radius: 10px;
-    border: 1.8px solid #ddd;
-    transition: border-color 0.3s ease;
+.titles h1{
+  margin:0;
+  font-size: 20px;
+  letter-spacing:.2px;
+  line-height: 1.15;
+}
+.titles p{
+  margin:6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
 }
 
-input.error,
-select.error {
-    border-color: #ff4444;
-    animation: shake 0.5s;
+.actionsTop{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+a.btn{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  padding:8px 12px;
+  border-radius: 14px;
+  text-decoration:none;
+  font-weight:900;
+  font-size: 12px;
+  border: 1px solid transparent;
+  white-space:nowrap;
+}
+a.btn.light{
+  background: var(--btn2);
+  color: #1f2a44;
+  border-color: #d7ddff;
+}
+a.btn.dark{
+  background: var(--btn);
+  color: #fff;
+}
+
+.alert-error{
+  background: #ffe6e6;
+  color: #b30000;
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: 13px;
+  border: 1px solid #f5c2c2;
+}
+
+.form{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 12px;
+  margin-top: 10px;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+label{
+  font-weight:900;
+  color:#1f2a44;
+  font-size: 12px;
+  letter-spacing:.2px;
+  text-transform: uppercase;
+}
+.required{ color: #ef4444; }
+
+input, select{
+  width:100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  outline:none;
+  font-size: 14px;
+  background:#fff;
+  color:#0f172a;
+}
+
+input.error, select.error{
+  border-color: #ff4444;
+  animation: shake 0.5s;
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
-.file-label {
-    display: block;
-    text-align: center;
-    padding: 18px;
-    border: 2px dashed #4a6cf7;
-    border-radius: 12px;
-    cursor: pointer;
-    background: #f6f8ff;
-    font-size: 14px;
-    transition: all 0.3s ease;
+.full{ grid-column: 1 / -1; }
+
+.row3{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px 12px;
+  width:100%;
+}
+.row3.full{ grid-column: 1 / -1; }
+
+.file-label{
+  display: block;
+  text-align: center;
+  padding: 16px;
+  border: 2px dashed #4a6cf7;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #f6f8ff;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+.file-label.error{
+  border-color: #ff4444;
+  background: #ffe6e6;
+}
+input[type="file"]{ display:none; }
+.file-name{
+  margin-top: 8px;
+  color: green;
+  display: none;
+  font-size: 13px;
 }
 
-.file-label.error {
-    border-color: #ff4444;
-    background: #ffe6e6;
+.file-preview{
+  width:100%;
+  height: 220px;
+  margin-top: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  background: #f5f7fb;
 }
-
-input[type="file"] {
-    display: none;
-}
-
-.file-name {
-    margin-top: 8px;
-    color: green;
-    display: none;
-    font-size: 13px;
-}
-
-button[type="submit"] {
-    width: 100%;
-    height: 46px;
-    font-size: 14px;
-    background: #4a6cf7;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-button[type="submit"]:hover {
-    background: #3a5ce7;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
-}
-
-.file-preview {
-    width: 100%;
-    height: 280px;
-    aspect-ratio: 16 / 9;
-    margin-top: 15px;
-    margin-bottom: 20px;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid #ddd;
-    background: #f5f7fb;
-}
-
 .file-preview iframe,
-.file-preview embed {
-    width: 100%;
-    height: 100%;
-    border: none;
+.file-preview embed{
+  width:100%;
+  height:100%;
+  border:none;
+}
+.file-preview img{
+  width:100%;
+  height:100%;
+  object-fit: contain;
 }
 
-.file-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+.bottomActions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  margin-top: 12px;
+  flex-wrap:wrap;
+  padding-bottom: 4px;
 }
 
-.alert-error {
-    background: #ffe6e6;
-    color: #b30000;
+button.primary{
+  border:none;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #0f172a;
+  color:#fff;
+  font-weight:900;
+  font-size: 13px;
+  cursor:pointer;
+  display:inline-flex;
+  gap:10px;
+  align-items:center;
+}
+button.primary:active{ transform: translateY(1px); }
+
+@media (max-width: 980px){
+  body{ padding: 10px; }
+  .layout{ flex-direction:column; }
+  .sidebar{
+    width:100%;
+    height:auto;
+  }
+  .shell{
+    max-width: 100%;
     padding: 14px;
-    border-radius: 12px;
-    margin-bottom: 18px;
-    text-align: center;
-    font-size: 14px;
-    border: 1px solid #f5c2c2;
+    border-radius: 20px;
+  }
+  .form{ grid-template-columns: 1fr; }
+  .row3{ grid-template-columns: 1fr; }
+  .actionsTop{ width:100%; }
+  a.btn{ flex:1; justify-content:center; }
 }
 
 /* MODAL STYLES */
@@ -276,92 +437,282 @@ button[type="submit"]:hover {
 
 /* Mobile */
 @media (max-width: 768px) {
-    .container {
-        width: 95vw;
-    }
-
-    .header {
-        padding: 20px;
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
-    }
-
-    .header h1 {
-        font-size: 20px;
-    }
-
-    .btn-home {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .form-container {
-        padding: 30px 25px;
-    }
-
-    .file-preview {
-        aspect-ratio: 3 / 4;
-    }
+  .file-preview {
+    height: 220px;
+  }
 }
 </style>
 </head>
 
 <body>
-<div class="container">
-    <div class="header">
-        <h1>📑 Sortir Dokumen</h1>
-        <a href="homepage.php" class="btn-home">
-            <span>🏠</span>
-            <span>Kembali ke Menu</span>
-        </a>
-    </div>
+<div class="wrap">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="side-title">Menu Utama</div>
+      <ul class="side-list">
+        <li>
+          <a class="side-link active" href="/SortirDokumen/pages/form.php">
+            <div class="side-icon">🗂️</div>
+            <div class="side-text">
+              <strong>Sortir Dokumen</strong>
+              <span>Kelola kategori dokumen.</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="side-link" href="/SortirDokumen/pages/arsip.php">
+            <div class="side-icon">🗄️</div>
+            <div class="side-text">
+              <strong>Rekapitulasi Arsip</strong>
+              <span>Ringkasan seluruh arsip.</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="side-link" href="/SortirDokumen/pages/input_arsip.php">
+            <div class="side-icon">🧾</div>
+            <div class="side-text">
+              <strong>Pemusnahan Dokumen</strong>
+              <span>Input arsip dimusnahkan.</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="side-link" href="/SortirDokumen/pages/tabel_arsip.php">
+            <div class="side-icon">📊</div>
+            <div class="side-text">
+              <strong>Tabel Pemusnahan</strong>
+              <span>Riwayat penghapusan.</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="side-link" href="/SortirDokumen/pages/export_menu.php">
+            <div class="side-icon">📥</div>
+            <div class="side-text">
+              <strong>Export CSV</strong>
+              <span>Unduh data CSV/Excel.</span>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </aside>
 
-    <div class="form-container">
-        <?php if (isset($_SESSION['error_nomor'])): ?>
-        <div class="alert-error">
-            ❌ <?= htmlspecialchars($_SESSION['error_nomor']); ?><br>
-            <small>Contoh benar: ME.002/003/DI/XII/2016 atau e.B/PL.01.00/001/KSUB/V/2024</small>
+    <div class="shell">
+      <div class="top">
+        <div class="titles">
+          <h1>Sortir Dokumen</h1>
+          <p>Lengkapi informasi arsip untuk proses sortir dokumen.</p>
         </div>
-        <?php unset($_SESSION['error_nomor']); endif; ?>
 
-        <form id="suratForm" name="suratForm" action="proses.php" method="POST" enctype="multipart/form-data" novalidate>
+        <div class="actionsTop">
+          <a class="btn dark" href="homepage.php">⬅️ Kembali</a>
+        </div>
+      </div>
 
-            <input type="hidden" name="id_s" value="<?= htmlspecialchars($id_surat) ?>">
+      <?php if (isset($_SESSION['error_nomor'])): ?>
+      <div class="alert-error">
+        ❌ <?= htmlspecialchars($_SESSION['error_nomor']); ?><br>
+        <small>Contoh benar: ME.002/003/DI/XII/2016 atau e.B/PL.01.00/001/KSUB/V/2024</small>
+      </div>
+      <?php unset($_SESSION['error_nomor']); endif; ?>
 
-            <div class="form-group">
-                <label>Jenis Surat <span class="required">*</span></label>
-                <select name="jenis_surat" id="jenis_surat">
-                    <option value="">-- Pilih Jenis Surat --</option>
-                    <option value="masuk" <?= $old_jenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
-                    <option value="keluar" <?= $old_jenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
-                </select>
-            </div>
+      <form id="suratForm" name="suratForm" action="proses.php" method="POST" enctype="multipart/form-data" novalidate>
+        <input type="hidden" name="id_s" value="<?= htmlspecialchars($id_surat) ?>">
 
-            <div class="form-group">
-                <label>Nomor Surat <span class="required">*</span></label>
-                <input type="text"
-                       name="nomor_surat"
-                       id="nomor_surat"
-                       value="<?= htmlspecialchars($old_nomor) ?>"
-                       placeholder="Contoh: ME.002/003/DI/XII/2016">
-            </div>
+        <div class="form">
+          <div class="field">
+            <label>Kode <span class="required">*</span></label>
+            <input
+              type="text"
+              name="kode_klasifikasi"
+              placeholder="ME.03.02"
+            >
+          </div>
 
-            <div class="form-group">
-                <label>Upload File Surat <span class="required">*</span></label>
-                <label class="file-label" id="fileLabel">
-                    Klik untuk memilih file
-                    <input type="file" id="fileInput" name="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                </label>
-                <div class="file-name" id="fileName"></div>
-            </div>
+          <div class="field">
+            <label>Unit Pengolah</label>
+            <input
+              type="text"
+              name="unit_pengolah"
+              placeholder="Tata Usaha"
+            >
+          </div>
 
-            <div class="file-preview" id="filePreview" style="margin-top:10px;"></div>
-            
-            <button type="submit">SIMPAN</button>
+          <div class="field">
+            <label>Nama Berkas <span class="required">*</span></label>
+            <input
+              type="text"
+              name="nama_berkas"
+              placeholder="Produk Data dan Informasi Radar Cuaca"
+            >
+          </div>
 
-        </form>
+          <div class="field">
+            <label>Nomor Isi</label>
+            <input
+              type="text"
+              name="no_isi"
+              placeholder="1"
+            >
+          </div>
+
+          <div class="field">
+            <label>Pencipta Arsip</label>
+            <input
+              type="text"
+              name="pencipta"
+              placeholder="Stasiun Meteorologi Kelas I"
+            >
+          </div>
+
+          <div class="field">
+            <label>Tujuan Surat</label>
+            <input
+              type="text"
+              name="tujuan_surat"
+              placeholder="Stasiun Meteorologi"
+            >
+          </div>
+
+          <div class="field">
+            <label>Nomor Surat <span class="required">*</span></label>
+            <input
+              type="text"
+              name="nomor_surat"
+              id="nomor_surat"
+              value="<?= htmlspecialchars($old_nomor) ?>"
+              placeholder="Contoh: ME.002/003/DI/XII/2016"
+            >
+          </div>
+
+          <div class="field full">
+            <label>Perihal</label>
+            <input
+              type="text"
+              name="perihal"
+              placeholder="Laporan Bulanan Radar Maritim"
+            >
+          </div>
+
+          <div class="field full">
+            <label>Uraian Informasi</label>
+            <input
+              type="text"
+              name="uraian"
+              placeholder="Surat dari Stasiun Meteorologi Kelas III ..."
+            >
+          </div>
+
+          <div class="field">
+            <label>Tanggal Surat / Kurun</label>
+            <input
+              type="text"
+              name="tanggal_surat"
+              placeholder="YYYY atau YYYY-MM-DD"
+            >
+          </div>
+
+          <div class="field">
+            <label>Jumlah</label>
+            <input
+              type="text"
+              name="jumlah"
+              placeholder="3 lembar"
+            >
+          </div>
+
+          <div class="field">
+            <label>Lokasi Simpan</label>
+            <input
+              type="text"
+              name="lokasi"
+              placeholder="Filling Kabinet"
+            >
+          </div>
+
+          <div class="field">
+            <label>Tingkat</label>
+            <select name="tingkat">
+              <option value="">-- pilih --</option>
+              <option value="Penting">Penting</option>
+              <option value="Biasa">Biasa</option>
+              <option value="Rahasia">Rahasia</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Keterangan</label>
+            <input
+              type="text"
+              name="keterangan"
+              placeholder="Arsip"
+            >
+          </div>
+
+          <div class="field">
+            <label>SKKAD</label>
+            <input
+              type="text"
+              name="skkad"
+              placeholder="Arsip / Terbuka"
+            >
+          </div>
+
+          <div class="field">
+            <label>JRA Aktif (Tahun)</label>
+            <input
+              type="text"
+              name="jra_aktif"
+              placeholder="1"
+            >
+          </div>
+
+          <div class="field">
+            <label>JRA Inaktif (Tahun)</label>
+            <input
+              type="text"
+              name="jra_inaktif"
+              placeholder="1"
+            >
+          </div>
+
+          <div class="field full">
+            <label>Nasib</label>
+            <input
+              type="text"
+              name="nasib"
+              placeholder="Musnah"
+            >
+          </div>
+
+          <div class="field">
+            <label>Jenis Surat <span class="required">*</span></label>
+            <select name="jenis_surat" id="jenis_surat">
+              <option value="">-- Pilih Jenis Surat --</option>
+              <option value="masuk" <?= $old_jenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
+              <option value="keluar" <?= $old_jenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label>Upload File Surat <span class="required">*</span></label>
+            <label class="file-label" id="fileLabel">
+              Klik untuk memilih file
+              <input type="file" id="fileInput" name="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+            </label>
+            <div class="file-name" id="fileName"></div>
+          </div>
+        </div>
+
+        <div class="file-preview" id="filePreview"></div>
+
+        <div class="bottomActions">
+          <button class="primary" type="submit">💾 Simpan</button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
 <!-- MODAL VALIDASI ERROR -->

@@ -10,6 +10,24 @@ $jenis_surat = $_POST['jenis_surat'];
 $nomor_surat = trim($_POST['nomor_surat']);
 $file = $_FILES['fileInput'];
 
+$kode_klasifikasi = trim($_POST['kode_klasifikasi'] ?? '');
+$unit_pengolah    = trim($_POST['unit_pengolah'] ?? '');
+$nama_berkas       = trim($_POST['nama_berkas'] ?? '');
+$nomor_isi         = trim($_POST['no_isi'] ?? '');
+$pencipta_arsip    = trim($_POST['pencipta'] ?? '');
+$tujuan_surat      = trim($_POST['tujuan_surat'] ?? '');
+$perihal           = trim($_POST['perihal'] ?? '');
+$uraian_informasi  = trim($_POST['uraian'] ?? '');
+$tanggal_surat     = trim($_POST['tanggal_surat'] ?? '');
+$jumlah            = trim($_POST['jumlah'] ?? '');
+$lokasi_simpan     = trim($_POST['lokasi'] ?? '');
+$tingkat           = trim($_POST['tingkat'] ?? '');
+$keterangan        = trim($_POST['keterangan'] ?? '');
+$skkad             = trim($_POST['skkad'] ?? '');
+$jra_aktif         = trim($_POST['jra_aktif'] ?? '');
+$jra_inaktif       = trim($_POST['jra_inaktif'] ?? '');
+$nasib             = trim($_POST['nasib'] ?? '');
+
 $pattern = '/^
     (?:([a-zA-Z0-9.]+)\/)?      # Group 1: Prefix opsional (e.B, ME.002, dll)
     ([^\/]+)                     # Group 2: Bagian pertama
@@ -135,9 +153,13 @@ $sql = "
 INSERT INTO surat (
     jenis_surat, nomor_surat, kode_utama, subkode,
     nomor_urut, unit_pengirim, bulan, tahun,
+    kode_klasifikasi, unit_pengolah, nama_berkas, nomor_isi,
+    pencipta_arsip, tujuan_surat, perihal, uraian_informasi,
+    tanggal_surat, jumlah, lokasi_simpan, tingkat,
+    keterangan, skkad, jra_aktif, jra_inaktif, nasib,
     nama_file, path_file
 ) VALUES (
-    ?,?,?,?,?,?,?,?,?,?
+    ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
 )";
 
 $stmt = $dbhandle->prepare($sql);
@@ -150,6 +172,23 @@ $result = $stmt->execute([
     $unit_pengirim,
     $bulan,
     $tahun,
+    $kode_klasifikasi,
+    $unit_pengolah,
+    $nama_berkas,
+    $nomor_isi,
+    $pencipta_arsip,
+    $tujuan_surat,
+    $perihal,
+    $uraian_informasi,
+    $tanggal_surat,
+    $jumlah,
+    $lokasi_simpan,
+    $tingkat,
+    $keterangan,
+    $skkad,
+    $jra_aktif,
+    $jra_inaktif,
+    $nasib,
     $nama_file,
     $destPath
 ]);
