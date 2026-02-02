@@ -1,9 +1,18 @@
 <?php
+ob_start();
 session_start();
-require_once "koneksi.php";
+require_once __DIR__ . "/config/koneksi.php";
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
 
 if (!isset($_POST['jenis_surat'], $_POST['nomor_surat'], $_FILES['fileInput'])) {
-    die("Form tidak lengkap");
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Form tidak lengkap. Pastikan semua field wajib terisi.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
 }
 
 $jenis_surat = $_POST['jenis_surat'];
@@ -41,7 +50,7 @@ if (!preg_match($pattern, $nomor_surat, $matches)) {
     $_SESSION['error_nomor'] = "Format nomor surat tidak valid";
     $_SESSION['old_jenis_surat'] = $jenis_surat;
     $_SESSION['old_nomor_surat'] = $nomor_surat;
-    header("Location: form.php");
+    header("Location: /SortirDokumen/pages/form.php");
     exit;
 }
 
@@ -114,7 +123,7 @@ if (!$bulan) die("Bulan tidak valid");
 
 if ($file['error'] !== 0) die("File upload error");
 
-$uploadDir = "uploads/$tahun/$bulan/$kode_utama/";
+$uploadDir = __DIR__ . "/uploads/$tahun/$bulan/$kode_utama/";
 if (!empty($subkode)) {
     $uploadDir .= "$subkode/";
 }
@@ -144,9 +153,20 @@ $nama_file = preg_replace('/[^a-zA-Z0-9._-]/', '_', $nama_asli);
 /* auto rename jika duplikat */
 $nama_file = namaFileUnik($uploadDir, $nama_file);
 $destPath = $uploadDir . $nama_file;
+$destPathRel = "uploads/$tahun/$bulan/$kode_utama/" . (!empty($subkode) ? "$subkode/" : "") . $nama_file;
+
+if (!is_uploaded_file($file['tmp_name'])) {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Upload tidak valid. Silakan pilih ulang file.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
 
 if (!move_uploaded_file($file['tmp_name'], $destPath)) {
-    die("Gagal upload file");
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Gagal upload file. Periksa izin folder uploads.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
 }
 
 $sql = "
@@ -159,48 +179,56 @@ INSERT INTO surat (
     keterangan, skkad, jra_aktif, jra_inaktif, nasib,
     nama_file, path_file
 ) VALUES (
-    ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+    ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
 )";
 
-$stmt = $dbhandle->prepare($sql);
-$result = $stmt->execute([
-    $jenis_surat,
-    $nomor_surat,
-    $kode_utama,
-    $subkode,
-    $nomor_urut,
-    $unit_pengirim,
-    $bulan,
-    $tahun,
-    $kode_klasifikasi,
-    $unit_pengolah,
-    $nama_berkas,
-    $nomor_isi,
-    $pencipta_arsip,
-    $tujuan_surat,
-    $perihal,
-    $uraian_informasi,
-    $tanggal_surat,
-    $jumlah,
-    $lokasi_simpan,
-    $tingkat,
-    $keterangan,
-    $skkad,
-    $jra_aktif,
-    $jra_inaktif,
-    $nasib,
-    $nama_file,
-    $destPath
-]);
+try {
+    $stmt = $dbhandle->prepare($sql);
+    $result = $stmt->execute([
+        $jenis_surat,
+        $nomor_surat,
+        $kode_utama,
+        $subkode,
+        $nomor_urut,
+        $unit_pengirim,
+        $bulan,
+        $tahun,
+        $kode_klasifikasi,
+        $unit_pengolah,
+        $nama_berkas,
+        $nomor_isi,
+        $pencipta_arsip,
+        $tujuan_surat,
+        $perihal,
+        $uraian_informasi,
+        $tanggal_surat,
+        $jumlah,
+        $lokasi_simpan,
+        $tingkat,
+        $keterangan,
+        $skkad,
+        $jra_aktif,
+        $jra_inaktif,
+        $nasib,
+        $nama_file,
+        $destPathRel
+    ]);
+} catch (Throwable $e) {
+    error_log("Insert surat gagal: " . $e->getMessage());
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Gagal menyimpan data. Pastikan kolom database sudah lengkap.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
 
 if ($result) {
     $_SESSION['status'] = 'success';
     $_SESSION['pesan']  = 'Data berhasil disimpan';
-    header("Location: form.php");
+    header("Location: /SortirDokumen/pages/arsip.php");
     exit;
 }
 
 $_SESSION['status'] = 'error';
 $_SESSION['pesan']  = 'Gagal menyimpan data';
-header("Location: form.php");
+header("Location: /SortirDokumen/pages/form.php");
 exit;

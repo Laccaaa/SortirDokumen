@@ -211,11 +211,16 @@ function viewFile($id) {
     $stmt->execute([(int)$id]);
     $file = $stmt->fetch();
 
-    if (!$file || !file_exists($file['path_file'])) {
+    $path = $file['path_file'] ?? '';
+    if ($path !== '' && $path[0] !== '/') {
+        $path = __DIR__ . '/../' . ltrim($path, '/');
+    }
+
+    if (!$file || !is_file($path)) {
         die("File tidak ditemukan");
     }
 
-    $ext = strtolower(pathinfo($file['path_file'], PATHINFO_EXTENSION));
+    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
     $mime = [
         'pdf' => 'application/pdf',
         'jpg' => 'image/jpeg',
@@ -224,7 +229,7 @@ function viewFile($id) {
     ][$ext] ?? 'application/octet-stream';
 
     header("Content-Type: $mime");
-    readfile($file['path_file']);
+    readfile($path);
 }
 
 /**
@@ -238,11 +243,16 @@ function downloadFile($id) {
     $stmt->execute([(int)$id]);
     $file = $stmt->fetch();
 
-    if (!$file || !file_exists($file['path_file'])) {
+    $path = $file['path_file'] ?? '';
+    if ($path !== '' && $path[0] !== '/') {
+        $path = __DIR__ . '/../' . ltrim($path, '/');
+    }
+
+    if (!$file || !is_file($path)) {
         die("File tidak ditemukan");
     }
 
     header("Content-Disposition: attachment; filename=\"{$file['nama_file']}\"");
-    header("Content-Length: " . filesize($file['path_file']));
-    readfile($file['path_file']);
+    header("Content-Length: " . filesize($path));
+    readfile($path);
 }

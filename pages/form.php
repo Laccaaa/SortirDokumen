@@ -517,7 +517,7 @@ button.primary:active{ transform: translateY(1px); }
       </div>
       <?php unset($_SESSION['error_nomor']); endif; ?>
 
-      <form id="suratForm" name="suratForm" action="proses.php" method="POST" enctype="multipart/form-data" novalidate>
+      <form id="suratForm" name="suratForm" action="/SortirDokumen/proses.php" method="POST" enctype="multipart/form-data" novalidate>
         <input type="hidden" name="id_s" value="<?= htmlspecialchars($id_surat) ?>">
 
         <div class="form">
@@ -828,6 +828,40 @@ document.addEventListener("DOMContentLoaded", function () {
         msg.innerText = "<?= addslashes($_SESSION['pesan']); ?>";
         modal.classList.add("show");
     <?php unset($_SESSION['status'], $_SESSION['pesan']); endif; ?>
+
+    /* ========= TAMPILKAN MODAL ERROR (SERVER) ========= */
+    <?php if (isset($_SESSION['status']) && $_SESSION['status'] === 'error'): ?>
+        showErrorModal("<?= addslashes($_SESSION['pesan']); ?>");
+    <?php unset($_SESSION['status'], $_SESSION['pesan']); endif; ?>
+
+    /* ========= ENTER TO NEXT FIELD ========= */
+    const getFields = () => Array.from(
+        form.querySelectorAll("input, select, textarea, button")
+    ).filter(el => {
+        if (el.type === "hidden") return false;
+        if (el.type === "file") return false;
+        if (el.disabled) return false;
+        return true;
+    });
+
+    form.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter") return;
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+        if (target.tagName === "TEXTAREA") return;
+
+        const fields = getFields();
+        const idx = fields.indexOf(target);
+        if (idx === -1) return;
+
+        e.preventDefault();
+        const next = fields[idx + 1];
+        if (next) {
+            next.focus();
+        } else {
+            form.requestSubmit();
+        }
+    });
 
 });
 
