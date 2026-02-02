@@ -202,6 +202,154 @@ function getItems($path) {
 
 /**
  * ======================================================
+ * PARSE PATH KE FILTERS
+ * ======================================================
+ */
+function parsePathFilters($path) {
+    $path = urldecode($path);
+    $filters = [
+        'jenis' => null,
+        'tahun' => null,
+        'bulan' => null,
+        'kode' => null,
+        'subkode' => null,
+        'valid' => true
+    ];
+
+    if ($path === '') {
+        return $filters;
+    }
+
+    if ($path === 'Surat Masuk' || $path === 'Surat Keluar') {
+        $filters['jenis'] = ($path === 'Surat Masuk') ? 'masuk' : 'keluar';
+        return $filters;
+    }
+
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})$#', $path, $m)) {
+        $filters['jenis'] = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
+        $filters['tahun'] = (int)$m[2];
+        return $filters;
+    }
+
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)$#', $path, $m)) {
+        $filters['jenis'] = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
+        $filters['tahun'] = (int)$m[2];
+        $filters['bulan'] = $m[3];
+        return $filters;
+    }
+
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([A-Z]+)$#', $path, $m)) {
+        $filters['jenis'] = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
+        $filters['tahun'] = (int)$m[2];
+        $filters['bulan'] = $m[3];
+        $filters['kode'] = $m[4];
+        return $filters;
+    }
+
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([A-Z]+)/(.+)$#', $path, $m)) {
+        $filters['jenis'] = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
+        $filters['tahun'] = (int)$m[2];
+        $filters['bulan'] = $m[3];
+        $filters['kode'] = $m[4];
+        $filters['subkode'] = $m[5];
+        return $filters;
+    }
+
+    $filters['valid'] = false;
+    return $filters;
+}
+
+/**
+ * ======================================================
+ * CARI FILE SECARA REKURSIF (SUBFOLDER)
+ * ======================================================
+ */
+function searchFilesRecursive($path, $query) {
+    $filters = parsePathFilters($path);
+    if (!$filters['valid']) {
+        return [];
+    }
+
+    $conn = getConnection();
+    $items = [];
+    $queryNorm = strtolower($query);
+    $jenisQuery = $queryNorm;
+    if (strpos($queryNorm, 'surat masuk') !== false) {
+        $jenisQuery = 'masuk';
+    } elseif (strpos($queryNorm, 'surat keluar') !== false) {
+        $jenisQuery = 'keluar';
+    }
+    $sql = "SELECT id_surat, nama_file, path_file, jenis_surat, tahun, bulan, kode_utama, subkode
+            FROM surat WHERE 1=1";
+    $params = [];
+
+    if ($filters['jenis']) {
+        $sql .= " AND jenis_surat = ?";
+        $params[] = $filters['jenis'];
+    }
+    if ($filters['tahun']) {
+        $sql .= " AND tahun = ?";
+        $params[] = (int)$filters['tahun'];
+    }
+    if ($filters['bulan']) {
+        $sql .= " AND bulan = ?";
+        $params[] = $filters['bulan'];
+    }
+    if ($filters['kode']) {
+        $sql .= " AND kode_utama = ?";
+        $params[] = $filters['kode'];
+    }
+    if ($filters['subkode']) {
+        $sql .= " AND subkode = ?";
+        $params[] = $filters['subkode'];
+    }
+
+    $sql .= " AND (
+        kode_utama ILIKE ? OR
+        subkode ILIKE ? OR
+        bulan ILIKE ? OR
+        CAST(tahun AS TEXT) ILIKE ? OR
+        jenis_surat ILIKE ?
+    )";
+    $like = '%' . $query . '%';
+    $params[] = $like;
+    $params[] = $like;
+    $params[] = $like;
+    $params[] = $like;
+    $params[] = '%' . $jenisQuery . '%';
+
+    $sql .= "
+        ORDER BY tahun DESC,
+        CASE bulan
+            WHEN 'Januari' THEN 1 WHEN 'Februari' THEN 2 WHEN 'Maret' THEN 3
+            WHEN 'April' THEN 4 WHEN 'Mei' THEN 5 WHEN 'Juni' THEN 6
+            WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9
+            WHEN 'Oktober' THEN 10 WHEN 'November' THEN 11 WHEN 'Desember' THEN 12
+        END,
+        kode_utama, subkode, nama_file
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($params);
+
+    while ($row = $stmt->fetch()) {
+        $jenisLabel = ($row['jenis_surat'] === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
+        $folderPath = $jenisLabel . '/' . $row['tahun'] . '/' . $row['bulan'] . '/' . $row['kode_utama'] . '/' . $row['subkode'];
+        $items[] = [
+            'type' => 'file',
+            'id' => $row['id_surat'],
+            'name' => $row['nama_file'],
+            'path_file' => $row['path_file'],
+            'location' => $folderPath,
+            'folder_link' => '?path=' . $folderPath
+        ];
+    }
+
+    return $items;
+}
+
+/**
+ * ======================================================
  * VIEW FILE
  * ======================================================
  */

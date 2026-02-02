@@ -4,6 +4,7 @@ require_once __DIR__ . "/../actions/prosesArsip.php";
 
 $path = $_GET['path'] ?? '';
 $action = $_GET['action'] ?? '';
+$query = trim($_GET['q'] ?? '');
 
 // Handle actions (view/download)
 if ($action === 'view' && isset($_GET['id'])) {
@@ -17,7 +18,7 @@ if ($action === 'download' && isset($_GET['id'])) {
 }
 
 // Get items untuk ditampilkan
-$items = getItems($path);
+$items = ($query !== '') ? searchFilesRecursive($path, $query) : getItems($path);
 $parts = array_filter(explode('/', $path));
 ?>
 
@@ -254,6 +255,64 @@ a.btn.dark{
   color:#adb5bd;
 }
 
+.search-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin: 0 0 12px;
+  flex-wrap:wrap;
+}
+.search-wrap{
+  flex: 1 1 320px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#f8fafc;
+  border: 1px solid #e9ecef;
+  padding: 8px 10px;
+  border-radius: 12px;
+}
+.search-wrap span{
+  font-size: 14px;
+  opacity:.65;
+}
+.search-input{
+  border:none;
+  background: transparent;
+  outline:none;
+  width:100%;
+  font-size: 13px;
+  color:#0f172a;
+}
+.search-hint{
+  font-size: 11px;
+  color: var(--muted);
+}
+.search-clear{
+  background: var(--btn2);
+  color:#1f2a44;
+  border: 1px solid #d7ddff;
+  padding: 6px 10px;
+  border-radius: 10px;
+  text-decoration:none;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.meta{
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.meta a{
+  color:#4a6cf7;
+  text-decoration:none;
+  font-weight:700;
+}
+.meta a:hover{
+  text-decoration:underline;
+}
+
 .content{
   padding: 0;
 }
@@ -469,6 +528,18 @@ a.btn.dark{
         ?>
       </div>
 
+      <form class="search-row" id="searchForm" method="get" action="arsip.php">
+        <input type="hidden" name="path" value="<?= htmlspecialchars($path, ENT_QUOTES, 'UTF-8') ?>">
+        <div class="search-wrap">
+          <span>🔎</span>
+          <input id="searchArsip" name="q" class="search-input" type="text" placeholder="Cari kode utama atau folder (rekursif)..." autocomplete="off" value="<?= htmlspecialchars($query, ENT_QUOTES, 'UTF-8') ?>">
+        </div>
+        <div class="search-hint">Berdasar kode utama, tahun, bulan, subkode, atau jenis</div>
+        <?php if ($query !== ''): ?>
+          <a class="search-clear" href="arsip.php?path=<?= urlencode($path) ?>">Reset</a>
+        <?php endif; ?>
+      </form>
+
       <div class="content">
         <div class="list">
           <?php if (empty($items)): ?>
@@ -479,7 +550,7 @@ a.btn.dark{
           <?php else: ?>
               <?php foreach ($items as $item): ?>
                   <?php if ($item['type'] === 'folder'): ?>
-                      <div class="item">
+                      <div class="item" data-search="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>">
                           <a href="<?= htmlspecialchars($item['link']) ?>" class="item-link">
                               <div class="icon folder">📁</div>
                               <div class="name">
@@ -489,10 +560,16 @@ a.btn.dark{
                           </a>
                       </div>
                   <?php else: ?>
-                      <div class="item">
+                      <div class="item" data-search="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>">
                           <div class="icon file">📄</div>
                           <div class="name">
                               <span><?= htmlspecialchars($item['name']) ?></span>
+                              <?php if (!empty($item['location'])): ?>
+                                <div class="meta">
+                                  Lokasi: <?= htmlspecialchars($item['location']) ?> ·
+                                  <a href="<?= htmlspecialchars($item['folder_link']) ?>">Buka folder</a>
+                                </div>
+                              <?php endif; ?>
                           </div>
                           <div class="actions">
                               <a href="arsip.php?action=view&id=<?= $item['id'] ?>" class="btn btn-view" title="Lihat" target="_blank">👁️</a>
@@ -501,11 +578,30 @@ a.btn.dark{
                       </div>
                   <?php endif; ?>
               <?php endforeach; ?>
+              <div id="emptySearch" class="empty-state" style="display:none;">
+                  <div class="empty-state-icon">🔍</div>
+                  <p>Tidak ada hasil yang cocok</p>
+              </div>
           <?php endif; ?>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+const searchInput = document.getElementById("searchArsip");
+const searchForm = document.getElementById("searchForm");
+let searchTimer = null;
+
+if (searchInput && searchForm) {
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchForm.submit();
+    }, 300);
+  });
+}
+</script>
 </body>
 </html>
