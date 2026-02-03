@@ -1,10 +1,12 @@
 <?php
+require_once __DIR__ . "/../config/koneksi.php";
+require_once __DIR__ . "/../auth/auth_check.php";
 // auth_check.php
 session_start();
 
 // Cek apakah user sudah login
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: ../auth/login.php");
     exit;
 }
 

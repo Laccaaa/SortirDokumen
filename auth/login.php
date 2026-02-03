@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (isset($_SESSION['user_id'])) {
-  header("Location: homepage.php");
+  header("Location: ../pages/homepage.php");
   exit;
 }
 $error = $_SESSION['error'] ?? '';
@@ -331,7 +331,7 @@ body{
         </div>
       <?php endif; ?>
 
-      <form action="/SortirDokumen/auth/proses_login.php" method="POST">
+      <form action="../auth/proses_login.php" method="POST">
         <div class="field">
           <div class="input">
             <span class="icon" aria-hidden="true">

@@ -1,5 +1,6 @@
 <?php
-include "auth/auth_check.php";
+require_once __DIR__ . "/../config/koneksi.php";
+require_once __DIR__ . "/../auth/auth_check.php";
 
 // Ambil data user dari session
 $nama_user = $_SESSION['nama_lengkap'] ?? 'User';
