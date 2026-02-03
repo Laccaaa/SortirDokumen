@@ -526,7 +526,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="kode_klasifikasi"
-              placeholder="ME.03.02"
             >
           </div>
 
@@ -535,7 +534,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="unit_pengolah"
-              placeholder="Tata Usaha"
             >
           </div>
 
@@ -544,7 +542,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="nama_berkas"
-              placeholder="Produk Data dan Informasi Radar Cuaca"
             >
           </div>
 
@@ -553,7 +550,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="no_isi"
-              placeholder="1"
             >
           </div>
 
@@ -562,7 +558,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="pencipta"
-              placeholder="Stasiun Meteorologi Kelas I"
             >
           </div>
 
@@ -571,7 +566,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="tujuan_surat"
-              placeholder="Stasiun Meteorologi"
             >
           </div>
 
@@ -582,7 +576,6 @@ button.primary:active{ transform: translateY(1px); }
               name="nomor_surat"
               id="nomor_surat"
               value="<?= htmlspecialchars($old_nomor) ?>"
-              placeholder="Contoh: ME.002/003/DI/XII/2016"
             >
           </div>
 
@@ -591,7 +584,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="perihal"
-              placeholder="Laporan Bulanan Radar Maritim"
             >
           </div>
 
@@ -600,7 +592,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="uraian"
-              placeholder="Surat dari Stasiun Meteorologi Kelas III ..."
             >
           </div>
 
@@ -609,7 +600,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="tanggal_surat"
-              placeholder="YYYY atau YYYY-MM-DD"
             >
           </div>
 
@@ -618,7 +608,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="jumlah"
-              placeholder="3 lembar"
             >
           </div>
 
@@ -627,7 +616,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="lokasi"
-              placeholder="Filling Kabinet"
             >
           </div>
 
@@ -646,7 +634,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="keterangan"
-              placeholder="Arsip"
             >
           </div>
 
@@ -655,7 +642,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="skkad"
-              placeholder="Arsip / Terbuka"
             >
           </div>
 
@@ -664,7 +650,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="jra_aktif"
-              placeholder="1"
             >
           </div>
 
@@ -673,7 +658,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="jra_inaktif"
-              placeholder="1"
             >
           </div>
 
@@ -682,7 +666,6 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="nasib"
-              placeholder="Musnah"
             >
           </div>
 

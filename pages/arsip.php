@@ -5,6 +5,10 @@ require_once __DIR__ . "/../actions/prosesArsip.php";
 $path = $_GET['path'] ?? '';
 $action = $_GET['action'] ?? '';
 $query = trim($_GET['q'] ?? '');
+$filterJenis = $_GET['jenis'] ?? '';
+$filterTahun = $_GET['tahun'] ?? '';
+$filterBulan = $_GET['bulan'] ?? '';
+$filterSub = $_GET['subkode'] ?? '';
 
 // Handle actions (view/download)
 if ($action === 'view' && isset($_GET['id'])) {
@@ -18,8 +22,22 @@ if ($action === 'download' && isset($_GET['id'])) {
 }
 
 // Get items untuk ditampilkan
-$items = ($query !== '') ? searchFilesRecursive($path, $query) : getItems($path);
+$isFilterMode = ($filterJenis !== '' || $filterTahun !== '' || $filterBulan !== '' || $filterSub !== '');
+$items = $isFilterMode
+    ? getFilesByFiltersAndQuery(
+        $filterJenis !== '' ? $filterJenis : null,
+        $filterTahun !== '' ? $filterTahun : null,
+        $filterBulan !== '' ? $filterBulan : null,
+        $filterSub !== '' ? $filterSub : null,
+        $query !== '' ? $query : null
+    )
+    : (($query !== '') ? searchFilesRecursive($path, $query) : getItems($path));
 $parts = array_filter(explode('/', $path));
+$filterOptions = getFilterOptions(
+    $filterJenis !== '' ? $filterJenis : null,
+    $filterTahun !== '' ? $filterTahun : null,
+    $filterBulan !== '' ? $filterBulan : null
+);
 ?>
 
 <!DOCTYPE htqml>
@@ -299,6 +317,37 @@ a.btn.dark{
   font-weight: 700;
 }
 
+.filter-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin: 0 0 12px;
+}
+.filter-group{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.filter-select{
+  background:#f8fafc;
+  border: 1px solid #e9ecef;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  color:#0f172a;
+}
+.filter-actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.filter-note{
+  font-size: 11px;
+  color: var(--muted);
+}
+
 .meta{
   font-size: 11px;
   color: var(--muted);
@@ -433,6 +482,69 @@ a.btn.dark{
   opacity: .6;
 }
 
+.modal{
+  position:fixed;
+  inset:0;
+  background: rgba(15, 23, 42, .45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index: 999;
+  padding: 20px;
+}
+.modal.show{ display:flex; }
+.modal-card{
+  width: min(960px, 92vw);
+  height: min(80vh, 720px);
+  background:#fff;
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 12px 14px;
+  border-bottom:1px solid #e9ecef;
+  background:#f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+  color:#0f172a;
+}
+.modal-close{
+  border:none;
+  background:#e2e8f0;
+  color:#0f172a;
+  padding:6px 10px;
+  border-radius: 10px;
+  cursor:pointer;
+  font-weight:700;
+}
+.modal-body{
+  flex:1;
+  background:#0b1220;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.modal-body iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  background:#0b1220;
+}
+.modal-body img{
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  background:#0b1220;
+}
+
 @media (max-width: 980px){
   body{ padding: 10px; }
   .layout{ flex-direction:column; }
@@ -530,6 +642,10 @@ a.btn.dark{
 
       <form class="search-row" id="searchForm" method="get" action="arsip.php">
         <input type="hidden" name="path" value="<?= htmlspecialchars($path, ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="jenis" value="<?= htmlspecialchars($filterJenis, ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="tahun" value="<?= htmlspecialchars($filterTahun, ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="bulan" value="<?= htmlspecialchars($filterBulan, ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="subkode" value="<?= htmlspecialchars($filterSub, ENT_QUOTES, 'UTF-8') ?>">
         <div class="search-wrap">
           <span>🔎</span>
           <input id="searchArsip" name="q" class="search-input" type="text" placeholder="Cari kode utama atau folder (rekursif)..." autocomplete="off" value="<?= htmlspecialchars($query, ENT_QUOTES, 'UTF-8') ?>">
@@ -538,6 +654,42 @@ a.btn.dark{
         <?php if ($query !== ''): ?>
           <a class="search-clear" href="arsip.php?path=<?= urlencode($path) ?>">Reset</a>
         <?php endif; ?>
+      </form>
+
+      <form class="filter-row" method="get" action="arsip.php">
+        <input type="hidden" name="path" value="<?= htmlspecialchars($path, ENT_QUOTES, 'UTF-8') ?>">
+        <div class="filter-group">
+          <select class="filter-select" name="jenis">
+            <option value="">Semua jenis</option>
+            <option value="masuk" <?= $filterJenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
+            <option value="keluar" <?= $filterJenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
+          </select>
+          <select class="filter-select" name="tahun">
+            <option value="">Semua tahun</option>
+            <?php foreach ($filterOptions['years'] as $yr): ?>
+              <option value="<?= htmlspecialchars($yr) ?>" <?= (string)$filterTahun === (string)$yr ? 'selected' : '' ?>><?= htmlspecialchars($yr) ?></option>
+            <?php endforeach; ?>
+          </select>
+          <select class="filter-select" name="bulan">
+            <option value="">Semua bulan</option>
+            <?php foreach ($filterOptions['months'] as $mo): ?>
+              <option value="<?= htmlspecialchars($mo) ?>" <?= (string)$filterBulan === (string)$mo ? 'selected' : '' ?>><?= htmlspecialchars($mo) ?></option>
+            <?php endforeach; ?>
+          </select>
+          <select class="filter-select" name="subkode">
+            <option value="">Semua subkode</option>
+            <?php foreach ($filterOptions['subkodes'] as $sub): ?>
+              <option value="<?= htmlspecialchars($sub) ?>" <?= (string)$filterSub === (string)$sub ? 'selected' : '' ?>><?= htmlspecialchars($sub) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="search-clear" type="submit">Terapkan</button>
+          <?php if ($isFilterMode): ?>
+            <a class="search-clear" href="arsip.php?path=<?= urlencode($path) ?>">Reset</a>
+          <?php endif; ?>
+        </div>
+        <div class="filter-note">Filter update otomatis mengikuti data baru.</div>
       </form>
 
       <div class="content">
@@ -572,7 +724,7 @@ a.btn.dark{
                               <?php endif; ?>
                           </div>
                           <div class="actions">
-                              <a href="arsip.php?action=view&id=<?= $item['id'] ?>" class="btn btn-view" title="Lihat" target="_blank">👁️</a>
+                              <button type="button" class="btn btn-view js-preview" data-preview="arsip.php?action=view&id=<?= $item['id'] ?>" title="Lihat">👁️</button>
                               <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">⬇️</a>
                           </div>
                       </div>
@@ -589,6 +741,16 @@ a.btn.dark{
   </div>
 </div>
 
+<div id="previewModal" class="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <span id="previewTitle">Pratinjau Dokumen</span>
+      <button type="button" class="modal-close" id="closePreview">Tutup</button>
+    </div>
+    <div class="modal-body" id="previewBody"></div>
+  </div>
+</div>
+
 <script>
 const searchInput = document.getElementById("searchArsip");
 const searchForm = document.getElementById("searchForm");
@@ -602,6 +764,54 @@ if (searchInput && searchForm) {
     }, 300);
   });
 }
+</script>
+
+<script>
+const previewModal = document.getElementById("previewModal");
+const previewBody = document.getElementById("previewBody");
+const closePreview = document.getElementById("closePreview");
+
+function openPreview(url) {
+  const lower = url.toLowerCase();
+  previewBody.innerHTML = "";
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png")) {
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = "Pratinjau";
+    previewBody.appendChild(img);
+  } else {
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    iframe.title = "Pratinjau Dokumen";
+    previewBody.appendChild(iframe);
+  }
+  previewModal.classList.add("show");
+  previewModal.setAttribute("aria-hidden", "false");
+}
+
+function closePreviewModal() {
+  previewModal.classList.remove("show");
+  previewModal.setAttribute("aria-hidden", "true");
+  previewBody.innerHTML = "";
+}
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".js-preview");
+  if (btn) {
+    e.preventDefault();
+    openPreview(btn.dataset.preview);
+  }
+});
+
+closePreview?.addEventListener("click", closePreviewModal);
+previewModal?.addEventListener("click", (e) => {
+  if (e.target === previewModal) closePreviewModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && previewModal.classList.contains("show")) {
+    closePreviewModal();
+  }
+});
 </script>
 </body>
 </html>
