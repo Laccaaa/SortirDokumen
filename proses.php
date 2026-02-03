@@ -224,7 +224,7 @@ try {
 if ($result) {
     $_SESSION['status'] = 'success';
     $_SESSION['pesan']  = 'Data berhasil disimpan';
-    header("Location: /SortirDokumen/pages/arsip.php");
+    header("Location: /SortirDokumen/pages/form.php");
     exit;
 }
 

@@ -341,7 +341,206 @@ function searchFilesRecursive($path, $query) {
             'name' => $row['nama_file'],
             'path_file' => $row['path_file'],
             'location' => $folderPath,
+            'folder_link' => '?path=' . urlencode($folderPath)
+        ];
+    }
+
+    return $items;
+}
+
+/**
+ * ======================================================
+ * FILTER OPTIONS & FILES
+ * ======================================================
+ */
+function getFilterOptions($jenis = null, $tahun = null, $bulan = null) {
+    $conn = getConnection();
+
+    $yearsSql = "SELECT DISTINCT tahun FROM surat WHERE 1=1";
+    $monthsSql = "SELECT bulan FROM (
+        SELECT DISTINCT bulan,
+        CASE bulan
+            WHEN 'Januari' THEN 1 WHEN 'Februari' THEN 2 WHEN 'Maret' THEN 3
+            WHEN 'April' THEN 4 WHEN 'Mei' THEN 5 WHEN 'Juni' THEN 6
+            WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9
+            WHEN 'Oktober' THEN 10 WHEN 'November' THEN 11 WHEN 'Desember' THEN 12
+        END AS urut
+        FROM surat WHERE 1=1";
+    $subSql = "SELECT DISTINCT subkode FROM surat WHERE 1=1";
+    $params = [];
+
+    if ($jenis) {
+        $yearsSql .= " AND jenis_surat = ?";
+        $monthsSql .= " AND jenis_surat = ?";
+        $subSql .= " AND jenis_surat = ?";
+        $params[] = $jenis;
+    }
+
+    $yearsSql .= " ORDER BY tahun DESC";
+
+    $yearStmt = $conn->prepare($yearsSql);
+    $yearStmt->execute($params);
+    $years = $yearStmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $monthParams = $params;
+    if ($tahun) {
+        $monthsSql .= " AND tahun = ?";
+        $monthParams[] = (int)$tahun;
+    }
+    $monthsSql .= ") AS bulan_list ORDER BY urut";
+    $monthStmt = $conn->prepare($monthsSql);
+    $monthStmt->execute($monthParams);
+    $months = $monthStmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $subParams = $params;
+    if ($tahun) {
+        $subSql .= " AND tahun = ?";
+        $subParams[] = (int)$tahun;
+    }
+    if ($bulan) {
+        $subSql .= " AND bulan = ?";
+        $subParams[] = $bulan;
+    }
+    $subSql .= " ORDER BY subkode";
+    $subStmt = $conn->prepare($subSql);
+    $subStmt->execute($subParams);
+    $subkodes = $subStmt->fetchAll(PDO::FETCH_COLUMN);
+
+    return [
+        'years' => $years,
+        'months' => $months,
+        'subkodes' => $subkodes
+    ];
+}
+
+function getFilesByFilters($jenis = null, $tahun = null, $bulan = null, $subkode = null) {
+    $conn = getConnection();
+    $items = [];
+    $sql = "SELECT id_surat, nama_file, path_file, jenis_surat, tahun, bulan, kode_utama, subkode
+            FROM surat WHERE 1=1";
+    $params = [];
+
+    if ($jenis) {
+        $sql .= " AND jenis_surat = ?";
+        $params[] = $jenis;
+    }
+    if ($tahun) {
+        $sql .= " AND tahun = ?";
+        $params[] = (int)$tahun;
+    }
+    if ($bulan) {
+        $sql .= " AND bulan = ?";
+        $params[] = $bulan;
+    }
+    if ($subkode) {
+        $sql .= " AND subkode = ?";
+        $params[] = $subkode;
+    }
+
+    $sql .= "
+        ORDER BY tahun DESC,
+        CASE bulan
+            WHEN 'Januari' THEN 1 WHEN 'Februari' THEN 2 WHEN 'Maret' THEN 3
+            WHEN 'April' THEN 4 WHEN 'Mei' THEN 5 WHEN 'Juni' THEN 6
+            WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9
+            WHEN 'Oktober' THEN 10 WHEN 'November' THEN 11 WHEN 'Desember' THEN 12
+        END,
+        kode_utama, subkode, nama_file
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($params);
+
+    while ($row = $stmt->fetch()) {
+        $jenisLabel = ($row['jenis_surat'] === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
+        $folderPath = $jenisLabel . '/' . $row['tahun'] . '/' . $row['bulan'] . '/' . $row['kode_utama'] . '/' . $row['subkode'];
+        $items[] = [
+            'type' => 'file',
+            'id' => $row['id_surat'],
+            'name' => $row['nama_file'],
+            'path_file' => $row['path_file'],
+            'location' => $folderPath,
             'folder_link' => '?path=' . $folderPath
+        ];
+    }
+
+    return $items;
+}
+
+function getFilesByFiltersAndQuery($jenis = null, $tahun = null, $bulan = null, $subkode = null, $query = null) {
+    $conn = getConnection();
+    $items = [];
+    $sql = "SELECT id_surat, nama_file, path_file, jenis_surat, tahun, bulan, kode_utama, subkode
+            FROM surat WHERE 1=1";
+    $params = [];
+
+    if ($jenis) {
+        $sql .= " AND jenis_surat = ?";
+        $params[] = $jenis;
+    }
+    if ($tahun) {
+        $sql .= " AND tahun = ?";
+        $params[] = (int)$tahun;
+    }
+    if ($bulan) {
+        $sql .= " AND bulan = ?";
+        $params[] = $bulan;
+    }
+    if ($subkode) {
+        $sql .= " AND subkode = ?";
+        $params[] = $subkode;
+    }
+
+    if ($query !== null && $query !== '') {
+        $queryNorm = strtolower($query);
+        $jenisQuery = $queryNorm;
+        if (strpos($queryNorm, 'surat masuk') !== false) {
+            $jenisQuery = 'masuk';
+        } elseif (strpos($queryNorm, 'surat keluar') !== false) {
+            $jenisQuery = 'keluar';
+        }
+
+        $sql .= " AND (
+            nama_file ILIKE ? OR
+            kode_utama ILIKE ? OR
+            subkode ILIKE ? OR
+            bulan ILIKE ? OR
+            CAST(tahun AS TEXT) ILIKE ? OR
+            jenis_surat ILIKE ?
+        )";
+        $like = '%' . $query . '%';
+        $params[] = $like;
+        $params[] = $like;
+        $params[] = $like;
+        $params[] = $like;
+        $params[] = $like;
+        $params[] = '%' . $jenisQuery . '%';
+    }
+
+    $sql .= "
+        ORDER BY tahun DESC,
+        CASE bulan
+            WHEN 'Januari' THEN 1 WHEN 'Februari' THEN 2 WHEN 'Maret' THEN 3
+            WHEN 'April' THEN 4 WHEN 'Mei' THEN 5 WHEN 'Juni' THEN 6
+            WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9
+            WHEN 'Oktober' THEN 10 WHEN 'November' THEN 11 WHEN 'Desember' THEN 12
+        END,
+        kode_utama, subkode, nama_file
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($params);
+
+    while ($row = $stmt->fetch()) {
+        $jenisLabel = ($row['jenis_surat'] === 'masuk') ? 'Surat Masuk' : 'Surat Keluar';
+        $folderPath = $jenisLabel . '/' . $row['tahun'] . '/' . $row['bulan'] . '/' . $row['kode_utama'] . '/' . $row['subkode'];
+        $items[] = [
+            'type' => 'file',
+            'id' => $row['id_surat'],
+            'name' => $row['nama_file'],
+            'path_file' => $row['path_file'],
+            'location' => $folderPath,
+            'folder_link' => '?path=' . urlencode($folderPath)
         ];
     }
 
