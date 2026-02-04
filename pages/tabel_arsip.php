@@ -533,7 +533,7 @@ a.btn-edit{
           <div class="btns">
             <!-- karena file ini ada di /pages, link cukup relatif -->
             <a class="btn secondary" href="input_arsip.php">➕ Form Input</a>
-            <a class="btn primary" href="/SortirDokumen/pages/homepage.php">⬅️ Balik</a>
+            <a class="btn primary" href="/SortirDokumen/pages/homepage.php">⬅️ Kembali</a>
           </div>
         </div>
       </div>
