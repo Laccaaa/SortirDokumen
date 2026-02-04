@@ -1,10 +1,10 @@
 <?php
 
 $DB_HOST = "localhost";
-$DB_PORT = "5433";
+$DB_PORT = "5432";
 $DB_NAME = "surat";
 $DB_USER = "postgres";
-$DB_PASS = "cantikitu5";
+$DB_PASS = "muhammad";
 
 try {
     $dbhandle = new PDO(

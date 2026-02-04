@@ -193,6 +193,20 @@ $role = $_SESSION['role'] ?? 'user';
       overflow:hidden;
       align-content:start;
     }
+    .export-grid{
+      flex: 0 0 auto;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .export-card{
+      min-height: 96px;
+      padding: 12px;
+    }
+    .export-card .cardTitle{
+      font-size: 15px;
+    }
+    .export-card .cardDesc{
+      font-size: 13px;
+    }
 
     .card{
       background: #f8fafc; /* sedikit beda dari shell */
@@ -430,18 +444,33 @@ $role = $_SESSION['role'] ?? 'user';
 
         </div>
 
-        <a class="card" href="export_menu.php" aria-label="Export CSV">
-          <div class="cardTop">
-            <div class="left">
-              <div class="icon">📥</div>
-              <div style="min-width:0;">
-                <p class="cardTitle">Export CSV</p>
-                <p class="cardDesc">Unduh data ke format CSV/Excel.</p>
+        <div class="grid export-grid">
+          <a class="card export-card" href="export_menu.php" aria-label="Export Sortir Dokumen">
+            <div class="cardTop">
+              <div class="left">
+                <div class="icon">📥</div>
+                <div style="min-width:0;">
+                  <p class="cardTitle">Export Sortir Dokumen</p>
+                  <p class="cardDesc">Unduh data sortir ke CSV/Excel.</p>
+                </div>
               </div>
+              <span class="pill">Export</span>
             </div>
-            <span class="pill">Export</span>
-          </div>
-        </a>
+          </a>
+
+          <a class="card export-card" href="export_pemusnahan.php" aria-label="Export Dokumen Musnah">
+            <div class="cardTop">
+              <div class="left">
+                <div class="icon">🗑️</div>
+                <div style="min-width:0;">
+                  <p class="cardTitle">Export Dokumen Musnah</p>
+                  <p class="cardDesc">Unduh data arsip dimusnahkan.</p>
+                </div>
+              </div>
+              <span class="pill">Export</span>
+            </div>
+          </a>
+        </div>
 
         <div class="footer">
           <div class="hint"><span class="dot"></span>Tips: Gunakan menu Sortir untuk mempercepat pencarian arsip.</div>

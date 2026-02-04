@@ -153,6 +153,33 @@ body{
   border-color:#5a63ff;
   box-shadow: inset 0 0 0 1px rgba(90, 99, 255, .25);
 }
+.side-accordion{ display:flex; flex-direction:column; gap:8px; }
+.side-accordion summary{ list-style:none; }
+.side-accordion summary::-webkit-details-marker{ display:none; }
+.side-sub{ display:flex; flex-direction:column; gap:8px; padding-left:12px; }
+.side-sublink{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border-radius: 12px;
+  text-decoration:none;
+  color:#e2e8f0;
+  background: #232a38;
+  border:1px solid #2f3747;
+  font-size: 12px;
+  transition: all .15s ease;
+}
+.side-sublink:hover{
+  transform: translateY(-1px);
+  border-color:#5a63ff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
+}
+.side-sublink.active{
+  background:#2a3350;
+  border-color:#5a63ff;
+  box-shadow: inset 0 0 0 1px rgba(90, 99, 255, .25);
+}
 .side-icon{
   width:36px;
   height:36px;
@@ -571,6 +598,15 @@ a.btn.dark{
       <div class="side-title">Menu Utama</div>
       <ul class="side-list">
         <li>
+          <a class="side-link" href="/SortirDokumen/pages/homepage.php">
+            <div class="side-icon">🏠</div>
+            <div class="side-text">
+              <strong>Homepage</strong>
+              <span>Kembali ke beranda.</span>
+            </div>
+          </a>
+        </li>
+        <li>
           <a class="side-link" href="/SortirDokumen/pages/form.php">
             <div class="side-icon">🗂️</div>
             <div class="side-text">
@@ -607,22 +643,19 @@ a.btn.dark{
           </a>
         </li>
         <li>
-          <a class="side-link" href="/SortirDokumen/pages/export_menu.php">
-            <div class="side-icon">📥</div>
-            <div class="side-text">
-              <strong>Export CSV</strong>
-              <span>Unduh data CSV/Excel.</span>
+          <details class="side-accordion">
+            <summary class="side-link">
+              <div class="side-icon">📤</div>
+              <div class="side-text">
+                <strong>Ekspor</strong>
+                <span>Unduh data arsip.</span>
+              </div>
+            </summary>
+            <div class="side-sub">
+              <a class="side-sublink" href="/SortirDokumen/pages/export_menu.php">📥 Export Sortir Dokumen</a>
+              <a class="side-sublink" href="/SortirDokumen/pages/export_pemusnahan.php">🗑️ Export Dokumen Musnah</a>
             </div>
-          </a>
-        </li>
-        <li>
-          <a class="side-link" href="/SortirDokumen/pages/export_pemusnahan.php">
-            <div class="side-icon">🗑️</div>
-            <div class="side-text">
-              <strong>Export Dokumen Musnah</strong>
-              <span>Unduh data arsip dimusnahkan.</span>
-            </div>
-          </a>
+          </details>
         </li>
       </ul>
     </aside>
