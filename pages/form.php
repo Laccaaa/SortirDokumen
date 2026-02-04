@@ -343,6 +343,20 @@ button.primary{
   gap:10px;
   align-items:center;
 }
+button.secondary{
+  border: 1px solid #d7ddff;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: #eef2ff;
+  color:#1f2a44;
+  font-weight:900;
+  font-size: 14px;
+  cursor:pointer;
+  display:inline-flex;
+  gap:10px;
+  align-items:center;
+}
+button.secondary:active{ transform: translateY(1px); }
 button.primary:active{ transform: translateY(1px); }
 
 @media (max-width: 980px){
@@ -495,6 +509,15 @@ button.primary:active{ transform: translateY(1px); }
             </div>
           </a>
         </li>
+        <li>
+          <a class="side-link" href="/SortirDokumen/pages/export_pemusnahan.php">
+            <div class="side-icon">🗑️</div>
+            <div class="side-text">
+              <strong>Export Dokumen Musnah</strong>
+              <span>Unduh data arsip dimusnahkan.</span>
+            </div>
+          </a>
+        </li>
       </ul>
     </aside>
 
@@ -607,9 +630,8 @@ button.primary:active{ transform: translateY(1px); }
           <div class="field">
             <label>Tanggal Surat / Kurun</label>
             <input
-              type="text"
+              type="date"
               name="tanggal_surat"
-              placeholder="YYYY atau YYYY-MM-DD"
             >
           </div>
 
@@ -709,6 +731,7 @@ button.primary:active{ transform: translateY(1px); }
 
         <div class="bottomActions">
           <button class="primary" type="submit">💾 Simpan</button>
+          <button class="secondary" type="reset" id="resetFormBtn">🔄 Reset</button>
         </div>
       </form>
     </div>
@@ -766,6 +789,17 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (file.type.startsWith("image/")) {
             filePreview.innerHTML = `<img src="${url}">`;
         }
+    });
+
+    /* ========= RESET FORM ========= */
+    const resetBtn = document.getElementById("resetFormBtn");
+    resetBtn?.addEventListener("click", () => {
+        filePreview.innerHTML = "";
+        fileName.innerText = "";
+        fileName.style.display = "none";
+        fileLabel.classList.remove("error");
+        jenisSurat.classList.remove("error");
+        nomor.classList.remove("error");
     });
 
     /* ========= VALIDASI FORM SUBMIT ========= */
