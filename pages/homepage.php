@@ -182,7 +182,7 @@ $role = $_SESSION['role'] ?? 'user';
       display:flex;
       flex-direction:column;
       gap:12px;
-      overflow:hidden;
+      overflow:visible;
     }
 
     .grid{
@@ -190,8 +190,9 @@ $role = $_SESSION['role'] ?? 'user';
       display:grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
-      overflow:hidden;
+      overflow:visible;
       align-content:start;
+      padding-top: 4px;
     }
     .export-grid{
       flex: 0 0 auto;

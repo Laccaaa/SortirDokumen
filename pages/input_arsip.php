@@ -486,7 +486,7 @@ input:focus, textarea:focus, select:focus{
 .bottomActions{
   display:flex;
   gap:10px;
-  justify-content:flex-end;
+  justify-content:space-between;
   margin-top: 12px;
   flex-wrap:wrap;
   padding-bottom: 4px;
@@ -494,12 +494,12 @@ input:focus, textarea:focus, select:focus{
 
 button.primary{
   border:none;
-  padding: 10px 14px;
+  padding: 12px 18px;
   border-radius: 14px;
   background: #0f172a;
   color:#fff;
   font-weight:900;
-  font-size: 13px;
+  font-size: 14px;
   cursor:pointer;
   display:inline-flex;
   gap:10px;
@@ -509,12 +509,12 @@ button.primary:active{ transform: translateY(1px); }
 
 button.ghost{
   border:1px solid #d7ddff;
-  padding: 10px 14px;
+  padding: 12px 18px;
   border-radius: 14px;
   background: #eef2ff;
   color:#1f2a44;
   font-weight:900;
-  font-size: 13px;
+  font-size: 14px;
   cursor:pointer;
   display:inline-flex;
   gap:10px;
@@ -776,8 +776,8 @@ button.ghost:active{ transform: translateY(1px); }
         </div>
 
         <div class="bottomActions">
-          <button class="primary" type="submit"><?= $btnText ?></button>
           <button class="ghost" type="reset">🔄 Reset Form</button>
+          <button class="primary" type="submit"><?= $btnText ?></button>
         </div>
       </form>
 

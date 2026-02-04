@@ -197,7 +197,7 @@ body{
 
 .actionsTop{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
 
-.btn{ display:inline-flex; gap:8px; align-items:center; padding:8px 12px; border-radius: 14px; text-decoration:none; font-weight:900; font-size: 12px; border: 1px solid transparent; white-space:nowrap; cursor:pointer; }
+.btn{ display:inline-flex; gap:8px; align-items:center; padding:10px 16px; border-radius: 14px; text-decoration:none; font-weight:900; font-size: 13px; border: 1px solid transparent; white-space:nowrap; cursor:pointer; }
 .btn.light{ background: var(--btn2); color: #1f2a44; border-color: #d7ddff; }
 .btn.dark{ background: var(--btn); color: #fff; }
 
@@ -323,8 +323,8 @@ body{
           <?php endforeach; ?>
         </select>
 
-        <button class="btn light" type="submit">Terapkan</button>
         <a class="btn light" href="export_pemusnahan.php">Reset</a>
+        <button class="btn light" type="submit">Terapkan</button>
         <a class="btn dark" href="/SortirDokumen/actions/export_pemusnahan_csv.php?tahun=<?= urlencode($tahun) ?>&bulan=<?= urlencode($bulan) ?>">Unduh CSV</a>
         <span class="filter-note">Filter update otomatis mengikuti data baru.</span>
       </form>

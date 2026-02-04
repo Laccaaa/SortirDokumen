@@ -351,7 +351,7 @@ input[type="file"]{ display:none; }
 .bottomActions{
   display:flex;
   gap:10px;
-  justify-content:flex-end;
+  justify-content:space-between;
   margin-top: 12px;
   flex-wrap:wrap;
   padding-bottom: 4px;
@@ -359,12 +359,12 @@ input[type="file"]{ display:none; }
 
 button.primary{
   border:none;
-  padding: 10px 14px;
+  padding: 12px 18px;
   border-radius: 14px;
   background: #0f172a;
   color:#fff;
   font-weight:900;
-  font-size: 13px;
+  font-size: 14px;
   cursor:pointer;
   display:inline-flex;
   gap:10px;
@@ -763,8 +763,8 @@ button.primary:active{ transform: translateY(1px); }
         <div class="file-preview" id="filePreview"></div>
 
         <div class="bottomActions">
-          <button class="primary" type="submit">💾 Simpan</button>
           <button class="secondary" type="reset" id="resetFormBtn">🔄 Reset</button>
+          <button class="primary" type="submit">💾 Simpan</button>
         </div>
       </form>
     </div>

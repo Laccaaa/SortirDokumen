@@ -338,10 +338,10 @@ a.btn.dark{
   background: var(--btn2);
   color:#1f2a44;
   border: 1px solid #d7ddff;
-  padding: 6px 10px;
+  padding: 8px 14px;
   border-radius: 10px;
   text-decoration:none;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -693,10 +693,10 @@ a.btn.dark{
           <span>🔎</span>
           <input id="searchArsip" name="q" class="search-input" type="text" placeholder="Cari kode utama atau folder (rekursif)..." autocomplete="off" value="<?= htmlspecialchars($query, ENT_QUOTES, 'UTF-8') ?>">
         </div>
-        <div class="search-hint">Berdasar kode utama, tahun, bulan, subkode, atau jenis</div>
         <?php if ($query !== ''): ?>
           <a class="search-clear" href="arsip.php?path=<?= urlencode($path) ?>">Reset</a>
         <?php endif; ?>
+        <div class="search-hint">Berdasar kode utama, tahun, bulan, subkode, atau jenis</div>
       </form>
 
       <form class="filter-row" method="get" action="arsip.php">
@@ -727,10 +727,10 @@ a.btn.dark{
           </select>
         </div>
         <div class="filter-actions">
-          <button class="search-clear" type="submit">Terapkan</button>
           <?php if ($isFilterMode): ?>
             <a class="search-clear" href="arsip.php?path=<?= urlencode($path) ?>">Reset</a>
           <?php endif; ?>
+          <button class="search-clear" type="submit">Terapkan</button>
         </div>
         <div class="filter-note">Filter update otomatis mengikuti data baru.</div>
       </form>
