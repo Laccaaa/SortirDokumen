@@ -173,13 +173,9 @@ $sql = "
 INSERT INTO surat (
     jenis_surat, nomor_surat, kode_utama, subkode,
     nomor_urut, unit_pengirim, bulan, tahun,
-    kode_klasifikasi, unit_pengolah, nama_berkas, nomor_isi,
-    pencipta_arsip, tujuan_surat, perihal, uraian_informasi,
-    tanggal_surat, jumlah, lokasi_simpan, tingkat,
-    keterangan, skkad, jra_aktif, jra_inaktif, nasib,
     nama_file, path_file
 ) VALUES (
-    ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+    ?,?,?,?,?,?,?,?,?,?
 )";
 
 try {
@@ -193,23 +189,6 @@ try {
         $unit_pengirim,
         $bulan,
         $tahun,
-        $kode_klasifikasi,
-        $unit_pengolah,
-        $nama_berkas,
-        $nomor_isi,
-        $pencipta_arsip,
-        $tujuan_surat,
-        $perihal,
-        $uraian_informasi,
-        $tanggal_surat,
-        $jumlah,
-        $lokasi_simpan,
-        $tingkat,
-        $keterangan,
-        $skkad,
-        $jra_aktif,
-        $jra_inaktif,
-        $nasib,
         $nama_file,
         $destPathRel
     ]);

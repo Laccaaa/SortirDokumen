@@ -45,11 +45,9 @@ function getExportFilterOptions($conn, $jenis = null, $tahun = null) {
 
 function getExportRows($conn, $jenis = null, $tahun = null, $bulan = null) {
     $sql = "SELECT
-        kode_klasifikasi, unit_pengolah, nama_berkas, nomor_isi,
-        pencipta_arsip, tujuan_surat, nomor_surat, perihal,
-        uraian_informasi, tanggal_surat, jumlah, lokasi_simpan,
-        tingkat, keterangan, skkad, jra_aktif, jra_inaktif, nasib,
-        tahun, bulan
+        id_surat, jenis_surat, nomor_surat, kode_utama, subkode,
+        nomor_urut, unit_pengirim, bulan, tahun, nama_file,
+        path_file, tanggal_upload
         FROM surat WHERE 1=1";
     $params = [];
 
@@ -74,7 +72,7 @@ function getExportRows($conn, $jenis = null, $tahun = null, $bulan = null) {
             WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9
             WHEN 'Oktober' THEN 10 WHEN 'November' THEN 11 WHEN 'Desember' THEN 12
         END,
-        kode_klasifikasi, nama_berkas
+        kode_utama, nama_file
     ";
 
     $stmt = $conn->prepare($sql);
@@ -306,48 +304,36 @@ body{
             <thead>
               <tr>
                 <th>No</th>
-                <th>Kode</th>
-                <th>Unit Pengolah</th>
-                <th>Nama Berkas</th>
-                <th>Nomor Isi</th>
-                <th>Pencipta Arsip</th>
-                <th>Tujuan Surat</th>
+                <th>ID Surat</th>
+                <th>Jenis Surat</th>
                 <th>Nomor Surat</th>
-                <th>Perihal</th>
-                <th>Uraian Informasi</th>
-                <th>Tanggal Surat / Kurun</th>
-                <th>Jumlah</th>
-                <th>Lokasi Simpan</th>
-                <th>Tingkat</th>
-                <th>Keterangan</th>
-                <th>SKKAD</th>
-                <th>JRA Aktif</th>
-                <th>JRA Inaktif</th>
-                <th>Nasib</th>
+                <th>Kode Utama</th>
+                <th>Subkode</th>
+                <th>Nomor Urut</th>
+                <th>Unit Pengirim</th>
+                <th>Bulan</th>
+                <th>Tahun</th>
+                <th>Nama File</th>
+                <th>Path File</th>
+                <th>Tanggal Upload</th>
               </tr>
             </thead>
             <tbody>
               <?php foreach ($rows as $i => $row): ?>
                 <tr>
                   <td><?= $i + 1 ?></td>
-                  <td><?= htmlspecialchars($row['kode_klasifikasi'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['unit_pengolah'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['nama_berkas'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['nomor_isi'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['pencipta_arsip'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['tujuan_surat'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['id_surat'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['jenis_surat'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['nomor_surat'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['perihal'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['uraian_informasi'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['tanggal_surat'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['jumlah'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['lokasi_simpan'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['tingkat'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['keterangan'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['skkad'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['jra_aktif'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['jra_inaktif'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['nasib'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['kode_utama'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['subkode'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['nomor_urut'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['unit_pengirim'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['bulan'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['tahun'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['nama_file'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['path_file'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['tanggal_upload'] ?? '') ?></td>
                 </tr>
               <?php endforeach; ?>
             </tbody>

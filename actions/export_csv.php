@@ -6,11 +6,9 @@ $tahun = $_GET['tahun'] ?? '';
 $bulan = $_GET['bulan'] ?? '';
 
 $sql = "SELECT
-    kode_klasifikasi, unit_pengolah, nama_berkas, nomor_isi,
-    pencipta_arsip, tujuan_surat, nomor_surat, perihal,
-    uraian_informasi, tanggal_surat, jumlah, lokasi_simpan,
-    tingkat, keterangan, skkad, jra_aktif, jra_inaktif, nasib,
-    tahun, bulan
+    id_surat, jenis_surat, nomor_surat, kode_utama, subkode,
+    nomor_urut, unit_pengirim, bulan, tahun, nama_file,
+    path_file, tanggal_upload
     FROM surat WHERE 1=1";
 $params = [];
 
@@ -35,7 +33,7 @@ $sql .= "
         WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9
         WHEN 'Oktober' THEN 10 WHEN 'November' THEN 11 WHEN 'Desember' THEN 12
     END,
-    kode_klasifikasi, nama_berkas
+    kode_utama, nama_file
 ";
 
 $stmt = $dbhandle->prepare($sql);
@@ -57,47 +55,35 @@ $out = fopen('php://output', 'w');
 
 fputcsv($out, [
     'No',
-    'Kode',
-    'Unit Pengolah',
-    'Nama Berkas',
-    'Nomor Isi',
-    'Pencipta Arsip',
-    'Tujuan Surat',
+    'ID Surat',
+    'Jenis Surat',
     'Nomor Surat',
-    'Perihal',
-    'Uraian Informasi',
-    'Tanggal Surat / Kurun',
-    'Jumlah',
-    'Lokasi Simpan',
-    'Tingkat',
-    'Keterangan',
-    'SKKAD',
-    'JRA Aktif',
-    'JRA Inaktif',
-    'Nasib'
+    'Kode Utama',
+    'Subkode',
+    'Nomor Urut',
+    'Unit Pengirim',
+    'Bulan',
+    'Tahun',
+    'Nama File',
+    'Path File',
+    'Tanggal Upload'
 ]);
 
 foreach ($rows as $i => $row) {
     fputcsv($out, [
         $i + 1,
-        $row['kode_klasifikasi'] ?? '',
-        $row['unit_pengolah'] ?? '',
-        $row['nama_berkas'] ?? '',
-        $row['nomor_isi'] ?? '',
-        $row['pencipta_arsip'] ?? '',
-        $row['tujuan_surat'] ?? '',
+        $row['id_surat'] ?? '',
+        $row['jenis_surat'] ?? '',
         $row['nomor_surat'] ?? '',
-        $row['perihal'] ?? '',
-        $row['uraian_informasi'] ?? '',
-        $row['tanggal_surat'] ?? '',
-        $row['jumlah'] ?? '',
-        $row['lokasi_simpan'] ?? '',
-        $row['tingkat'] ?? '',
-        $row['keterangan'] ?? '',
-        $row['skkad'] ?? '',
-        $row['jra_aktif'] ?? '',
-        $row['jra_inaktif'] ?? '',
-        $row['nasib'] ?? ''
+        $row['kode_utama'] ?? '',
+        $row['subkode'] ?? '',
+        $row['nomor_urut'] ?? '',
+        $row['unit_pengirim'] ?? '',
+        $row['bulan'] ?? '',
+        $row['tahun'] ?? '',
+        $row['nama_file'] ?? '',
+        $row['path_file'] ?? '',
+        $row['tanggal_upload'] ?? ''
     ]);
 }
 
