@@ -1,17 +1,16 @@
 <?php
-require_once __DIR__ . "/../config/koneksi.php";
-require_once __DIR__ . "/../auth/auth_check.php";
-// auth_check.php
 session_start();
 
-// Cek apakah user sudah login
+// Cek login
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../auth/login.php");
+    header("Location: /SortirDokumen/auth/login.php");
     exit;
 }
 
-// Opsional: timeout session (30 menit)
-if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+// Timeout 30 menit
+$timeout = 1800;
+
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $timeout)) {
     session_unset();
     session_destroy();
     header("Location: /SortirDokumen/auth/login.php");
@@ -19,4 +18,3 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
 }
 
 $_SESSION['last_activity'] = time();
-?>

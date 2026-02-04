@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/../config/koneksi.php";
 require_once __DIR__ . "/../actions/prosesArsip.php";
+require_once __DIR__ . "/../auth/auth_check.php";
 
 $path = $_GET['path'] ?? '';
 $action = $_GET['action'] ?? '';
