@@ -6,82 +6,81 @@ $jenis = $_GET['jenis'] ?? '';
 $tahun = $_GET['tahun'] ?? '';
 $bulan = $_GET['bulan'] ?? '';
 
-function getExportFilterOptions($conn, $jenis = null, $tahun = null) {
-    $yearsSql = "SELECT DISTINCT tahun FROM surat WHERE 1=1";
-    $monthsSql = "SELECT bulan FROM (
-        SELECT DISTINCT bulan,
-        CASE bulan
-            WHEN 'Januari' THEN 1 WHEN 'Februari' THEN 2 WHEN 'Maret' THEN 3
-            WHEN 'April' THEN 4 WHEN 'Mei' THEN 5 WHEN 'Juni' THEN 6
-            WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9
-            WHEN 'Oktober' THEN 10 WHEN 'November' THEN 11 WHEN 'Desember' THEN 12
-        END AS urut
-        FROM surat WHERE 1=1";
+function getPemusnahanFilterOptions($conn, $tahun = null) {
+    $yearExpr = "CASE
+        WHEN tanggal ~ '^[0-9]{4}$' THEN tanggal::int
+        WHEN tanggal ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN SUBSTRING(tanggal,1,4)::int
+        ELSE NULL
+    END";
+    $monthExpr = "CASE
+        WHEN tanggal ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN SUBSTRING(tanggal,6,2)::int
+        ELSE NULL
+    END";
 
-    $params = [];
-    if ($jenis) {
-        $yearsSql .= " AND jenis_surat = ?";
-        $monthsSql .= " AND jenis_surat = ?";
-        $params[] = $jenis;
-    }
-
-    $yearsSql .= " ORDER BY tahun DESC";
+    $yearsSql = "SELECT DISTINCT $yearExpr AS tahun
+        FROM arsip_dimusnahkan
+        WHERE $yearExpr IS NOT NULL
+        ORDER BY tahun DESC";
     $yearStmt = $conn->prepare($yearsSql);
-    $yearStmt->execute($params);
+    $yearStmt->execute();
     $years = $yearStmt->fetchAll(PDO::FETCH_COLUMN);
 
-    $monthParams = $params;
+    $monthsSql = "SELECT DISTINCT $monthExpr AS bulan
+        FROM arsip_dimusnahkan
+        WHERE $monthExpr IS NOT NULL";
+    $params = [];
     if ($tahun) {
-        $monthsSql .= " AND tahun = ?";
-        $monthParams[] = (int)$tahun;
+        $monthsSql .= " AND $yearExpr = ?";
+        $params[] = (int)$tahun;
     }
-    $monthsSql .= ") AS bulan_list ORDER BY urut";
+    $monthsSql .= " ORDER BY bulan";
     $monthStmt = $conn->prepare($monthsSql);
-    $monthStmt->execute($monthParams);
+    $monthStmt->execute($params);
     $months = $monthStmt->fetchAll(PDO::FETCH_COLUMN);
 
     return ['years' => $years, 'months' => $months];
 }
 
-function getExportRows($conn, $jenis = null, $tahun = null, $bulan = null) {
+function getPemusnahanRows($conn, $tahun = null, $bulan = null) {
+    $yearExpr = "CASE
+        WHEN tanggal ~ '^[0-9]{4}$' THEN tanggal::int
+        WHEN tanggal ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN SUBSTRING(tanggal,1,4)::int
+        ELSE NULL
+    END";
+    $monthExpr = "CASE
+        WHEN tanggal ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN SUBSTRING(tanggal,6,2)::int
+        ELSE NULL
+    END";
+
     $sql = "SELECT
-        id_surat, jenis_surat, nomor_surat, kode_utama, subkode,
-        nomor_urut, unit_pengirim, bulan, tahun, nama_file,
-        path_file, tanggal_upload
-        FROM surat WHERE 1=1";
+        id, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat,
+        uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at
+        FROM arsip_dimusnahkan WHERE 1=1";
     $params = [];
 
-    if ($jenis) {
-        $sql .= " AND jenis_surat = ?";
-        $params[] = $jenis;
-    }
     if ($tahun) {
-        $sql .= " AND tahun = ?";
+        $sql .= " AND $yearExpr = ?";
         $params[] = (int)$tahun;
     }
     if ($bulan) {
-        $sql .= " AND bulan = ?";
-        $params[] = $bulan;
+        $sql .= " AND $monthExpr = ?";
+        $params[] = (int)$bulan;
     }
 
-    $sql .= "
-        ORDER BY tahun DESC,
-        CASE bulan
-            WHEN 'Januari' THEN 1 WHEN 'Februari' THEN 2 WHEN 'Maret' THEN 3
-            WHEN 'April' THEN 4 WHEN 'Mei' THEN 5 WHEN 'Juni' THEN 6
-            WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9
-            WHEN 'Oktober' THEN 10 WHEN 'November' THEN 11 WHEN 'Desember' THEN 12
-        END,
-        kode_utama, nama_file
-    ";
+    $sql .= " ORDER BY $yearExpr DESC NULLS LAST, $monthExpr NULLS LAST, id DESC";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$filterOptions = getExportFilterOptions($dbhandle, $jenis !== '' ? $jenis : null, $tahun !== '' ? $tahun : null);
-$rows = getExportRows($dbhandle, $jenis !== '' ? $jenis : null, $tahun !== '' ? $tahun : null, $bulan !== '' ? $bulan : null);
+$filterOptions = getPemusnahanFilterOptions($dbhandle, $tahun !== '' ? $tahun : null);
+$rows = getPemusnahanRows($dbhandle, $tahun !== '' ? $tahun : null, $bulan !== '' ? $bulan : null);
+$monthNames = [
+    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+];
 ?>
 
 <!DOCTYPE html>
@@ -89,7 +88,7 @@ $rows = getExportRows($dbhandle, $jenis !== '' ? $jenis : null, $tahun !== '' ? 
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Export CSV</title>
+<title>Export Dokumen Musnah</title>
 
 <style>
 :root{
@@ -249,7 +248,7 @@ body{
           </a>
         </li>
         <li>
-          <a class="side-link active" href="/SortirDokumen/pages/export_menu.php">
+          <a class="side-link" href="/SortirDokumen/pages/export_menu.php">
             <div class="side-icon">📥</div>
             <div class="side-text">
               <strong>Export CSV</strong>
@@ -258,7 +257,7 @@ body{
           </a>
         </li>
         <li>
-          <a class="side-link" href="/SortirDokumen/pages/export_pemusnahan.php">
+          <a class="side-link active" href="/SortirDokumen/pages/export_pemusnahan.php">
             <div class="side-icon">🗑️</div>
             <div class="side-text">
               <strong>Export Dokumen Musnah</strong>
@@ -272,7 +271,7 @@ body{
     <div class="shell">
       <div class="top">
         <div class="titles">
-          <h1>Export CSV</h1>
+          <h1>Export Dokumen Musnah</h1>
           <p>Sortir berdasarkan tahun dan bulan, lalu unduh CSV.</p>
         </div>
         <div class="actionsTop">
@@ -280,11 +279,9 @@ body{
         </div>
       </div>
 
-      <form class="filter-row" method="get" action="export_menu.php">
-        <select class="filter-select" name="jenis">
+      <form class="filter-row" method="get" action="export_pemusnahan.php">
+        <select class="filter-select" name="jenis" disabled>
           <option value="">Semua jenis</option>
-          <option value="masuk" <?= $jenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
-          <option value="keluar" <?= $jenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
         </select>
         <select class="filter-select" name="tahun">
           <option value="">Semua tahun</option>
@@ -295,13 +292,15 @@ body{
         <select class="filter-select" name="bulan">
           <option value="">Semua bulan</option>
           <?php foreach ($filterOptions['months'] as $mo): ?>
-            <option value="<?= htmlspecialchars($mo) ?>" <?= (string)$bulan === (string)$mo ? 'selected' : '' ?>><?= htmlspecialchars($mo) ?></option>
+            <option value="<?= htmlspecialchars($mo) ?>" <?= (string)$bulan === (string)$mo ? 'selected' : '' ?>>
+              <?= htmlspecialchars($monthNames[(int)$mo] ?? $mo) ?>
+            </option>
           <?php endforeach; ?>
         </select>
 
         <button class="btn light" type="submit">Terapkan</button>
-        <a class="btn light" href="export_menu.php">Reset</a>
-        <a class="btn dark" href="/SortirDokumen/actions/export_csv.php?jenis=<?= urlencode($jenis) ?>&tahun=<?= urlencode($tahun) ?>&bulan=<?= urlencode($bulan) ?>">Unduh CSV</a>
+        <a class="btn light" href="export_pemusnahan.php">Reset</a>
+        <a class="btn dark" href="/SortirDokumen/actions/export_pemusnahan_csv.php?tahun=<?= urlencode($tahun) ?>&bulan=<?= urlencode($bulan) ?>">Unduh CSV</a>
         <span class="filter-note">Filter update otomatis mengikuti data baru.</span>
       </form>
 
@@ -313,36 +312,38 @@ body{
             <thead>
               <tr>
                 <th>No</th>
-                <th>ID Surat</th>
-                <th>Jenis Surat</th>
-                <th>Nomor Surat</th>
-                <th>Kode Utama</th>
-                <th>Subkode</th>
-                <th>Nomor Urut</th>
-                <th>Unit Pengirim</th>
-                <th>Bulan</th>
-                <th>Tahun</th>
-                <th>Nama File</th>
-                <th>Path File</th>
-                <th>Tanggal Upload</th>
+                <th>ID</th>
+                <th>Kode</th>
+                <th>Nama Berkas</th>
+                <th>No Isi</th>
+                <th>Pencipta</th>
+                <th>No Surat</th>
+                <th>Uraian</th>
+                <th>Tanggal</th>
+                <th>Jumlah</th>
+                <th>Tingkat</th>
+                <th>Lokasi</th>
+                <th>Keterangan</th>
+                <th>Created At</th>
               </tr>
             </thead>
             <tbody>
               <?php foreach ($rows as $i => $row): ?>
                 <tr>
                   <td><?= $i + 1 ?></td>
-                  <td><?= htmlspecialchars($row['id_surat'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['jenis_surat'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['nomor_surat'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['kode_utama'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['subkode'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['nomor_urut'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['unit_pengirim'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['bulan'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['tahun'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['nama_file'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['path_file'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['tanggal_upload'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['id'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['kode_klasifikasi'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['nama_berkas'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['no_isi'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['pencipta'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['no_surat'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['uraian'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['tanggal'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['jumlah'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['tingkat'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['lokasi'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['keterangan'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['created_at'] ?? '') ?></td>
                 </tr>
               <?php endforeach; ?>
             </tbody>

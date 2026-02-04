@@ -568,17 +568,26 @@ button.ghost:active{ transform: translateY(1px); }
               </div>
             </a>
           </li>
-          <li>
-            <a class="side-link" href="/SortirDokumen/pages/export_menu.php">
-              <div class="side-icon">📥</div>
-              <div class="side-text">
-                <strong>Export CSV</strong>
-                <span>Unduh data CSV/Excel.</span>
-              </div>
-            </a>
-          </li>
-        </ul>
-      </aside>
+        <li>
+          <a class="side-link" href="/SortirDokumen/pages/export_menu.php">
+            <div class="side-icon">📥</div>
+            <div class="side-text">
+              <strong>Export CSV</strong>
+              <span>Unduh data CSV/Excel.</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="side-link" href="/SortirDokumen/pages/export_pemusnahan.php">
+            <div class="side-icon">🗑️</div>
+            <div class="side-text">
+              <strong>Export Dokumen Musnah</strong>
+              <span>Unduh data arsip dimusnahkan.</span>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </aside>
 
       <div class="shell">
 
