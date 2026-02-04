@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../actions/proses_tabel.php";
+require_once __DIR__ . "/../auth/auth_check.php";
 ?>
 
 <!DOCTYPE html>
