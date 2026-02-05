@@ -695,9 +695,9 @@ button.ghost:active{ transform: translateY(1px); }
           <div class="field">
             <label>Tanggal Surat / Kurun Waktu</label>
             <input
+              type="date"
               name="tanggal"
               value="<?= htmlspecialchars($data["tanggal"]) ?>"
-              placeholder="YYYY atau YYYY-MM-DD"
             >
             
           </div>
@@ -776,7 +776,7 @@ button.ghost:active{ transform: translateY(1px); }
         </div>
 
         <div class="bottomActions">
-          <button class="ghost" type="reset">🔄 Reset Form</button>
+          <button class="ghost" type="reset" id="resetFormBtn">🔄 Reset Form</button>
           <button class="primary" type="submit"><?= $btnText ?></button>
         </div>
       </form>
@@ -784,5 +784,24 @@ button.ghost:active{ transform: translateY(1px); }
       </div>
     </div>
   </div>
-</body>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.querySelector("form");
+  const resetBtn = document.getElementById("resetFormBtn");
+  const shell = document.querySelector(".shell");
+
+  resetBtn?.addEventListener("click", () => {
+    requestAnimationFrame(() => {
+      shell?.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  form?.addEventListener("reset", () => {
+    requestAnimationFrame(() => {
+      shell?.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+});
+</script></body>
 </html>
+

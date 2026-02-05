@@ -18,7 +18,7 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
 :root{
   --bg-start: #f3f5f9;
   --bg-end: #e2e7f1;
-
+/*  */
   --card: rgba(255,255,255,.96);
   --text:#0f172a;
   --muted:#64748b;
@@ -833,6 +833,12 @@ document.addEventListener("DOMContentLoaded", function () {
         fileLabel.classList.remove("error");
         jenisSurat.classList.remove("error");
         nomor.classList.remove("error");
+    });
+    form.addEventListener("reset", () => {
+        const shell = document.querySelector(".shell");
+        requestAnimationFrame(() => {
+            shell?.scrollTo({ top: 0, behavior: "smooth" });
+        });
     });
 
     /* ========= VALIDASI FORM SUBMIT ========= */

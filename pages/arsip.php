@@ -469,34 +469,40 @@ a.btn.dark{
   margin-left: 12px;
 }
 
-.btn{
-  width:36px;
+.actions .btn{
+  min-width: 92px;
   height:36px;
+  padding: 0 14px;
   display:flex;
   align-items:center;
   justify-content:center;
-  border:none;
-  border-radius: 10px;
+  border:1px solid transparent;
+  border-radius: 12px;
   cursor:pointer;
-  font-size: 16px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .2px;
   transition: all .2s;
   text-decoration:none;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
 }
 .btn-view{
-  background:#e3f2fd;
-  color:#2196f3;
+  background:#0f172a;
+  color:#ffffff;
+  border-color:#0b1220;
 }
 .btn-view:hover{
-  background:#2196f3;
-  color:#fff;
+  background:#0b1220;
+  color:#ffffff;
 }
 .btn-download{
-  background:#e8f5e9;
-  color:#4caf50;
+  background:#111827;
+  color:#ffffff;
+  border-color:#0b1220;
 }
 .btn-download:hover{
-  background:#4caf50;
-  color:#fff;
+  background:#0b1220;
+  color:#ffffff;
 }
 
 .empty-state{
@@ -767,7 +773,7 @@ a.btn.dark{
                               <?php endif; ?>
                           </div>
                           <div class="actions">
-                              <button type="button" class="btn btn-view js-preview" data-preview="arsip.php?action=view&id=<?= $item['id'] ?>" title="Lihat">👁️</button>
+                              <button type="button" class="btn btn-view js-preview" data-preview="arsip.php?action=view&id=<?= $item['id'] ?>" title="Preview">Preview</button>
                               <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">⬇️</a>
                           </div>
                       </div>
