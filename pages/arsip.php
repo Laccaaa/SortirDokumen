@@ -41,7 +41,7 @@ $filterOptions = getFilterOptions(
 );
 ?>
 
-<!DOCTYPE htqml>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -807,7 +807,22 @@ if (searchInput && searchForm) {
     }, 300);
   });
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  const el = document.getElementById("searchArsip");
+  if (!el) return;
+
+  // Selalu fokus, walaupun q kosong
+  el.focus();
+
+  // Kalau ada value, taruh cursor di akhir
+  const val = el.value;
+  if (val && val.length) {
+    el.setSelectionRange(val.length, val.length);
+  }
+});
 </script>
+
 
 <script>
 const previewModal = document.getElementById("previewModal");
