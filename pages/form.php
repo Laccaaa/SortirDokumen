@@ -900,6 +900,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         msg.innerText = "<?= addslashes($_SESSION['pesan']); ?>";
         modal.classList.add("show");
+        setTimeout(() => {
+            closeModal();
+        }, 2000);
     <?php unset($_SESSION['status'], $_SESSION['pesan']); endif; ?>
 
     /* ========= TAMPILKAN MODAL ERROR (SERVER) ========= */
