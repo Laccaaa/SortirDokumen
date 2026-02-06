@@ -390,19 +390,6 @@ $role = $_SESSION['role'] ?? 'user';
       <div class="content">
         <div class="grid">
 
-          <a class="card" href="/SortirDokumen/pages/input_arsip.php" aria-label="Pemusnahan Dokumen">
-            <div class="cardTop">
-              <div class="left">
-                <div class="icon">🧾</div>
-                <div style="min-width:0;">
-                  <p class="cardTitle">Pemusnahan Dokumen</p>
-                  <p class="cardDesc">Hapus dokumen tidak terpakai.</p>
-                </div>
-              </div>
-              <span class="pill">Menu</span>
-            </div>
-          </a>
-
           <a class="card" href="/SortirDokumen/pages/form.php" aria-label="Sortir Dokumen">
             <div class="cardTop">
               <div class="left">
@@ -416,16 +403,16 @@ $role = $_SESSION['role'] ?? 'user';
             </div>
           </a>
 
-          <a class="card" href="tabel_arsip.php" aria-label="Tabel Pemusnahan Dokumen">
+          <a class="card" href="/SortirDokumen/pages/input_arsip.php" aria-label="Pemusnahan Dokumen">
             <div class="cardTop">
               <div class="left">
-                <div class="icon">📊</div>
+                <div class="icon">🧾</div>
                 <div style="min-width:0;">
-                  <p class="cardTitle">Tabel Pemusnahan Dokumen</p>
-                  <p class="cardDesc">Lihat riwayat penghapusan.</p>
+                  <p class="cardTitle">Pemusnahan Dokumen</p>
+                  <p class="cardDesc">Hapus dokumen tidak terpakai.</p>
                 </div>
               </div>
-              <span class="pill">Tabel</span>
+              <span class="pill">Menu</span>
             </div>
           </a>
 
@@ -440,6 +427,19 @@ $role = $_SESSION['role'] ?? 'user';
                 </div>
               </div>
               <span class="pill">Rekap</span>
+            </div>
+          </a>
+
+          <a class="card" href="tabel_arsip.php" aria-label="Tabel Pemusnahan Dokumen">
+            <div class="cardTop">
+              <div class="left">
+                <div class="icon">📊</div>
+                <div style="min-width:0;">
+                  <p class="cardTitle">Tabel Pemusnahan Dokumen</p>
+                  <p class="cardDesc">Lihat riwayat penghapusan.</p>
+                </div>
+              </div>
+              <span class="pill">Tabel</span>
             </div>
           </a>
 

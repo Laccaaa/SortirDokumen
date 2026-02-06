@@ -773,7 +773,7 @@ a.btn.dark{
                               <?php endif; ?>
                           </div>
                           <div class="actions">
-                              <button type="button" class="btn btn-view js-preview" data-preview="arsip.php?action=view&id=<?= $item['id'] ?>" title="Preview">Preview</button>
+                              <button type="button" class="btn btn-view js-preview" data-preview="arsip.php?action=view&id=<?= $item['id'] ?>" title="Preview">Lihat</button>
                               <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">⬇️</a>
                           </div>
                       </div>
