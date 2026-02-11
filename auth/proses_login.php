@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
         } else {
-            $_SESSION['error'] = 'Username tidak ditemukan!';
+            $_SESSION['error'] = 'Username atau password salah';
         }
 
     } catch (PDOException $e) {
