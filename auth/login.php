@@ -420,6 +420,17 @@ body{
         }
       });
     });
+
+    var usernameInput = document.querySelector('input[name="username"]');
+    var passwordInput = document.querySelector('input[name="password"]');
+    if (usernameInput && passwordInput) {
+      usernameInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          passwordInput.focus();
+        }
+      });
+    }
   </script>
 </body>
 </html>
