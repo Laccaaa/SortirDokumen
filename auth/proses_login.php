@@ -6,9 +6,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
-    // Validasi input kosong
+    // Validasi input kosong (per-field)
     if (empty($username) || empty($password)) {
-        $_SESSION['error'] = 'Username dan password harus diisi!';
+        $fieldErrors = [];
+        if (empty($username)) {
+            $fieldErrors['username'] = 'Kolom ini wajib diisi';
+        }
+        if (empty($password)) {
+            $fieldErrors['password'] = 'Kolom ini wajib diisi';
+        }
+        $_SESSION['field_errors'] = $fieldErrors;
         header("Location: login.php");
         exit;
     }
@@ -49,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header("Location: /SortirDokumen/pages/homepage.php");
                 exit;
             } else {
-                $_SESSION['error'] = 'Password salah!';
+                $_SESSION['error'] = 'Username atau password salah';
             }
 
         } else {

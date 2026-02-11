@@ -5,7 +5,9 @@ if (isset($_SESSION['user_id'])) {
   exit;
 }
 $error = $_SESSION['error'] ?? '';
+$field_errors = $_SESSION['field_errors'] ?? [];
 unset($_SESSION['error']);
+unset($_SESSION['field_errors']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -202,12 +204,26 @@ body{
     inset 0 1px 1px rgba(255,255,255,.6),
     0 6px 16px rgba(120,95,210,.12);
 }
+.input input.input-error{
+  border-color: rgba(176,0,32,.6);
+  color:#b00020;
+}
+.input input.input-error::placeholder{
+  color:#b00020;
+}
 .input input:focus{
   border-color: rgba(120,95,210,.75);
   box-shadow:
     0 0 0 4px rgba(120,95,210,.18),
     0 10px 22px rgba(120,95,210,.18);
   background:#fff;
+}
+.field-error{
+  margin-top: 8px;
+  margin-left: 6px;
+  font-size: 12px;
+  color: #b00020;
+  display: block;
 }
 
 .icon{
@@ -341,7 +357,14 @@ body{
                 <path d="M4 20a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
               </svg>
             </span>
-            <input type="text" name="username" placeholder="username" required autofocus>
+            <input
+              type="text"
+              name="username"
+              placeholder="username"
+              data-default-placeholder="username"
+              data-error-text="<?= htmlspecialchars($field_errors['username'] ?? '') ?>"
+              class="<?= !empty($field_errors['username']) ? 'input-error' : '' ?>"
+            >
           </div>
 
           <div class="input">
@@ -353,7 +376,14 @@ body{
                 <path d="M12 15v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
               </svg>
             </span>
-            <input type="password" name="password" placeholder="password" required>
+            <input
+              type="password"
+              name="password"
+              placeholder="password"
+              data-default-placeholder="password"
+              data-error-text="<?= htmlspecialchars($field_errors['password'] ?? '') ?>"
+              class="<?= !empty($field_errors['password']) ? 'input-error' : '' ?>"
+            >
           </div>
 
           <button class="btn" type="submit">LOGIN</button>
@@ -362,5 +392,34 @@ body{
       </form>
     </section>
   </div>
+  <script>
+    document.querySelectorAll('.input input').forEach(function (input) {
+      var errText = (input.getAttribute('data-error-text') || '').trim();
+      var defaultPh = input.getAttribute('data-default-placeholder') || '';
+      if (errText) {
+        input.placeholder = errText;
+        input.classList.add('input-error');
+      }
+
+      input.addEventListener('focus', function () {
+        input.placeholder = defaultPh;
+        input.classList.remove('input-error');
+      });
+
+      input.addEventListener('input', function () {
+        if (input.value) {
+          input.placeholder = defaultPh;
+          input.classList.remove('input-error');
+        }
+      });
+
+      input.addEventListener('blur', function () {
+        if (!input.value && errText) {
+          input.placeholder = errText;
+          input.classList.add('input-error');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
