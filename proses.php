@@ -130,21 +130,25 @@ if (!empty($subkode)) {
 if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
 $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-$allowed_ext = ['pdf','doc','docx','jpg','jpeg','png'];
+$allowed_ext = ['pdf','jpg','jpeg','png'];
 if (!in_array($ext, $allowed_ext)) {
-    die("Ekstensi file tidak diizinkan");
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Format file tidak didukung. Gunakan PDF atau gambar (JPG, JPEG, PNG).';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
 }
 
 $allowed_mime = [
     'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'image/jpeg',
     'image/png'
 ];
 $mime = mime_content_type($file['tmp_name']);
 if (!in_array($mime, $allowed_mime)) {
-    die("Tipe file tidak valid");
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Tipe file tidak valid. Gunakan PDF atau gambar (JPG, JPEG, PNG).';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
 }
 
 $nama_asli = basename($file['name']);

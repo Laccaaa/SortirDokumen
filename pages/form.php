@@ -326,6 +326,11 @@ input[type="file"]{ display:none; }
   display: none;
   font-size: 13px;
 }
+.file-help{
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
 
 .file-preview{
   width:100%;
@@ -754,8 +759,9 @@ button.primary:active{ transform: translateY(1px); }
             <label>Upload File Surat <span class="required">*</span></label>
             <label class="file-label" id="fileLabel">
               Klik untuk memilih file
-              <input type="file" id="fileInput" name="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+              <input type="file" id="fileInput" name="fileInput" accept=".pdf,.jpg,.jpeg,.png">
             </label>
+            <div class="file-help">Format yang didukung: PDF, JPG, JPEG, PNG</div>
             <div class="file-name" id="fileName"></div>
           </div>
         </div>
@@ -812,6 +818,19 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!this.files.length) return;
 
         const file = this.files[0];
+        const allowedExt = ["pdf", "jpg", "jpeg", "png"];
+        const allowedMime = ["application/pdf", "image/jpeg", "image/png"];
+        const ext = (file.name.split(".").pop() || "").toLowerCase();
+
+        if (!allowedExt.includes(ext) || (file.type && !allowedMime.includes(file.type))) {
+            showErrorModal("Format file tidak didukung! Gunakan PDF atau gambar (JPG, JPEG, PNG).");
+            this.value = "";
+            fileName.innerText = "";
+            fileName.style.display = "none";
+            fileLabel.classList.add("error");
+            return;
+        }
+
         fileName.style.display = "block";
         fileName.innerText = "File dipilih: " + file.name;
 

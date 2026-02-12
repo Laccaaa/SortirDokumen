@@ -11,7 +11,7 @@ $filterTahun = $_GET['tahun'] ?? '';
 $filterBulan = $_GET['bulan'] ?? '';
 $filterSub = $_GET['subkode'] ?? '';
 
-// Handle actions (view/download)
+// Handle actions (view/download/delete)
 if ($action === 'view' && isset($_GET['id'])) {
     viewFile($_GET['id']);
     exit;
@@ -19,6 +19,11 @@ if ($action === 'view' && isset($_GET['id'])) {
 
 if ($action === 'download' && isset($_GET['id'])) {
     downloadFile($_GET['id']);
+    exit;
+}
+
+if ($action === 'delete' && isset($_GET['id'])) {
+    deleteFile($_GET['id']);
     exit;
 }
 
@@ -504,6 +509,15 @@ a.btn.dark{
   background:#0b1220;
   color:#ffffff;
 }
+.btn-delete{
+  background:#fff1f2;
+  color:#9f1239;
+  border-color:#fecdd3;
+}
+.btn-delete:hover{
+  background:#ffe4e6;
+  color:#9f1239;
+}
 
 .empty-state{
   text-align:center;
@@ -775,6 +789,12 @@ a.btn.dark{
                           <div class="actions">
                               <button type="button" class="btn btn-view js-preview" data-preview="arsip.php?action=view&id=<?= $item['id'] ?>" title="Preview">Lihat</button>
                               <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">⬇️</a>
+                              <a
+                                href="arsip.php?action=delete&id=<?= $item['id'] ?>"
+                                class="btn btn-delete"
+                                title="Hapus"
+                                onclick="return confirm('Yakin ingin menghapus file ini?');"
+                              >🗑️</a>
                           </div>
                       </div>
                   <?php endif; ?>

@@ -604,3 +604,35 @@ function downloadFile($id) {
     header("Content-Length: " . filesize($path));
     readfile($path);
 }
+
+/**
+ * ======================================================
+ * DELETE FILE
+ * ======================================================
+ */
+function deleteFile($id) {
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM surat WHERE id_surat = ?");
+    $stmt->execute([(int)$id]);
+    $file = $stmt->fetch();
+
+    if (!$file) {
+        header("Location: /SortirDokumen/pages/arsip.php?msg=notfound");
+        exit;
+    }
+
+    $path = $file['path_file'] ?? '';
+    if ($path !== '' && $path[0] !== '/') {
+        $path = __DIR__ . '/../' . ltrim($path, '/');
+    }
+
+    if ($path && is_file($path)) {
+        @unlink($path);
+    }
+
+    $del = $conn->prepare("DELETE FROM surat WHERE id_surat = ?");
+    $del->execute([(int)$id]);
+
+    header("Location: /SortirDokumen/pages/arsip.php?msg=deleted");
+    exit;
+}
