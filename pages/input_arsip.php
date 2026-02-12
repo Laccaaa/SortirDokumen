@@ -420,8 +420,13 @@ a.btn.light{
   border-color: #d7ddff;
 }
 a.btn.dark{
-  background: var(--btn);
-  color: #fff;
+  background:#334155;
+  color:#ffffff;
+  border:1px solid #334155;
+}
+a.btn.dark:hover{
+  background:#475569;
+  color:#ffffff;
 }
 
 /* alerts */
@@ -712,7 +717,12 @@ button.ghost:active{ transform: translateY(1px); }
 
         <div class="actionsTop">
           <a class="btn light" href="tabel_arsip.php"> Lihat Data</a>
-          <a class="btn dark" href="homepage.php"> Kembali</a>
+          <a class="btn dark" href="homepage.php">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+              <path d="M15 6L9 12l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Kembali
+          </a>
         </div>
       </div>
 

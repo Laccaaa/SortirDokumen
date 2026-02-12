@@ -249,6 +249,18 @@ a.btn{
   align-items:center;
   white-space:nowrap;
 }
+a.btn.primary{
+  background:#334155;
+  color:#ffffff;
+  border:1px solid #334155;
+  padding:10px 14px;
+  border-radius:12px;
+  min-height:36px;
+}
+a.btn.primary:hover{
+  background:#475569;
+  color:#ffffff;
+}
 a.btn.secondary{
   background:#eef2ff;
   color:#1f2a44;
@@ -647,7 +659,12 @@ a.btn-edit:hover{
           <div class="btns">
             <!-- karena file ini ada di /pages, link cukup relatif -->
             <a class="btn secondary" href="input_arsip.php">➕ Form Input</a>
-            <a class="btn primary" href="/SortirDokumen/pages/homepage.php">⬅️ Kembali</a>
+            <a class="btn primary" href="/SortirDokumen/pages/homepage.php">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                <path d="M15 6L9 12l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Kembali
+            </a>
           </div>
         </div>
       </div>

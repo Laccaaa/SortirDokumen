@@ -200,6 +200,19 @@ body{
 .btn{ display:inline-flex; gap:8px; align-items:center; padding:10px 16px; border-radius: 14px; text-decoration:none; font-weight:900; font-size: 13px; border: 1px solid transparent; white-space:nowrap; cursor:pointer; }
 .btn.light{ background: var(--btn2); color: #1f2a44; border-color: #d7ddff; }
 .btn.dark{ background: var(--btn); color: #fff; }
+.btn.back{
+  background:#334155;
+  color:#ffffff;
+  border:1px solid #334155;
+  padding:10px 14px;
+  border-radius:12px;
+  min-height:36px;
+}
+.btn.back:hover{
+  background:#475569;
+  color:#ffffff;
+}
+.btn.back svg{ display:block; }
 
 .filter-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin: 8px 0 12px; }
 .filter-select{
@@ -300,7 +313,12 @@ body{
           <p>Sortir berdasarkan tahun dan bulan, lalu unduh CSV.</p>
         </div>
         <div class="actionsTop">
-          <a class="btn dark" href="homepage.php">⬅️ Kembali</a>
+          <a class="btn back" href="homepage.php">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+              <path d="M15 6L9 12l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Kembali
+          </a>
         </div>
       </div>
 
