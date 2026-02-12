@@ -492,31 +492,31 @@ a.btn.dark{
   box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
 }
 .btn-view{
-  background:#0f172a;
-  color:#ffffff;
-  border-color:#0b1220;
+  background:#E5E7EB;
+  color:#111827;
+  border-color:#D1D5DB;
 }
 .btn-view:hover{
-  background:#0b1220;
-  color:#ffffff;
+  background:#D1D5DB;
+  color:#111827;
 }
 .btn-download{
-  background:#111827;
+  background:#22C55E;
   color:#ffffff;
-  border-color:#0b1220;
+  border-color:#16A34A;
 }
 .btn-download:hover{
-  background:#0b1220;
+  background:#16A34A;
   color:#ffffff;
 }
 .btn-delete{
-  background:#fff1f2;
-  color:#9f1239;
-  border-color:#fecdd3;
+  background:#EF4444;
+  color:#ffffff;
+  border-color:#DC2626;
 }
 .btn-delete:hover{
-  background:#ffe4e6;
-  color:#9f1239;
+  background:#DC2626;
+  color:#ffffff;
 }
 
 .empty-state{
@@ -591,6 +591,58 @@ a.btn.dark{
   height:auto;
   object-fit:contain;
   background:#0b1220;
+}
+
+.confirm-card{
+  width: min(520px, 92vw);
+  background:#fff;
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  padding: 26px 24px 22px;
+  text-align:center;
+}
+.confirm-icon{
+  width:64px;
+  height:64px;
+  margin: 0 auto 12px;
+  border-radius: 16px;
+  display:grid;
+  place-items:center;
+  background: #fff7ed;
+  color:#ea580c;
+  font-size: 28px;
+}
+.confirm-title{
+  font-size: 18px;
+  font-weight: 800;
+  color:#0f172a;
+  margin-bottom: 6px;
+}
+.confirm-text{
+  font-size: 13px;
+  color:#64748b;
+  margin-bottom: 18px;
+}
+.confirm-actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+.btn-confirm{
+  border:none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor:pointer;
+}
+.btn-confirm.cancel{
+  background:#eef2ff;
+  color:#1f2a44;
+  border:1px solid #d7ddff;
+}
+.btn-confirm.ok{
+  background:#0f172a;
+  color:#fff;
 }
 
 @media (max-width: 980px){
@@ -788,13 +840,13 @@ a.btn.dark{
                           </div>
                           <div class="actions">
                               <button type="button" class="btn btn-view js-preview" data-preview="arsip.php?action=view&id=<?= $item['id'] ?>" title="Preview">Lihat</button>
-                              <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">⬇️</a>
-                              <a
-                                href="arsip.php?action=delete&id=<?= $item['id'] ?>"
-                                class="btn btn-delete"
+                              <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">Unduh</a>
+                              <button
+                                type="button"
+                                class="btn btn-delete js-delete"
+                                data-delete-url="arsip.php?action=delete&id=<?= $item['id'] ?>"
                                 title="Hapus"
-                                onclick="return confirm('Yakin ingin menghapus file ini?');"
-                              >🗑️</a>
+                              >Hapus</button>
                           </div>
                       </div>
                   <?php endif; ?>
@@ -817,6 +869,18 @@ a.btn.dark{
       <button type="button" class="modal-close" id="closePreview">Tutup</button>
     </div>
     <div class="modal-body" id="previewBody"></div>
+  </div>
+</div>
+
+<div id="confirmDeleteModal" class="modal" aria-hidden="true">
+  <div class="confirm-card" role="dialog" aria-modal="true">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title">Konfirmasi</div>
+    <div class="confirm-text">Yakin ingin menghapus file ini?</div>
+    <div class="confirm-actions">
+      <button type="button" class="btn-confirm cancel" id="cancelDelete">Batal</button>
+      <button type="button" class="btn-confirm ok" id="okDelete">OK</button>
+    </div>
   </div>
 </div>
 
@@ -894,6 +958,39 @@ previewModal?.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && previewModal.classList.contains("show")) {
     closePreviewModal();
+  }
+});
+
+const confirmDeleteModal = document.getElementById("confirmDeleteModal");
+const cancelDelete = document.getElementById("cancelDelete");
+const okDelete = document.getElementById("okDelete");
+let pendingDeleteUrl = "";
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".js-delete");
+  if (!btn) return;
+  e.preventDefault();
+  pendingDeleteUrl = btn.dataset.deleteUrl || "";
+  confirmDeleteModal.classList.add("show");
+  confirmDeleteModal.setAttribute("aria-hidden", "false");
+});
+
+function closeDeleteModal() {
+  confirmDeleteModal.classList.remove("show");
+  confirmDeleteModal.setAttribute("aria-hidden", "true");
+  pendingDeleteUrl = "";
+}
+
+cancelDelete?.addEventListener("click", closeDeleteModal);
+confirmDeleteModal?.addEventListener("click", (e) => {
+  if (e.target === confirmDeleteModal) closeDeleteModal();
+});
+okDelete?.addEventListener("click", () => {
+  if (pendingDeleteUrl) window.location.href = pendingDeleteUrl;
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && confirmDeleteModal.classList.contains("show")) {
+    closeDeleteModal();
   }
 });
 </script>
