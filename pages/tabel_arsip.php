@@ -275,6 +275,14 @@ a.btn.secondary{
   color:#166534;
   font-size:13px;
   font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.alert-ok .icon-check{
+  width:20px;
+  height:20px;
+  display:inline-block;
 }
 
 /* search */
@@ -386,27 +394,100 @@ a.btn-edit{
   display:inline-flex;
   align-items:center;
   gap:6px;
-  padding:6px 8px;
+  padding:8px 12px;
   border-radius:12px;
   text-decoration:none;
   font-weight:900;
-  font-size:11px;
+  font-size:12px;
+  background:#6366F1;
+  color:#ffffff;
+  border:1px solid #4F46E5;
+  min-width: 72px;
+  justify-content: center;
+}
+a.btn-edit:hover{
+  background:#4F46E5;
+}
+
+.btn-del{
+  border:1px solid #DC2626;
+  background:#EF4444;
+  color:#ffffff;
+  font-weight:900;
+  font-size:12px;
+  padding:8px 12px;
+  border-radius:12px;
+  cursor:pointer;
+  min-width: 72px;
+  justify-content: center;
+}
+.btn-del:hover{
+  background:#DC2626;
+}
+.btn-del:active{ transform: translateY(1px); }
+
+.modal{
+  position:fixed;
+  inset:0;
+  background: rgba(15, 23, 42, .45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index: 999;
+  padding: 20px;
+}
+.modal.show{ display:flex; }
+.confirm-card{
+  width: min(520px, 92vw);
+  background:#fff;
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  padding: 26px 24px 22px;
+  text-align:center;
+}
+.confirm-icon{
+  width:64px;
+  height:64px;
+  margin: 0 auto 12px;
+  border-radius: 16px;
+  display:grid;
+  place-items:center;
+  background: #fff7ed;
+  color:#ea580c;
+  font-size: 28px;
+}
+.confirm-title{
+  font-size: 18px;
+  font-weight: 800;
+  color:#0f172a;
+  margin-bottom: 6px;
+}
+.confirm-text{
+  font-size: 13px;
+  color:#64748b;
+  margin-bottom: 18px;
+}
+.confirm-actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+.btn-confirm{
+  border:none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor:pointer;
+}
+.btn-confirm.cancel{
   background:#eef2ff;
   color:#1f2a44;
   border:1px solid #d7ddff;
 }
-
-.btn-del{
-  border:1px solid #ffd0d0;
-  background:#fff5f5;
-  color:#7a1f1f;
-  font-weight:900;
-  font-size:11px;
-  padding:6px 8px;
-  border-radius:12px;
-  cursor:pointer;
+.btn-confirm.ok{
+  background:#0f172a;
+  color:#fff;
 }
-.btn-del:active{ transform: translateY(1px); }
 
 /* ✅ Mobile */
 @media (max-width:768px){
@@ -477,7 +558,7 @@ a.btn-edit{
   a.btn-edit, .btn-del{
     width:100%;
     justify-content:center;
-    padding:10px 12px;
+    padding:12px 14px;
     border-radius:14px;
   }
 }
@@ -574,11 +655,35 @@ a.btn-edit{
       <!-- ✅ TOOLS fixed (alert + search gak ikut scroll) -->
       <div class="shell-tools">
         <?php if (!empty($_GET['msg']) && $_GET['msg'] === 'deleted'): ?>
-          <div class="alert-ok">✅ Data berhasil dihapus.</div>
+          <div class="alert-ok">
+            <span class="icon-check" aria-hidden="true">
+              <svg viewBox="0 0 64 64" role="img" aria-label="Success">
+                <rect x="4" y="4" width="56" height="56" rx="14" fill="#22C55E"/>
+                <path d="M20 33.5L28.5 42L46 22.5" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>Data berhasil dihapus.</span>
+          </div>
         <?php elseif (!empty($_GET['msg']) && $_GET['msg'] === 'updated'): ?>
-          <div class="alert-ok">✅ Data berhasil diupdate.</div>
+          <div class="alert-ok">
+            <span class="icon-check" aria-hidden="true">
+              <svg viewBox="0 0 64 64" role="img" aria-label="Success">
+                <rect x="4" y="4" width="56" height="56" rx="14" fill="#22C55E"/>
+                <path d="M20 33.5L28.5 42L46 22.5" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>Data berhasil diupdate.</span>
+          </div>
         <?php elseif (!empty($_GET['msg']) && $_GET['msg'] === 'created'): ?>
-          <div class="alert-ok">✅ Data berhasil ditambahkan.</div>
+          <div class="alert-ok">
+            <span class="icon-check" aria-hidden="true">
+              <svg viewBox="0 0 64 64" role="img" aria-label="Success">
+                <rect x="4" y="4" width="56" height="56" rx="14" fill="#22C55E"/>
+                <path d="M20 33.5L28.5 42L46 22.5" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>Data berhasil ditambahkan.</span>
+          </div>
         <?php endif; ?>
 
         <?php if (!empty($error)): ?>
@@ -651,14 +756,14 @@ a.btn-edit{
                 <td data-label="Aksi">
                   <div class="actions">
                     <?php if ($rowId !== null): ?>
-                      <a class="btn-edit" href="input_arsip.php?edit=<?= urlencode((string)$rowId) ?>">✏️ Edit</a>
+                      <a class="btn-edit" href="input_arsip.php?edit=<?= urlencode((string)$rowId) ?>">Edit</a>
 
                       <!-- ✅ hapus diarahkan ke actions/proses_tabel.php -->
-                      <form method="POST" action="../actions/proses_tabel.php" onsubmit="return confirm('Yakin mau hapus data ini? 😬');">
+                      <form method="POST" action="../actions/proses_tabel.php" class="js-delete-form">
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="id" value="<?= htmlspecialchars((string)$rowId) ?>">
                         <input type="hidden" name="token" value="<?= htmlspecialchars($token ?? '') ?>">
-                        <button class="btn-del" type="submit">🗑️ Hapus</button>
+                        <button class="btn-del" type="submit">Hapus</button>
                       </form>
                     <?php else: ?>
                       <span class="muted">-</span>
@@ -676,5 +781,52 @@ a.btn-edit{
       </div>
     </div>
   </div>
+
+  <div id="confirmDeleteModal" class="modal" aria-hidden="true">
+    <div class="confirm-card" role="dialog" aria-modal="true">
+      <div class="confirm-icon">⚠️</div>
+      <div class="confirm-title">Konfirmasi</div>
+      <div class="confirm-text">Yakin mau hapus data ini?</div>
+      <div class="confirm-actions">
+        <button type="button" class="btn-confirm cancel" id="cancelDelete">Batal</button>
+        <button type="button" class="btn-confirm ok" id="okDelete">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const confirmDeleteModal = document.getElementById("confirmDeleteModal");
+    const cancelDelete = document.getElementById("cancelDelete");
+    const okDelete = document.getElementById("okDelete");
+    let pendingDeleteForm = null;
+
+    document.addEventListener("click", (e) => {
+      const form = e.target.closest(".js-delete-form");
+      if (!form) return;
+      e.preventDefault();
+      pendingDeleteForm = form;
+      confirmDeleteModal.classList.add("show");
+      confirmDeleteModal.setAttribute("aria-hidden", "false");
+    });
+
+    function closeDeleteModal() {
+      confirmDeleteModal.classList.remove("show");
+      confirmDeleteModal.setAttribute("aria-hidden", "true");
+      pendingDeleteForm = null;
+    }
+
+    cancelDelete?.addEventListener("click", closeDeleteModal);
+    confirmDeleteModal?.addEventListener("click", (e) => {
+      if (e.target === confirmDeleteModal) closeDeleteModal();
+    });
+    okDelete?.addEventListener("click", () => {
+      if (pendingDeleteForm) pendingDeleteForm.submit();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && confirmDeleteModal.classList.contains("show")) {
+        closeDeleteModal();
+      }
+    });
+  </script>
 </body>
 </html>

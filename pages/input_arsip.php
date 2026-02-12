@@ -34,6 +34,18 @@ $data = [
   "keterangan"       => "",
 ];
 
+function normalizeTanggalForInput($value) {
+  $value = trim((string)$value);
+  if ($value === "") return "";
+  if (preg_match("/^\\d{4}-\\d{2}-\\d{2}/", $value)) {
+    return substr($value, 0, 10);
+  }
+  if (preg_match("/^(\\d{2})\\/(\\d{2})\\/(\\d{4})$/", $value, $m)) {
+    return $m[3] . "-" . $m[2] . "-" . $m[1];
+  }
+  return "";
+}
+
 if (!empty($_GET['edit']) && ctype_digit($_GET['edit'])) {
   $isEdit = true;
   $editId = (int)$_GET['edit'];
@@ -51,6 +63,7 @@ if (!empty($_GET['edit']) && ctype_digit($_GET['edit'])) {
       foreach ($data as $k => $_) {
         $data[$k] = $found[$k] ?? "";
       }
+      $data["tanggal"] = normalizeTanggalForInput($data["tanggal"]);
     }
   } catch (PDOException $e) {
     $error = "Gagal ambil data edit: " . $e->getMessage();
@@ -73,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data["nama_berkas"]      = trim($_POST["nama_berkas"] ?? "");
     $data["no_isi"]           = trim($_POST["no_isi"] ?? "");
     $data["pencipta"]         = trim($_POST["pencipta"] ?? "");
-    $data["tanggal"]          = trim($_POST["tanggal"] ?? "");
+    $data["tanggal"]          = normalizeTanggalForInput($_POST["tanggal"] ?? "");
     $data["no_surat"]         = trim($_POST["no_surat"] ?? "");
     $data["uraian"]           = trim($_POST["uraian"] ?? "");
     $data["jumlah"]           = trim($_POST["jumlah"] ?? "");
@@ -107,12 +120,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE id = :id";
 
           $stmt = $dbhandle->prepare($sql);
+          $tanggalParam = ($data["tanggal"] === "") ? null : $data["tanggal"];
           $stmt->execute([
             ":kode_klasifikasi" => $data["kode_klasifikasi"],
             ":nama_berkas"      => $data["nama_berkas"],
             ":no_isi"           => $data["no_isi"],
             ":pencipta"         => $data["pencipta"],
-            ":tanggal"          => $data["tanggal"],
+            ":tanggal"          => $tanggalParam,
             ":no_surat"         => $data["no_surat"],
             ":uraian"           => $data["uraian"],
             ":jumlah"           => $data["jumlah"],
@@ -131,12 +145,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             (:kode_klasifikasi, :nama_berkas, :no_isi, :pencipta, :tanggal, :no_surat, :uraian, :jumlah, :tingkat, :lokasi, :keterangan)";
 
           $stmt = $dbhandle->prepare($sql);
+          $tanggalParam = ($data["tanggal"] === "") ? null : $data["tanggal"];
           $stmt->execute([
             ":kode_klasifikasi" => $data["kode_klasifikasi"],
             ":nama_berkas"      => $data["nama_berkas"],
             ":no_isi"           => $data["no_isi"],
             ":pencipta"         => $data["pencipta"],
-            ":tanggal"          => $data["tanggal"],
+            ":tanggal"          => $tanggalParam,
             ":no_surat"         => $data["no_surat"],
             ":uraian"           => $data["uraian"],
             ":jumlah"           => $data["jumlah"],
@@ -421,6 +436,70 @@ a.btn.dark{
   font-size: 13px;
 }
 
+.modal{
+  position:fixed;
+  inset:0;
+  background: rgba(15, 23, 42, .45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index: 999;
+  padding: 20px;
+}
+.modal.show{ display:flex; }
+.confirm-card{
+  width: min(520px, 92vw);
+  background:#fff;
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  padding: 26px 24px 22px;
+  text-align:center;
+}
+.confirm-icon{
+  width:64px;
+  height:64px;
+  margin: 0 auto 12px;
+  display:grid;
+  place-items:center;
+}
+.confirm-icon svg{
+  width:56px;
+  height:56px;
+  display:block;
+}
+.confirm-title{
+  font-size: 18px;
+  font-weight: 800;
+  color:#0f172a;
+  margin-bottom: 6px;
+}
+.confirm-text{
+  font-size: 13px;
+  color:#64748b;
+  margin-bottom: 18px;
+}
+.confirm-actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+.btn-confirm{
+  border:none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor:pointer;
+}
+.btn-confirm.cancel{
+  background:#eef2ff;
+  color:#1f2a44;
+  border:1px solid #d7ddff;
+}
+.btn-confirm.ok{
+  background:#0f172a;
+  color:#fff;
+}
+
 /* form */
 .form{
   display:grid;
@@ -641,7 +720,7 @@ button.ghost:active{ transform: translateY(1px); }
         <div class="alert-err"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
 
-      <form method="POST" action="">
+      <form method="POST" action="" id="arsipForm">
         <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
         <input type="hidden" name="action" value="<?= $isEdit ? 'update' : 'create' ?>">
         <?php if ($isEdit): ?>
@@ -784,11 +863,33 @@ button.ghost:active{ transform: translateY(1px); }
       </div>
     </div>
   </div>
+
+  <div id="confirmUpdateModal" class="modal" aria-hidden="true">
+    <div class="confirm-card" role="dialog" aria-modal="true">
+      <div class="confirm-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Success">
+          <rect x="4" y="4" width="56" height="56" rx="14" fill="#22C55E"/>
+          <path d="M20 33.5L28.5 42L46 22.5" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="confirm-title">Konfirmasi</div>
+      <div class="confirm-text">Yakin ingin memperbarui data ini?</div>
+      <div class="confirm-actions">
+        <button type="button" class="btn-confirm cancel" id="cancelUpdate">Batal</button>
+        <button type="button" class="btn-confirm ok" id="okUpdate">OK</button>
+      </div>
+    </div>
+  </div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const form = document.querySelector("form");
+  const form = document.getElementById("arsipForm");
   const resetBtn = document.getElementById("resetFormBtn");
   const shell = document.querySelector(".shell");
+  const actionInput = form?.querySelector('input[name="action"]');
+  const confirmUpdateModal = document.getElementById("confirmUpdateModal");
+  const cancelUpdate = document.getElementById("cancelUpdate");
+  const okUpdate = document.getElementById("okUpdate");
+  let allowSubmit = false;
 
   resetBtn?.addEventListener("click", () => {
     requestAnimationFrame(() => {
@@ -801,7 +902,33 @@ document.addEventListener("DOMContentLoaded", function () {
       shell?.scrollTo({ top: 0, behavior: "smooth" });
     });
   });
+
+  form?.addEventListener("submit", (e) => {
+    if (allowSubmit) return;
+    if (actionInput?.value !== "update") return;
+    e.preventDefault();
+    confirmUpdateModal.classList.add("show");
+    confirmUpdateModal.setAttribute("aria-hidden", "false");
+  });
+
+  function closeUpdateModal() {
+    confirmUpdateModal.classList.remove("show");
+    confirmUpdateModal.setAttribute("aria-hidden", "true");
+  }
+
+  cancelUpdate?.addEventListener("click", closeUpdateModal);
+  confirmUpdateModal?.addEventListener("click", (e) => {
+    if (e.target === confirmUpdateModal) closeUpdateModal();
+  });
+  okUpdate?.addEventListener("click", () => {
+    allowSubmit = true;
+    form?.submit();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && confirmUpdateModal.classList.contains("show")) {
+      closeUpdateModal();
+    }
+  });
 });
 </script></body>
 </html>
-
