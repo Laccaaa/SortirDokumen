@@ -913,6 +913,29 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  const getFields = () => Array.from(
+    form?.querySelectorAll("input, select, textarea, button") ?? []
+  ).filter((el) => {
+    if (el.disabled) return false;
+    if (el.type === "hidden") return false;
+    return true;
+  });
+
+  form?.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    if (e.shiftKey) return;
+    if (e.target.tagName === "TEXTAREA") return;
+    if (e.target.type === "submit") return;
+    if (e.target.type === "button") return;
+
+    e.preventDefault();
+    const fields = getFields();
+    const idx = fields.indexOf(e.target);
+    if (idx > -1 && idx < fields.length - 1) {
+      fields[idx + 1].focus();
+    }
+  });
+
   form?.addEventListener("submit", (e) => {
     if (allowSubmit) return;
     if (actionInput?.value !== "update") return;
