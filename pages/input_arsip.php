@@ -173,6 +173,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = $isEdit ? "Form Edit Arsip Dimusnahkan" : "Form Input Arsip Dimusnahkan";
 $subTitle  = "Lengkapi informasi arsip yang akan dimusnahkan";
 $btnText   = $isEdit ? "💾 Update ke Database" : "💾 Simpan ke Database";
+$backUrl   = $isEdit ? "tabel_arsip.php" : "homepage.php";
+$primaryTopLabel = $isEdit ? "Beranda" : "Lihat Data";
+$primaryTopUrl   = $isEdit ? "homepage.php" : "tabel_arsip.php";
+$primaryTopClass = $isEdit ? "home" : "light";
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -418,6 +422,15 @@ a.btn.light{
   background: var(--btn2);
   color: #1f2a44;
   border-color: #d7ddff;
+}
+a.btn.home{
+  background:#2563EB;
+  color:#ffffff;
+  border-color:#1D4ED8;
+}
+a.btn.home:hover{
+  background:#1D4ED8;
+  color:#ffffff;
 }
 a.btn.dark{
   background:#334155;
@@ -716,8 +729,8 @@ button.ghost:active{ transform: translateY(1px); }
         </div>
 
         <div class="actionsTop">
-          <a class="btn light" href="tabel_arsip.php"> Lihat Data</a>
-          <a class="btn dark" href="homepage.php">
+          <a class="btn <?= htmlspecialchars($primaryTopClass) ?>" href="<?= htmlspecialchars($primaryTopUrl) ?>"><?= htmlspecialchars($primaryTopLabel) ?></a>
+          <a class="btn dark" href="<?= htmlspecialchars($backUrl) ?>">
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
               <path d="M15 6L9 12l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>

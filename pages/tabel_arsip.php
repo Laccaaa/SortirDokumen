@@ -398,8 +398,8 @@ td.muted{
 .actions{
   display:flex;
   gap:6px;
-  flex-wrap:wrap;
-  align-items:center;
+  flex-direction:column;
+  align-items:stretch;
 }
 
 a.btn-edit{
@@ -414,7 +414,8 @@ a.btn-edit{
   background:#6366F1;
   color:#ffffff;
   border:1px solid #4F46E5;
-  min-width: 72px;
+  width: 100%;
+  min-width: 0;
   justify-content: center;
 }
 a.btn-edit:hover{
@@ -426,11 +427,12 @@ a.btn-edit:hover{
   background:#EF4444;
   color:#ffffff;
   font-weight:900;
-  font-size:12px;
+  font-size:11px;
   padding:8px 12px;
   border-radius:12px;
   cursor:pointer;
-  min-width: 72px;
+  width: 100%;
+  min-width: 0;
   justify-content: center;
 }
 .btn-del:hover{
