@@ -942,6 +942,7 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
     confirmUpdateModal.classList.add("show");
     confirmUpdateModal.setAttribute("aria-hidden", "false");
+    okUpdate?.focus();
   });
 
   function closeUpdateModal() {
@@ -960,6 +961,10 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && confirmUpdateModal.classList.contains("show")) {
       closeUpdateModal();
+    }
+    if (e.key === "Enter" && confirmUpdateModal.classList.contains("show")) {
+      e.preventDefault();
+      okUpdate?.click();
     }
   });
 });
