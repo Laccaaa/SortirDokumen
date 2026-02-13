@@ -10,8 +10,23 @@ $filterJenis = $_GET['jenis'] ?? '';
 $filterTahun = $_GET['tahun'] ?? '';
 $filterBulan = $_GET['bulan'] ?? '';
 $filterSub = $_GET['subkode'] ?? '';
+function isZipAllowedPath(string $path): bool {
+  $path = urldecode(trim($path, "/"));
+  if ($path === '') return false;
 
-// Handle actions (view/download/delete)
+  if ($path === 'Surat Masuk' || $path === 'Surat Keluar') return false;
+
+  return (bool) preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})(/[^/]+){0,3}$#', $path);
+}
+
+// Handle actions (view/download/delete/zip)
+if ($action === 'zip' && $path !== '') {
+  if ($path === 'Surat Masuk' || $path === 'Surat Keluar' || $path === '') {
+    http_response_code(403); exit('ZIP tidak tersedia di level jenis surat.');
+  }
+  downloadFolderZip($path);
+  exit();
+}
 if ($action === 'view' && isset($_GET['id'])) {
     viewFile($_GET['id']);
     exit;
@@ -670,7 +685,8 @@ a.btn.dark:hover{
 
 <body>
 <div class="wrap">
-  <div class="layout">
+
+<div class="layout">
     <aside class="sidebar">
       <div class="side-title">Menu Utama</div>
       <ul class="side-list">
@@ -827,15 +843,25 @@ a.btn.dark:hover{
           <?php else: ?>
               <?php foreach ($items as $item): ?>
                   <?php if ($item['type'] === 'folder'): ?>
-                      <div class="item" data-search="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>">
-                          <a href="<?= htmlspecialchars($item['link']) ?>" class="item-link">
-                              <div class="icon folder">📁</div>
-                              <div class="name">
-                                  <span><?= htmlspecialchars($item['name']) ?></span>
-                                  <span class="file-count">(<?= $item['count'] ?>)</span>
-                              </div>
-                          </a>
-                      </div>
+                    <?php
+                      $targetPath = trim(($path ? $path.'/' : '').$item['name'], '/');
+                      $bolehZip = ($targetPath !== 'Surat Masuk' && $targetPath !== 'Surat Keluar');
+                    ?>
+                    <div class="item" data-search="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>">
+                      <a href="<?= htmlspecialchars($item['link']) ?>" class="item-link">
+                        <div class="icon folder">📁</div>
+                        <div class="name">
+                          <span><?= htmlspecialchars($item['name']) ?></span>
+                          <span class="file-count">(<?= $item['count'] ?>)</span>
+                        </div>
+                      </a>
+
+                      <?php if ($bolehZip): ?>
+                        <div class="actions">
+                          <a class="btn btn-download" href="arsip.php?action=zip&path=<?= urlencode($targetPath) ?>">Download</a>
+                        </div>
+                      <?php endif; ?>
+                    </div>
                   <?php else: ?>
                       <div class="item" data-search="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>">
                           <div class="icon file">📄</div>
@@ -853,8 +879,8 @@ a.btn.dark:hover{
                               <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">Unduh</a>
                               <button
                                 type="button"
-                                class="btn btn-delete js-delete"
-                                data-delete-url="arsip.php?action=delete&id=<?= $item['id'] ?>"
+                                class="btn btn-handle js-handle"
+                                data-handle-url="arsip.php?action=handle&id=<?= $item['id'] ?>"
                                 title="Hapus"
                               >Hapus</button>
                           </div>
@@ -882,14 +908,14 @@ a.btn.dark:hover{
   </div>
 </div>
 
-<div id="confirmDeleteModal" class="modal" aria-hidden="true">
+<div id="confirmhandleModal" class="modal" aria-hidden="true">
   <div class="confirm-card" role="dialog" aria-modal="true">
     <div class="confirm-icon">⚠️</div>
     <div class="confirm-title">Konfirmasi</div>
     <div class="confirm-text">Yakin ingin menghapus file ini?</div>
     <div class="confirm-actions">
-      <button type="button" class="btn-confirm cancel" id="cancelDelete">Batal</button>
-      <button type="button" class="btn-confirm ok" id="okDelete">OK</button>
+      <button type="button" class="btn-confirm cancel" id="cancelhandle">Batal</button>
+      <button type="button" class="btn-confirm ok" id="okhandle">OK</button>
     </div>
   </div>
 </div>

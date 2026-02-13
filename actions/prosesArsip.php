@@ -636,3 +636,38 @@ function deleteFile($id) {
     header("Location: /SortirDokumen/pages/arsip.php?msg=deleted");
     exit;
 }
+
+function downloadFolderZip(string $path): void {
+  $filters = parsePathFilters($path);
+  if (!$filters['valid'] || $path === '' || $path === 'Surat Masuk' || $path === 'Surat Keluar') {
+    http_response_code(403); exit('Tidak boleh ZIP di level ini.');
+  }
+
+  $conn = getConnection();
+  $sql = "SELECT nama_file, path_file FROM surat WHERE 1=1";
+  $p = [];
+
+  foreach (['jenis'=>'jenis_surat','tahun'=>'tahun','bulan'=>'bulan','kode'=>'kode_utama','subkode'=>'subkode'] as $k=>$col) {
+    if (!empty($filters[$k])) { $sql .= " AND $col = ?"; $p[] = $filters[$k]; }
+  }
+
+  $st = $conn->prepare($sql); $st->execute($p);
+  $rows = $st->fetchAll(PDO::FETCH_ASSOC);
+  if (!$rows) { http_response_code(404); exit('Tidak ada file.'); }
+
+  $tmp = tempnam(sys_get_temp_dir(), 'zip_');
+  $zip = new ZipArchive(); $zip->open($tmp, ZipArchive::OVERWRITE);
+
+  foreach ($rows as $r) {
+    $fp = $r['path_file'];
+    if ($fp && $fp[0] !== '/') $fp = __DIR__ . '/../' . ltrim($fp,'/');
+    if (is_file($fp)) $zip->addFile($fp, $r['nama_file'] ?: basename($fp));
+  }
+  $zip->close();
+
+  $name = preg_replace('/[^A-Za-z0-9_\-]+/','_', str_replace('/','_', $path)) . '.zip';
+  header('Content-Type: application/zip');
+  header("Content-Disposition: attachment; filename=\"$name\"");
+  header('Content-Length: '.filesize($tmp));
+  readfile($tmp); @unlink($tmp); exit;
+}
