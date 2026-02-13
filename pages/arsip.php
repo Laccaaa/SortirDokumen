@@ -535,13 +535,13 @@ a.btn.dark:hover{
   color:#ffffff;
 }
 .btn-delete{
-  background:#EF4444;
-  color:#ffffff;
-  border-color:#DC2626;
+  background:#EF4444 !important;
+  color:#ffffff !important;
+  border-color:#DC2626 !important;
 }
 .btn-delete:hover{
-  background:#DC2626;
-  color:#ffffff;
+  background:#DC2626 !important;
+  color:#ffffff !important;
 }
 
 .empty-state{
@@ -886,8 +886,8 @@ a.btn.dark:hover{
                               <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">Unduh</a>
                               <button
                                 type="button"
-                                class="btn btn-handle js-handle"
-                                data-handle-url="arsip.php?action=handle&id=<?= $item['id'] ?>"
+                                class="btn btn-delete js-delete"
+                                data-delete-url="arsip.php?action=delete&id=<?= $item['id'] ?>"
                                 title="Hapus"
                               >Hapus</button>
                           </div>
@@ -915,14 +915,14 @@ a.btn.dark:hover{
   </div>
 </div>
 
-<div id="confirmhandleModal" class="modal" aria-hidden="true">
+<div id="confirmDeleteModal" class="modal" aria-hidden="true">
   <div class="confirm-card" role="dialog" aria-modal="true">
     <div class="confirm-icon">⚠️</div>
     <div class="confirm-title">Konfirmasi</div>
     <div class="confirm-text">Yakin ingin menghapus file ini?</div>
     <div class="confirm-actions">
-      <button type="button" class="btn-confirm cancel" id="cancelhandle">Batal</button>
-      <button type="button" class="btn-confirm ok" id="okhandle">OK</button>
+      <button type="button" class="btn-confirm cancel" id="cancelDelete">Batal</button>
+      <button type="button" class="btn-confirm ok" id="okDelete">OK</button>
     </div>
   </div>
 </div>
