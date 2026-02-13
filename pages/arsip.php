@@ -20,6 +20,11 @@ function isZipAllowedPath(string $path): bool {
 }
 
 // Handle actions (view/download/delete/zip)
+if ($action === 'zip_check' && $path !== '') {
+  header('Content-Type: application/json; charset=utf-8');
+  echo json_encode(['count' => countFilesForPath($path)]);
+  exit;
+}
 if ($action === 'zip' && $path !== '') {
   if ($path === 'Surat Masuk' || $path === 'Surat Keluar' || $path === '') {
     http_response_code(403); exit('ZIP tidak tersedia di level jenis surat.');
@@ -844,8 +849,10 @@ a.btn.dark:hover{
               <?php foreach ($items as $item): ?>
                   <?php if ($item['type'] === 'folder'): ?>
                     <?php
-                      $targetPath = trim(($path ? $path.'/' : '').$item['name'], '/');
-                      $bolehZip = ($targetPath !== 'Surat Masuk' && $targetPath !== 'Surat Keluar');
+                      $qs = [];
+                      parse_str(parse_url($item['link'], PHP_URL_QUERY) ?? '', $qs);
+                      $targetPath = $qs['path'] ?? '';
+                      $bolehZip = ($targetPath !== 'Surat Masuk' && $targetPath !== 'Surat Keluar' && $targetPath !== '');
                     ?>
                     <div class="item" data-search="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>">
                       <a href="<?= htmlspecialchars($item['link']) ?>" class="item-link">
@@ -858,7 +865,7 @@ a.btn.dark:hover{
 
                       <?php if ($bolehZip): ?>
                         <div class="actions">
-                          <a class="btn btn-download" href="arsip.php?action=zip&path=<?= urlencode($targetPath) ?>">Download</a>
+                          <button type="button" class="btn btn-download js-zip" data-zip-path="<?= htmlspecialchars($targetPath, ENT_QUOTES, 'UTF-8') ?>">Download</button>
                         </div>
                       <?php endif; ?>
                     </div>
@@ -1029,6 +1036,51 @@ document.addEventListener("keydown", (e) => {
     closeDeleteModal();
   }
 });
+
+const zipEmptyModal = document.getElementById("zipEmptyModal");
+const closeZipEmpty = document.getElementById("closeZipEmpty");
+
+function openZipEmpty() {
+  zipEmptyModal.classList.add("show");
+  zipEmptyModal.setAttribute("aria-hidden","false");
+}
+function closeZipEmptyModal() {
+  zipEmptyModal.classList.remove("show");
+  zipEmptyModal.setAttribute("aria-hidden","true");
+}
+
+closeZipEmpty?.addEventListener("click", closeZipEmptyModal);
+zipEmptyModal?.addEventListener("click", (e)=>{ if(e.target===zipEmptyModal) closeZipEmptyModal(); });
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".js-zip");
+  if (!btn) return;
+
+  const p = btn.dataset.zipPath || "";
+  if (!p) return;
+
+  // cek dulu ada file atau tidak
+  const res = await fetch(`arsip.php?action=zip_check&path=${encodeURIComponent(p)}`);
+  const data = await res.json();
+
+  if (!data.count || data.count <= 0) {
+    openZipEmpty();
+    return;
+  }
+
+  // kalau ada file -> baru download zip
+  window.location.href = `arsip.php?action=zip&path=${encodeURIComponent(p)}`;
+});
 </script>
+<div id="zipEmptyModal" class="modal" aria-hidden="true">
+  <div class="confirm-card" role="dialog" aria-modal="true">
+    <div class="confirm-icon">📭</div>
+    <div class="confirm-title">Tidak dapat unduh</div>
+    <div class="confirm-text">Tidak ada file pada folder ini.</div>
+    <div class="confirm-actions">
+      <button type="button" class="btn-confirm ok" id="closeZipEmpty">OK</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

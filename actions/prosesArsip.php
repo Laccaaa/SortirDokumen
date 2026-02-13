@@ -644,7 +644,8 @@ function downloadFolderZip(string $path): void {
   }
 
   $conn = getConnection();
-  $sql = "SELECT nama_file, path_file FROM surat WHERE 1=1";
+  $sql = "SELECT nama_file, path_file, tahun, bulan, kode_utama, subkode, jenis_surat
+        FROM surat WHERE 1=1";
   $p = [];
 
   foreach (['jenis'=>'jenis_surat','tahun'=>'tahun','bulan'=>'bulan','kode'=>'kode_utama','subkode'=>'subkode'] as $k=>$col) {
@@ -661,7 +662,17 @@ function downloadFolderZip(string $path): void {
   foreach ($rows as $r) {
     $fp = $r['path_file'];
     if ($fp && $fp[0] !== '/') $fp = __DIR__ . '/../' . ltrim($fp,'/');
-    if (is_file($fp)) $zip->addFile($fp, $r['nama_file'] ?: basename($fp));
+    if (is_file($fp)) {
+
+  $inside = [];
+
+  if (empty($filters['bulan']) && !empty($r['bulan'])) $inside[] = $r['bulan'];
+  if (empty($filters['kode']) && !empty($r['kode_utama'])) $inside[] = $r['kode_utama'];
+  if (empty($filters['subkode']) && !empty($r['subkode'])) $inside[] = $r['kode_utama'] . '.' . $r['subkode'];
+
+  $insidePath = (count($inside) ? implode('/', $inside) . '/' : '') . ($r['nama_file'] ?: basename($fp));
+  $zip->addFile($fp, $insidePath);
+}
   }
   $zip->close();
 
@@ -670,4 +681,26 @@ function downloadFolderZip(string $path): void {
   header("Content-Disposition: attachment; filename=\"$name\"");
   header('Content-Length: '.filesize($tmp));
   readfile($tmp); @unlink($tmp); exit;
+}
+
+function countFilesForPath(string $path): int {
+  $filters = parsePathFilters($path);
+  if (!$filters['valid']) return 0;
+
+  $conn = getConnection();
+  $sql = "SELECT COUNT(*) FROM surat WHERE 1=1";
+  $p = [];
+
+  if (!empty($filters['jenis'])) { $sql .= " AND jenis_surat = ?"; $p[] = $filters['jenis']; }
+  if (!empty($filters['tahun'])) { $sql .= " AND tahun = ?"; $p[] = (int)$filters['tahun']; }
+
+  // PENTING: bulan pakai ILIKE/trim biar match walau beda spasi/case
+  if (!empty($filters['bulan'])) { $sql .= " AND TRIM(bulan) ILIKE TRIM(?)"; $p[] = $filters['bulan']; }
+
+  if (!empty($filters['kode'])) { $sql .= " AND kode_utama = ?"; $p[] = $filters['kode']; }
+  if (!empty($filters['subkode'])) { $sql .= " AND subkode = ?"; $p[] = $filters['subkode']; }
+
+  $st = $conn->prepare($sql);
+  $st->execute($p);
+  return (int)$st->fetchColumn();
 }
