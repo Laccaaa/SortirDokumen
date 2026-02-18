@@ -49,7 +49,6 @@ $out = fopen('php://output', 'w');
 
 fputcsv($out, [
     'No',
-    'ID',
     'Kode',
     'Nama Berkas',
     'No Isi',
@@ -67,7 +66,6 @@ fputcsv($out, [
 foreach ($rows as $i => $row) {
     fputcsv($out, [
         $i + 1,
-        $row['id'] ?? '',
         $row['kode_klasifikasi'] ?? '',
         $row['nama_berkas'] ?? '',
         $row['no_isi'] ?? '',

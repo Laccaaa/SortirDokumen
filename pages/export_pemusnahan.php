@@ -355,7 +355,6 @@ body{
             <thead>
               <tr>
                 <th>No</th>
-                <th>ID</th>
                 <th>Kode</th>
                 <th>Nama Berkas</th>
                 <th>No Isi</th>
@@ -374,7 +373,6 @@ body{
               <?php foreach ($rows as $i => $row): ?>
                 <tr>
                   <td><?= $i + 1 ?></td>
-                  <td><?= htmlspecialchars($row['id'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['kode_klasifikasi'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['nama_berkas'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['no_isi'] ?? '') ?></td>
