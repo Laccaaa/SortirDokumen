@@ -177,9 +177,15 @@ $sql = "
 INSERT INTO surat (
     jenis_surat, nomor_surat, kode_utama, subkode,
     nomor_urut, unit_pengirim, bulan, tahun,
-    nama_file, path_file
+    nama_file, path_file,
+    unit_pengolah, nama_berkas, nomor_isi, pencipta_arsip,
+    tujuan_surat, perihal, uraian_informasi, tanggal_surat_kurun,
+    jumlah, lokasi_simpan, tingkat, keterangan,
+    skkad, jra_aktif, jra_inaktif, nasib
 ) VALUES (
-    ?,?,?,?,?,?,?,?,?,?
+    ?,?,?,?,?,?,?,?,?,?,
+    ?,?,?,?,?,?,?,?,?,?,
+    ?,?,?,?,?,?
 )";
 
 try {
@@ -194,7 +200,23 @@ try {
         $bulan,
         $tahun,
         $nama_file,
-        $destPathRel
+        $destPathRel,
+        $unit_pengolah !== '' ? $unit_pengolah : null,
+        $nama_berkas !== '' ? $nama_berkas : null,
+        $nomor_isi !== '' ? $nomor_isi : null,
+        $pencipta_arsip !== '' ? $pencipta_arsip : null,
+        $tujuan_surat !== '' ? $tujuan_surat : null,
+        $perihal !== '' ? $perihal : null,
+        $uraian_informasi !== '' ? $uraian_informasi : null,
+        $tanggal_surat !== '' ? $tanggal_surat : null,
+        $jumlah !== '' ? $jumlah : null,
+        $lokasi_simpan !== '' ? $lokasi_simpan : null,
+        $tingkat !== '' ? $tingkat : null,
+        $keterangan !== '' ? $keterangan : null,
+        $skkad !== '' ? $skkad : null,
+        $jra_aktif !== '' ? $jra_aktif : null,
+        $jra_inaktif !== '' ? $jra_inaktif : null,
+        $nasib !== '' ? $nasib : null
     ]);
 } catch (Throwable $e) {
     error_log("Insert surat gagal: " . $e->getMessage());

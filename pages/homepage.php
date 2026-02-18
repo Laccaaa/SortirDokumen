@@ -5,8 +5,6 @@ require_once __DIR__ . "/../auth/auth_check.php";
 
 // Ambil data user dari session
 $nama_user = $_SESSION['nama_lengkap'] ?? 'User';
-$username = $_SESSION['username'] ?? '';
-$role = $_SESSION['role'] ?? 'user';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -125,32 +123,6 @@ $role = $_SESSION['role'] ?? 'user';
       align-items: center;
       gap: 8px;
       white-space: nowrap;
-    }
-
-    .user-role{
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.1;
-    }
-
-    .role-badge{
-      display: inline-flex;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .role-badge.admin{
-      background: #ffeaa7;
-      color: #d63031;
-    }
-
-    .role-badge.user{
-      background: #dfe6e9;
-      color: #2d3436;
     }
 
     .btn-logout{
@@ -378,12 +350,10 @@ $role = $_SESSION['role'] ?? 'user';
             <div class="user-name">
               <span>👤</span>
               <span><?= htmlspecialchars($nama_user) ?></span>
-              <span class="role-badge <?= htmlspecialchars($role) ?>"><?= strtoupper(htmlspecialchars($role)) ?></span>
             </div>
-            <div class="user-role">@<?= htmlspecialchars($username) ?></div>
           </div>
 
-          <a href="/SortirDokumen/auth/logout.php" class="btn-logout"> 🚪 Logout</a>
+          <a href="/SortirDokumen/auth/logout.php" class="btn-logout"> Logout</a>
         </div>
       </div>
 

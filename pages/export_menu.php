@@ -47,7 +47,10 @@ function getExportRows($conn, $jenis = null, $tahun = null, $bulan = null) {
     $sql = "SELECT
         id_surat, jenis_surat, nomor_surat, kode_utama, subkode,
         nomor_urut, unit_pengirim, bulan, tahun, nama_file,
-        path_file, tanggal_upload
+        path_file, tanggal_upload, unit_pengolah, nama_berkas,
+        nomor_isi, pencipta_arsip, tujuan_surat, perihal, uraian_informasi,
+        tanggal_surat_kurun, jumlah, lokasi_simpan, tingkat, keterangan,
+        skkad, jra_aktif, jra_inaktif, nasib
         FROM surat WHERE 1=1";
     $params = [];
 
@@ -221,10 +224,27 @@ body{
 }
 .filter-note{ font-size: 11px; color: var(--muted); }
 
-.table-wrap{ border: 1px solid #e9ecef; border-radius: 12px; overflow:auto; background:#fff; }
-.table{ width:100%; border-collapse: collapse; font-size: 12px; }
-.table th, .table td{ border-bottom:1px solid #eef2f6; padding: 8px 10px; text-align:left; vertical-align:top; }
-.table th{ background:#f8fafc; color:#1f2a44; position:sticky; top:0; z-index:1; }
+.table-wrap{ border: 1px solid #d8e1d3; border-radius: 12px; overflow:auto; background:#fff; }
+.table{ width:100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
+.table th, .table td{
+  border-bottom:1px solid #eef2f6;
+  border-right:1px solid #eef2f6;
+  padding: 10px 12px;
+  text-align:left;
+  vertical-align:top;
+  white-space: nowrap;
+}
+.table th{
+  background:#b8d5a8;
+  color:#0f172a;
+  position:sticky;
+  top:0;
+  z-index:2;
+  text-align:center;
+  font-weight:700;
+  vertical-align:middle;
+}
+.table th:last-child, .table td:last-child{ border-right:none; }
 
 .empty-state{ text-align:center; padding: 40px 20px; color:#94a3b8; }
 
@@ -355,37 +375,50 @@ body{
           <table class="table">
             <thead>
               <tr>
-                <th>No</th>
-                <th>ID Surat</th>
-                <th>Jenis Surat</th>
+                <th>Nomor</th>
+                <th>Kode</th>
+                <th>Unit Pengolah</th>
+                <th>Nama Berkas</th>
+                <th>Nomor Isi</th>
+                <th>Pencipta Arsip</th>
+                <th>Tujuan Surat</th>
                 <th>Nomor Surat</th>
-                <th>Kode Utama</th>
-                <th>Subkode</th>
-                <th>Nomor Urut</th>
-                <th>Unit Pengirim</th>
-                <th>Bulan</th>
-                <th>Tahun</th>
-                <th>Nama File</th>
-                <th>Path File</th>
-                <th>Tanggal Upload</th>
+                <th>Perihal</th>
+                <th>Uraian Informasi</th>
+                <th>Tanggal Surat / Kurun</th>
+                <th>Jumlah</th>
+                <th>Lokasi Simpan</th>
+                <th>Tingkat</th>
+                <th>Keterangan</th>
+                <th>SKKAD</th>
+                <th>JRA Aktif</th>
+                <th>JRA Inaktif</th>
+                <th>Nasib</th>
               </tr>
             </thead>
             <tbody>
               <?php foreach ($rows as $i => $row): ?>
+                <?php $kodeGabung = trim(($row['kode_utama'] ?? '') . ((isset($row['subkode']) && $row['subkode'] !== '') ? '.' . $row['subkode'] : '')); ?>
                 <tr>
                   <td><?= $i + 1 ?></td>
-                  <td><?= htmlspecialchars($row['id_surat'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['jenis_surat'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($kodeGabung) ?></td>
+                  <td><?= htmlspecialchars(($row['unit_pengolah'] ?? '') !== '' ? $row['unit_pengolah'] : ($row['unit_pengirim'] ?? '')) ?></td>
+                  <td><?= htmlspecialchars(($row['nama_berkas'] ?? '') !== '' ? $row['nama_berkas'] : ($row['nama_file'] ?? '')) ?></td>
+                  <td><?= htmlspecialchars($row['nomor_isi'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['pencipta_arsip'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['tujuan_surat'] ?? '-') ?></td>
                   <td><?= htmlspecialchars($row['nomor_surat'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['kode_utama'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['subkode'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['nomor_urut'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['unit_pengirim'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['bulan'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['tahun'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['nama_file'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['path_file'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['tanggal_upload'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['perihal'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['uraian_informasi'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['tanggal_surat_kurun'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['jumlah'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['lokasi_simpan'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['tingkat'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['keterangan'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['skkad'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['jra_aktif'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['jra_inaktif'] ?? '-') ?></td>
+                  <td><?= htmlspecialchars($row['nasib'] ?? '-') ?></td>
                 </tr>
               <?php endforeach; ?>
             </tbody>
