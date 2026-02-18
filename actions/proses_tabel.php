@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
       $del = $dbhandle->prepare("DELETE FROM arsip_dimusnahkan WHERE id = :id");
       $del->execute([':id' => (int)$id]);
 
-      header("Location: tabel_arsip.php?msg=deleted");
+      header("Location: /SortirDokumen/pages/tabel_arsip.php?msg=deleted");
       exit;
     } catch (PDOException $e) {
       $error = "Gagal hapus data: " . $e->getMessage();
