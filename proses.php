@@ -37,6 +37,20 @@ $jra_aktif         = trim($_POST['jra_aktif'] ?? '');
 $jra_inaktif       = trim($_POST['jra_inaktif'] ?? '');
 $nasib             = trim($_POST['nasib'] ?? '');
 
+if ($jra_aktif === '' || !ctype_digit($jra_aktif)) {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Input JRA Aktif tidak valid.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
+
+if ($jra_inaktif === '' || !ctype_digit($jra_inaktif)) {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Input JRA Inaktif tidak valid.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
+
 $pattern = '/^
     (?:([a-zA-Z0-9.]+)\/)?      # Group 1: Prefix opsional (e.B, ME.002, dll)
     ([^\/]+)                     # Group 2: Bagian pertama

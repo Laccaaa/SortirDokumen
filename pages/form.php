@@ -275,6 +275,18 @@ label{
   letter-spacing:.2px;
   text-transform: uppercase;
 }
+.label-hint{
+  display:none;
+  font-weight:600;
+  font-size:11px;
+  color:rgba(180, 83, 9, 0.65);
+  text-transform:none;
+  letter-spacing:0;
+  margin-left:4px;
+}
+.label-hint.show{
+  display:inline;
+}
 .required{ color: #ef4444; }
 
 input, select{
@@ -454,6 +466,10 @@ button.primary:active{ transform: translateY(1px); }
     color: #ff4444;
 }
 
+.modal-icon.warning {
+    color: #f59e0b;
+}
+
 .modal-content h3 {
     margin-bottom: 8px;
     color: #2f3a5f;
@@ -479,6 +495,20 @@ button.primary:active{ transform: translateY(1px); }
 .modal-content button:hover {
     background: #3a5ce7;
     transform: translateY(-2px);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.modal-actions .btn-cancel {
+    background: #64748b;
+}
+
+.modal-actions .btn-cancel:hover {
+    background: #475569;
 }
 
 @keyframes scaleIn {
@@ -730,20 +760,28 @@ button.primary:active{ transform: translateY(1px); }
           </div>
 
           <div class="field">
-            <label>JRA Aktif (Tahun)</label>
+            <label>JRA Aktif (Tahun) <span class="label-hint" id="jraAktifHint">wajib berupa angka</span></label>
             <input
               type="text"
               name="jra_aktif"
               placeholder="1"
+              inputmode="numeric"
+              pattern="[0-9]+"
+              required
+              title="Wajib isi angka"
             >
           </div>
 
           <div class="field">
-            <label>JRA Inaktif (Tahun)</label>
+            <label>JRA Inaktif (Tahun) <span class="label-hint" id="jraInaktifHint">wajib berupa angka</span></label>
             <input
               type="text"
               name="jra_inaktif"
               placeholder="1"
+              inputmode="numeric"
+              pattern="[0-9]+"
+              required
+              title="Wajib isi angka"
             >
           </div>
 
@@ -807,6 +845,19 @@ button.primary:active{ transform: translateY(1px); }
     </div>
 </div>
 
+<!-- MODAL KONFIRMASI RESET -->
+<div id="resetConfirmModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon warning">⚠</div>
+        <h3>Konfirmasi Reset</h3>
+        <p>Semua data yang sudah diisi akan dihapus. Lanjutkan reset?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" onclick="closeResetConfirmModal()">Batal</button>
+            <button type="button" onclick="confirmResetForm()">Ya, Reset</button>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -819,6 +870,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const filePreview = document.getElementById("filePreview");
     const errorModal  = document.getElementById("errorModal");
     const errorMsg    = document.getElementById("errorMessage");
+    const resetConfirmModal = document.getElementById("resetConfirmModal");
+    const jraAktif    = form.querySelector('input[name="jra_aktif"]');
+    const jraInaktif  = form.querySelector('input[name="jra_inaktif"]');
+    const jraAktifHint = document.getElementById("jraAktifHint");
+    const jraInaktifHint = document.getElementById("jraInaktifHint");
 
     /* ========= PREVIEW FILE ========= */
     fileInput.addEventListener("change", function () {
@@ -855,14 +911,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* ========= RESET FORM ========= */
     const resetBtn = document.getElementById("resetFormBtn");
-    resetBtn?.addEventListener("click", () => {
+    resetBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        resetConfirmModal?.classList.add("show");
+    });
+
+    window.confirmResetForm = function () {
         filePreview.innerHTML = "";
         fileName.innerText = "";
         fileName.style.display = "none";
         fileLabel.classList.remove("error");
         jenisSurat.classList.remove("error");
         nomor.classList.remove("error");
-    });
+        jraAktif?.classList.remove("error");
+        jraInaktif?.classList.remove("error");
+        jraAktifHint?.classList.remove("show");
+        jraInaktifHint?.classList.remove("show");
+        form.reset();
+        closeResetConfirmModal();
+    };
+
+    window.closeResetConfirmModal = function () {
+        resetConfirmModal?.classList.remove("show");
+    };
+
     form.addEventListener("reset", () => {
         const shell = document.querySelector(".shell");
         requestAnimationFrame(() => {
@@ -878,6 +950,8 @@ document.addEventListener("DOMContentLoaded", function () {
         jenisSurat.classList.remove("error");
         nomor.classList.remove("error");
         fileLabel.classList.remove("error");
+        jraAktif?.classList.remove("error");
+        jraInaktif?.classList.remove("error");
 
         // Cek Jenis Surat
         if (!jenisSurat.value) {
@@ -904,6 +978,23 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        const jraAktifValue = (jraAktif?.value || "").trim();
+        const jraInaktifValue = (jraInaktif?.value || "").trim();
+
+        if (!jraAktifValue || !/^\d+$/.test(jraAktifValue)) {
+            showErrorModal("JRA Aktif wajib diisi angka saja!");
+            jraAktif?.classList.add("error");
+            jraAktif?.focus();
+            return;
+        }
+
+        if (!jraInaktifValue || !/^\d+$/.test(jraInaktifValue)) {
+            showErrorModal("JRA Inaktif wajib diisi angka saja!");
+            jraInaktif?.classList.add("error");
+            jraInaktif?.focus();
+            return;
+        }
+
         // Cek File Upload
         if (!fileInput.files.length) {
             showErrorModal("File surat belum dipilih!");
@@ -914,6 +1005,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Semua validasi OK -> submit form
         form.submit();
+    });
+
+    [jraAktif, jraInaktif].forEach((field) => {
+        field?.addEventListener("input", function () {
+            const rawValue = this.value;
+            const cleanValue = rawValue.replace(/\D/g, "");
+            const hasInvalidChar = rawValue !== cleanValue;
+            this.value = cleanValue;
+
+            if (this === jraAktif) {
+                jraAktifHint?.classList.toggle("show", hasInvalidChar);
+            }
+            if (this === jraInaktif) {
+                jraInaktifHint?.classList.toggle("show", hasInvalidChar);
+            }
+        });
     });
 
     /* ========= FUNGSI SHOW ERROR MODAL ========= */
