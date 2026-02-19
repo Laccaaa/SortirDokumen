@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . "/../actions/proses_tabel.php";
-require_once __DIR__ . "/../config/koneksi.php";
+$dbhandle = require __DIR__ . "/../config/koneksi.php";
 
 if (session_status() === PHP_SESSION_NONE) {
   session_start();

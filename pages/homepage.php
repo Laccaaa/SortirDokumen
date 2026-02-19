@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../config/koneksi.php";
+$dbhandle = require __DIR__ . "/../config/koneksi.php";
 require_once __DIR__ . "/../auth/auth_check.php";
 
 

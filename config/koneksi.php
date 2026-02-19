@@ -1,5 +1,4 @@
 <?php
-// config/koneksi.php
 
 $DB_HOST = getenv('DB_HOST');
 $DB_PORT = getenv('DB_PORT');
