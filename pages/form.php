@@ -852,8 +852,8 @@ button.primary:active{ transform: translateY(1px); }
         <h3>Konfirmasi Reset</h3>
         <p>Semua data yang sudah diisi akan dihapus. Lanjutkan reset?</p>
         <div class="modal-actions">
-            <button type="button" class="btn-cancel" onclick="closeResetConfirmModal()">Batal</button>
-            <button type="button" onclick="confirmResetForm()">Ya, Reset</button>
+            <button type="button" class="btn-cancel" id="cancelReset">Batal</button>
+            <button type="button" id="okReset">Ya, Reset</button>
         </div>
     </div>
 </div>
@@ -871,6 +871,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const errorModal  = document.getElementById("errorModal");
     const errorMsg    = document.getElementById("errorMessage");
     const resetConfirmModal = document.getElementById("resetConfirmModal");
+    const cancelReset = document.getElementById("cancelReset");
+    const okReset = document.getElementById("okReset");
     const jraAktif    = form.querySelector('input[name="jra_aktif"]');
     const jraInaktif  = form.querySelector('input[name="jra_inaktif"]');
     const jraAktifHint = document.getElementById("jraAktifHint");
@@ -914,6 +916,8 @@ document.addEventListener("DOMContentLoaded", function () {
     resetBtn?.addEventListener("click", (e) => {
         e.preventDefault();
         resetConfirmModal?.classList.add("show");
+        resetConfirmModal?.setAttribute("aria-hidden", "false");
+        okReset?.focus();
     });
 
     window.confirmResetForm = function () {
@@ -933,7 +937,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.closeResetConfirmModal = function () {
         resetConfirmModal?.classList.remove("show");
+        resetConfirmModal?.setAttribute("aria-hidden", "true");
     };
+
+    cancelReset?.addEventListener("click", closeResetConfirmModal);
+    okReset?.addEventListener("click", confirmResetForm);
+    resetConfirmModal?.addEventListener("click", (e) => {
+        if (e.target === resetConfirmModal) closeResetConfirmModal();
+    });
 
     form.addEventListener("reset", () => {
         const shell = document.querySelector(".shell");
@@ -1052,12 +1063,14 @@ document.addEventListener("DOMContentLoaded", function () {
     ).filter(el => {
         if (el.type === "hidden") return false;
         if (el.type === "file") return false;
+        if (el.type === "reset") return false;
         if (el.disabled) return false;
         return true;
     });
 
     form.addEventListener("keydown", function (e) {
         if (e.key !== "Enter") return;
+        if (resetConfirmModal?.classList.contains("show")) return;
         const target = e.target;
         if (!(target instanceof HTMLElement)) return;
         if (target.tagName === "TEXTAREA") return;
@@ -1072,6 +1085,18 @@ document.addEventListener("DOMContentLoaded", function () {
             next.focus();
         } else {
             form.requestSubmit();
+        }
+    });
+
+    document.addEventListener("keydown", function (e) {
+        if (!resetConfirmModal?.classList.contains("show")) return;
+        if (e.key === "Escape") {
+            e.preventDefault();
+            closeResetConfirmModal();
+        }
+        if (e.key === "Enter") {
+            e.preventDefault();
+            confirmResetForm();
         }
     });
 

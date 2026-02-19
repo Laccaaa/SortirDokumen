@@ -518,6 +518,75 @@ a.btn.dark:hover{
   color:#fff;
 }
 
+#confirmResetModal{
+  background: rgba(0,0,0,0.45);
+  z-index: 9999;
+}
+#confirmResetModal .modal-content{
+  background: #ffffff;
+  padding: 30px 35px;
+  border-radius: 18px;
+  text-align: center;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  animation: scaleIn .25s ease;
+  position: relative;
+}
+#confirmResetModal .modal-icon{
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+#confirmResetModal .modal-icon.warning{
+  color: #f59e0b;
+}
+#confirmResetModal h3{
+  margin-bottom: 8px;
+  color: #2f3a5f;
+  font-size: 18px;
+  font-weight: 800;
+}
+#confirmResetModal p{
+  font-size: 14px;
+  margin-bottom: 18px;
+  line-height: 1.6;
+  color:#0f172a;
+}
+#confirmResetModal .modal-actions{
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+#confirmResetModal .modal-actions button{
+  border: none;
+  color: white;
+  padding: 10px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+#confirmResetModal .modal-actions button:hover{
+  transform: translateY(-2px);
+}
+#confirmResetModal .modal-actions .btn-cancel{
+  background: #64748b;
+}
+#confirmResetModal .modal-actions .btn-cancel:hover{
+  background: #475569;
+}
+#confirmResetModal .modal-actions .btn-ok{
+  background: #4a6cf7;
+}
+#confirmResetModal .modal-actions .btn-ok:hover{
+  background: #3a5ce7;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(.85); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
 /* form */
 .form{
   display:grid;
@@ -905,19 +974,13 @@ button.ghost:active{ transform: translateY(1px); }
   </div>
 
   <div id="confirmResetModal" class="modal" aria-hidden="true">
-    <div class="confirm-card" role="dialog" aria-modal="true">
-      <div class="confirm-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" role="img" aria-label="Warning">
-          <path d="M32 8L58 54H6L32 8Z" fill="#F59E0B"/>
-          <rect x="29" y="22" width="6" height="18" rx="3" fill="#FFFFFF"/>
-          <circle cx="32" cy="47" r="3.4" fill="#FFFFFF"/>
-        </svg>
-      </div>
-      <div class="confirm-title">Konfirmasi Reset</div>
-      <div class="confirm-text">Semua data yang sudah diisi akan dihapus. Lanjutkan reset?</div>
-      <div class="confirm-actions">
-        <button type="button" class="btn-confirm cancel" id="cancelReset">Batal</button>
-        <button type="button" class="btn-confirm ok" id="okReset">Ya, Reset</button>
+    <div class="modal-content" role="dialog" aria-modal="true">
+      <div class="modal-icon warning">⚠</div>
+      <h3>Konfirmasi Reset</h3>
+      <p>Semua data yang sudah diisi akan dihapus. Lanjutkan reset?</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="cancelReset">Batal</button>
+        <button type="button" class="btn-ok" id="okReset">Ya, Reset</button>
       </div>
     </div>
   </div>
@@ -953,6 +1016,7 @@ document.addEventListener("DOMContentLoaded", function () {
   ).filter((el) => {
     if (el.disabled) return false;
     if (el.type === "hidden") return false;
+    if (el.type === "reset") return false;
     return true;
   });
 
@@ -966,9 +1030,8 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
     const fields = getFields();
     const idx = fields.indexOf(e.target);
-    if (idx > -1 && idx < fields.length - 1) {
-      fields[idx + 1].focus();
-    }
+    if (idx > -1 && idx < fields.length - 1) fields[idx + 1].focus();
+    if (idx === fields.length - 1) form?.requestSubmit();
   });
 
   form?.addEventListener("submit", (e) => {
