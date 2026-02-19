@@ -903,6 +903,24 @@ button.ghost:active{ transform: translateY(1px); }
       </div>
     </div>
   </div>
+
+  <div id="confirmResetModal" class="modal" aria-hidden="true">
+    <div class="confirm-card" role="dialog" aria-modal="true">
+      <div class="confirm-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Warning">
+          <path d="M32 8L58 54H6L32 8Z" fill="#F59E0B"/>
+          <rect x="29" y="22" width="6" height="18" rx="3" fill="#FFFFFF"/>
+          <circle cx="32" cy="47" r="3.4" fill="#FFFFFF"/>
+        </svg>
+      </div>
+      <div class="confirm-title">Konfirmasi Reset</div>
+      <div class="confirm-text">Semua data yang sudah diisi akan dihapus. Lanjutkan reset?</div>
+      <div class="confirm-actions">
+        <button type="button" class="btn-confirm cancel" id="cancelReset">Batal</button>
+        <button type="button" class="btn-confirm ok" id="okReset">Ya, Reset</button>
+      </div>
+    </div>
+  </div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("arsipForm");
@@ -910,14 +928,18 @@ document.addEventListener("DOMContentLoaded", function () {
   const shell = document.querySelector(".shell");
   const actionInput = form?.querySelector('input[name="action"]');
   const confirmUpdateModal = document.getElementById("confirmUpdateModal");
+  const confirmResetModal = document.getElementById("confirmResetModal");
   const cancelUpdate = document.getElementById("cancelUpdate");
   const okUpdate = document.getElementById("okUpdate");
+  const cancelReset = document.getElementById("cancelReset");
+  const okReset = document.getElementById("okReset");
   let allowSubmit = false;
 
-  resetBtn?.addEventListener("click", () => {
-    requestAnimationFrame(() => {
-      shell?.scrollTo({ top: 0, behavior: "smooth" });
-    });
+  resetBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    confirmResetModal?.classList.add("show");
+    confirmResetModal?.setAttribute("aria-hidden", "false");
+    okReset?.focus();
   });
 
   form?.addEventListener("reset", () => {
@@ -963,6 +985,11 @@ document.addEventListener("DOMContentLoaded", function () {
     confirmUpdateModal.setAttribute("aria-hidden", "true");
   }
 
+  function closeResetModal() {
+    confirmResetModal?.classList.remove("show");
+    confirmResetModal?.setAttribute("aria-hidden", "true");
+  }
+
   cancelUpdate?.addEventListener("click", closeUpdateModal);
   confirmUpdateModal?.addEventListener("click", (e) => {
     if (e.target === confirmUpdateModal) closeUpdateModal();
@@ -971,13 +998,28 @@ document.addEventListener("DOMContentLoaded", function () {
     allowSubmit = true;
     form?.submit();
   });
+  cancelReset?.addEventListener("click", closeResetModal);
+  confirmResetModal?.addEventListener("click", (e) => {
+    if (e.target === confirmResetModal) closeResetModal();
+  });
+  okReset?.addEventListener("click", () => {
+    form?.reset();
+    closeResetModal();
+  });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && confirmUpdateModal.classList.contains("show")) {
       closeUpdateModal();
     }
+    if (e.key === "Escape" && confirmResetModal?.classList.contains("show")) {
+      closeResetModal();
+    }
     if (e.key === "Enter" && confirmUpdateModal.classList.contains("show")) {
       e.preventDefault();
       okUpdate?.click();
+    }
+    if (e.key === "Enter" && confirmResetModal?.classList.contains("show")) {
+      e.preventDefault();
+      okReset?.click();
     }
   });
 });
