@@ -306,6 +306,7 @@ function searchFilesRecursive($path, $query) {
     }
 
     $sql .= " AND (
+        nama_file ILIKE ? OR
         kode_utama ILIKE ? OR
         subkode ILIKE ? OR
         bulan ILIKE ? OR
@@ -313,6 +314,7 @@ function searchFilesRecursive($path, $query) {
         jenis_surat ILIKE ?
     )";
     $like = '%' . $query . '%';
+    $params[] = $like; 
     $params[] = $like;
     $params[] = $like;
     $params[] = $like;
