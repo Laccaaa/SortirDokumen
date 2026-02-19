@@ -10,7 +10,8 @@ require_once __DIR__ . "/../auth/auth_check.php";
  */
 $GLOBALS['db_conn'] = null;
 
-function getConnection() {
+function getConnection()
+{
     if ($GLOBALS['db_conn'] === null) {
         global $dbhandle;
         $GLOBALS['db_conn'] = $dbhandle;
@@ -23,7 +24,8 @@ function getConnection() {
  * HITUNG JUMLAH FILE
  * ======================================================
  */
-function hitungFile($jenis = null, $tahun = null, $bulan = null, $kode = null, $subkode = null) {
+function hitungFile($jenis = null, $tahun = null, $bulan = null, $kode = null, $subkode = null)
+{
     $conn = getConnection();
     $query = "SELECT COUNT(*) AS total FROM surat WHERE 1=1";
     $params = [];
@@ -59,7 +61,8 @@ function hitungFile($jenis = null, $tahun = null, $bulan = null, $kode = null, $
  * AMBIL FOLDER / FILE BERDASARKAN PATH
  * ======================================================
  */
-function getItems($path) {
+function getItems($path)
+{
     $path = urldecode($path);
     $conn = getConnection();
     $items = [];
@@ -206,7 +209,8 @@ function getItems($path) {
  * PARSE PATH KE FILTERS
  * ======================================================
  */
-function parsePathFilters($path) {
+function parsePathFilters($path)
+{
     $path = urldecode($path);
     $filters = [
         'jenis' => null,
@@ -265,7 +269,8 @@ function parsePathFilters($path) {
  * CARI FILE SECARA REKURSIF (SUBFOLDER)
  * ======================================================
  */
-function searchFilesRecursive($path, $query) {
+function searchFilesRecursive($path, $query)
+{
     $filters = parsePathFilters($path);
     if (!$filters['valid']) {
         return [];
@@ -314,7 +319,7 @@ function searchFilesRecursive($path, $query) {
         jenis_surat ILIKE ?
     )";
     $like = '%' . $query . '%';
-    $params[] = $like; 
+    $params[] = $like;
     $params[] = $like;
     $params[] = $like;
     $params[] = $like;
@@ -356,7 +361,8 @@ function searchFilesRecursive($path, $query) {
  * FILTER OPTIONS & FILES
  * ======================================================
  */
-function getFilterOptions($jenis = null, $tahun = null, $bulan = null) {
+function getFilterOptions($jenis = null, $tahun = null, $bulan = null)
+{
     $conn = getConnection();
 
     $yearsSql = "SELECT DISTINCT tahun FROM surat WHERE 1=1";
@@ -416,7 +422,8 @@ function getFilterOptions($jenis = null, $tahun = null, $bulan = null) {
     ];
 }
 
-function getFilesByFilters($jenis = null, $tahun = null, $bulan = null, $subkode = null) {
+function getFilesByFilters($jenis = null, $tahun = null, $bulan = null, $subkode = null)
+{
     $conn = getConnection();
     $items = [];
     $sql = "SELECT id_surat, nama_file, path_file, jenis_surat, tahun, bulan, kode_utama, subkode
@@ -470,7 +477,8 @@ function getFilesByFilters($jenis = null, $tahun = null, $bulan = null, $subkode
     return $items;
 }
 
-function getFilesByFiltersAndQuery($jenis = null, $tahun = null, $bulan = null, $subkode = null, $query = null) {
+function getFilesByFiltersAndQuery($jenis = null, $tahun = null, $bulan = null, $subkode = null, $query = null)
+{
     $conn = getConnection();
     $items = [];
     $sql = "SELECT id_surat, nama_file, path_file, jenis_surat, tahun, bulan, kode_utama, subkode
@@ -555,7 +563,8 @@ function getFilesByFiltersAndQuery($jenis = null, $tahun = null, $bulan = null, 
  * VIEW FILE
  * ======================================================
  */
-function viewFile($id) {
+function viewFile($id)
+{
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM surat WHERE id_surat = ?");
     $stmt->execute([(int)$id]);
@@ -587,7 +596,8 @@ function viewFile($id) {
  * DOWNLOAD FILE
  * ======================================================
  */
-function downloadFile($id) {
+function downloadFile($id)
+{
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM surat WHERE id_surat = ?");
     $stmt->execute([(int)$id]);
@@ -612,7 +622,8 @@ function downloadFile($id) {
  * DELETE FILE
  * ======================================================
  */
-function deleteFile($id) {
+function deleteFile($id)
+{
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM surat WHERE id_surat = ?");
     $stmt->execute([(int)$id]);
@@ -639,70 +650,98 @@ function deleteFile($id) {
     exit;
 }
 
-function downloadFolderZip(string $path): void {
-  $filters = parsePathFilters($path);
-  if (!$filters['valid'] || $path === '' || $path === 'Surat Masuk' || $path === 'Surat Keluar') {
-    http_response_code(403); exit('Tidak boleh ZIP di level ini.');
-  }
+function downloadFolderZip(string $path): void
+{
+    $filters = parsePathFilters($path);
+    if (!$filters['valid'] || $path === '' || $path === 'Surat Masuk' || $path === 'Surat Keluar') {
+        http_response_code(403);
+        exit('Tidak boleh ZIP di level ini.');
+    }
 
-  $conn = getConnection();
-  $sql = "SELECT nama_file, path_file, tahun, bulan, kode_utama, subkode, jenis_surat
+    $conn = getConnection();
+    $sql = "SELECT nama_file, path_file, tahun, bulan, kode_utama, subkode, jenis_surat
         FROM surat WHERE 1=1";
-  $p = [];
+    $p = [];
 
-  foreach (['jenis'=>'jenis_surat','tahun'=>'tahun','bulan'=>'bulan','kode'=>'kode_utama','subkode'=>'subkode'] as $k=>$col) {
-    if (!empty($filters[$k])) { $sql .= " AND $col = ?"; $p[] = $filters[$k]; }
-  }
+    foreach (['jenis' => 'jenis_surat', 'tahun' => 'tahun', 'bulan' => 'bulan', 'kode' => 'kode_utama', 'subkode' => 'subkode'] as $k => $col) {
+        if (!empty($filters[$k])) {
+            $sql .= " AND $col = ?";
+            $p[] = $filters[$k];
+        }
+    }
 
-  $st = $conn->prepare($sql); $st->execute($p);
-  $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-  if (!$rows) { http_response_code(404); exit('Tidak ada file.'); }
+    $st = $conn->prepare($sql);
+    $st->execute($p);
+    $rows = $st->fetchAll(PDO::FETCH_ASSOC);
+    if (!$rows) {
+        http_response_code(404);
+        exit('Tidak ada file.');
+    }
 
-  $tmp = tempnam(sys_get_temp_dir(), 'zip_');
-  $zip = new ZipArchive(); $zip->open($tmp, ZipArchive::OVERWRITE);
+    $tmp = tempnam(sys_get_temp_dir(), 'zip_');
+    $zip = new ZipArchive();
+    $zip->open($tmp, ZipArchive::OVERWRITE);
 
-  foreach ($rows as $r) {
-    $fp = $r['path_file'];
-    if ($fp && $fp[0] !== '/') $fp = __DIR__ . '/../' . ltrim($fp,'/');
-    if (is_file($fp)) {
+    foreach ($rows as $r) {
+        $fp = $r['path_file'];
+        if ($fp && $fp[0] !== '/') $fp = __DIR__ . '/../' . ltrim($fp, '/');
+        if (is_file($fp)) {
 
-  $inside = [];
+            $inside = [];
 
-  if (empty($filters['bulan']) && !empty($r['bulan'])) $inside[] = $r['bulan'];
-  if (empty($filters['kode']) && !empty($r['kode_utama'])) $inside[] = $r['kode_utama'];
-  if (empty($filters['subkode']) && !empty($r['subkode'])) $inside[] = $r['kode_utama'] . '.' . $r['subkode'];
+            if (empty($filters['bulan']) && !empty($r['bulan'])) $inside[] = $r['bulan'];
+            if (empty($filters['kode']) && !empty($r['kode_utama'])) $inside[] = $r['kode_utama'];
+            if (empty($filters['subkode']) && !empty($r['subkode'])) $inside[] = $r['kode_utama'] . '.' . $r['subkode'];
 
-  $insidePath = (count($inside) ? implode('/', $inside) . '/' : '') . ($r['nama_file'] ?: basename($fp));
-  $zip->addFile($fp, $insidePath);
+            $insidePath = (count($inside) ? implode('/', $inside) . '/' : '') . ($r['nama_file'] ?: basename($fp));
+            $zip->addFile($fp, $insidePath);
+        }
+    }
+    $zip->close();
+
+    $name = preg_replace('/[^A-Za-z0-9_\-]+/', '_', str_replace('/', '_', $path)) . '.zip';
+    header('Content-Type: application/zip');
+    header("Content-Disposition: attachment; filename=\"$name\"");
+    header('Content-Length: ' . filesize($tmp));
+    readfile($tmp);
+    @unlink($tmp);
+    exit;
 }
-  }
-  $zip->close();
 
-  $name = preg_replace('/[^A-Za-z0-9_\-]+/','_', str_replace('/','_', $path)) . '.zip';
-  header('Content-Type: application/zip');
-  header("Content-Disposition: attachment; filename=\"$name\"");
-  header('Content-Length: '.filesize($tmp));
-  readfile($tmp); @unlink($tmp); exit;
-}
+function countFilesForPath(string $path): int
+{
+    $filters = parsePathFilters($path);
+    if (!$filters['valid']) return 0;
 
-function countFilesForPath(string $path): int {
-  $filters = parsePathFilters($path);
-  if (!$filters['valid']) return 0;
+    $conn = getConnection();
+    $sql = "SELECT COUNT(*) FROM surat WHERE 1=1";
+    $p = [];
 
-  $conn = getConnection();
-  $sql = "SELECT COUNT(*) FROM surat WHERE 1=1";
-  $p = [];
+    if (!empty($filters['jenis'])) {
+        $sql .= " AND jenis_surat = ?";
+        $p[] = $filters['jenis'];
+    }
+    if (!empty($filters['tahun'])) {
+        $sql .= " AND tahun = ?";
+        $p[] = (int)$filters['tahun'];
+    }
 
-  if (!empty($filters['jenis'])) { $sql .= " AND jenis_surat = ?"; $p[] = $filters['jenis']; }
-  if (!empty($filters['tahun'])) { $sql .= " AND tahun = ?"; $p[] = (int)$filters['tahun']; }
+    // PENTING: bulan pakai ILIKE/trim biar match walau beda spasi/case
+    if (!empty($filters['bulan'])) {
+        $sql .= " AND TRIM(bulan) ILIKE TRIM(?)";
+        $p[] = $filters['bulan'];
+    }
 
-  // PENTING: bulan pakai ILIKE/trim biar match walau beda spasi/case
-  if (!empty($filters['bulan'])) { $sql .= " AND TRIM(bulan) ILIKE TRIM(?)"; $p[] = $filters['bulan']; }
+    if (!empty($filters['kode'])) {
+        $sql .= " AND kode_utama = ?";
+        $p[] = $filters['kode'];
+    }
+    if (!empty($filters['subkode'])) {
+        $sql .= " AND subkode = ?";
+        $p[] = $filters['subkode'];
+    }
 
-  if (!empty($filters['kode'])) { $sql .= " AND kode_utama = ?"; $p[] = $filters['kode']; }
-  if (!empty($filters['subkode'])) { $sql .= " AND subkode = ?"; $p[] = $filters['subkode']; }
-
-  $st = $conn->prepare($sql);
-  $st->execute($p);
-  return (int)$st->fetchColumn();
+    $st = $conn->prepare($sql);
+    $st->execute($p);
+    return (int)$st->fetchColumn();
 }
