@@ -819,13 +819,20 @@ a.btn-edit:hover{
     const okDelete = document.getElementById("okDelete");
     let pendingDeleteForm = null;
 
-    document.addEventListener("click", (e) => {
-      const form = e.target.closest(".js-delete-form");
-      if (!form) return;
-      e.preventDefault();
+    function openDeleteModal(form) {
       pendingDeleteForm = form;
       confirmDeleteModal.classList.add("show");
       confirmDeleteModal.setAttribute("aria-hidden", "false");
+
+      okDelete?.focus();
+    }
+
+    document.addEventListener("click", (e) => {
+      const form = e.target.closest(".js-delete-form");
+      if (!form) return;
+
+      e.preventDefault();
+      openDeleteModal(form);
     });
 
     function closeDeleteModal() {
@@ -842,8 +849,18 @@ a.btn-edit:hover{
       if (pendingDeleteForm) pendingDeleteForm.submit();
     });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && confirmDeleteModal.classList.contains("show")) {
+      const modalOpen = confirmDeleteModal.classList.contains("show");
+      if (!modalOpen) return;
+
+      if (e.key === "Escape") {
+        e.preventDefault();
         closeDeleteModal();
+        return;
+      }
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (pendingDeleteForm) pendingDeleteForm.submit();
       }
     });
   </script>
