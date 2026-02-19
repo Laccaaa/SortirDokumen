@@ -2,9 +2,6 @@
 /node_modules/
 .env
 
-# ignore koneksi database
-/config/koneksi.php
-
 # ignore folder uploads dan semua isinya
 /uploads/
 /uploads/**

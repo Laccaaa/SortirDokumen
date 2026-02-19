@@ -85,31 +85,6 @@ CREATE TABLE public.users (
     CONSTRAINT users_username_key UNIQUE (username)
 );
 
--- Data inserts (converted from COPY ... FROM stdin)
-INSERT INTO public.arsip_dimusnahkan (id, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat, uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at)
-VALUES (7, 'ME.002', 'Informasi Meteorologi Publik', 1, 'Pengelolaan Citra Radar', 'HM.002/003/DI/XII/2016', 'Hasil laporan kegiatan pemeliharaan AWOS', '2022', '3', 'Asli', '1', 'Baik', '2026-01-14 09:32:39.712204');
-
-INSERT INTO public.arsip_dimusnahkan (id, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat, uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at)
-VALUES (8, 'ME.002', 'Informasi Meteorologi Publik', 2, 'Pengelolaan Citra Radar', 'HM.002/003/DI/XII/2016', 'qwwwwwwwwww', '2022', '3', 'Scan', '1', 'Baik', '2026-01-14 13:48:07.869009');
-
-INSERT INTO public.arsip_dimusnahkan (id, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat, uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at)
-VALUES (9, 'ME.002', 'Informasi Meteorologi Publik', 1, 'pengelolaan citra radar', 'HM.002/003/DI/XII/2016', '12qwert', '2022', '3', 'Fotocopy', '1', 'Baik', '2026-01-14 13:48:36.263961');
-
-INSERT INTO public.arsip_dimusnahkan (id, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat, uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at)
-VALUES (10, 'ME.002', 'Informasi Meteorologi Publik', 1, 'Pengelolaan Citra Radar', 'HM.002/003/DI/XII/2016', 'qsdfghjkl', '2022', '3', 'Asli', '2', 'Baik', '2026-01-14 13:49:02.401499');
-
-INSERT INTO public.arsip_dimusnahkan (id, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat, uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at)
-VALUES (11, 'ME.002', 'Informasi Meteorologi Publik', 2, 'Pengelolaan Citra Radar', 'HM.002/003/DI/XII/2016', 'qwertyui123456', '2022', '2', 'Asli', '2', 'Baik', '2026-01-14 13:49:30.203548');
-
-INSERT INTO public.arsip_dimusnahkan (id, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat, uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at)
-VALUES (12, 'ME.002', 'Informasi Meteorologi Publik', 1, 'Pengelolaan Citra Radar', 'HM.002/003/DI/XII/2016', '123we4rtyugfd', '2022', '2', 'Asli', '2', 'Baik', '2026-01-14 13:49:50.735808');
-
-INSERT INTO public.arsip_dimusnahkan (id, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat, uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at)
-VALUES (13, 'ME.002', 'Informasi Meteorologi Publik', 1, 'Pengelolaan Citra Radar', 'HM.002/003/DI/XII/2016', '1', '2022', '1', 'Fotocopy', '1', 'Baik', '2026-01-14 13:50:10.271702');
-
-INSERT INTO public.arsip_dimusnahkan (id, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat, uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at)
-VALUES (14, 'ME.002', 'Informasi Meteorologi Publik', 1, 'Pengelolaan Citra Radar', 'HM.002/003/DI/XII/2016', 'we', '2022', '3 lembar', 'Fotocopy', '2', 'Baik', '2026-01-14 13:50:36.689916');
-
 -- surat kosong di dump, jadi tidak ada INSERT untuk public.surat
 
 INSERT INTO public.users (id_user, username, password, nama_lengkap, email, role, created_at, last_login)
