@@ -628,6 +628,7 @@ button.primary:active{ transform: translateY(1px); }
               type="text"
               name="kode_klasifikasi"
               placeholder="ME.03.02"
+              required
             >
           </div>
 
@@ -646,6 +647,7 @@ button.primary:active{ transform: translateY(1px); }
               type="text"
               name="nama_berkas"
               placeholder="Produk Data dan Informasi Radar Cuaca"
+              required
             >
           </div>
 
@@ -684,6 +686,7 @@ button.primary:active{ transform: translateY(1px); }
               id="nomor_surat"
               value="<?= htmlspecialchars($old_nomor) ?>"
               placeholder="Contoh: ME.002/003/DI/XII/2016"
+              required
             >
           </div>
 
@@ -796,7 +799,7 @@ button.primary:active{ transform: translateY(1px); }
 
           <div class="field">
             <label>Jenis Surat <span class="required">*</span></label>
-            <select name="jenis_surat" id="jenis_surat">
+            <select name="jenis_surat" id="jenis_surat" required>
               <option value="">-- Pilih Jenis Surat --</option>
               <option value="masuk" <?= $old_jenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
               <option value="keluar" <?= $old_jenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
@@ -807,7 +810,7 @@ button.primary:active{ transform: translateY(1px); }
             <label>Upload File Surat <span class="required">*</span></label>
             <label class="file-label" id="fileLabel">
               Klik untuk memilih file
-              <input type="file" id="fileInput" name="fileInput" accept=".pdf,.jpg,.jpeg,.png">
+              <input type="file" id="fileInput" name="fileInput" accept=".pdf,.jpg,.jpeg,.png" required>
             </label>
             <div class="file-help">Format yang didukung: PDF, JPG, JPEG, PNG</div>
             <div class="file-name" id="fileName"></div>
@@ -873,6 +876,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const resetConfirmModal = document.getElementById("resetConfirmModal");
     const cancelReset = document.getElementById("cancelReset");
     const okReset = document.getElementById("okReset");
+    const kodeKlasifikasi = form.querySelector('input[name="kode_klasifikasi"]');
+    const namaBerkas = form.querySelector('input[name="nama_berkas"]');
     const jraAktif    = form.querySelector('input[name="jra_aktif"]');
     const jraInaktif  = form.querySelector('input[name="jra_inaktif"]');
     const jraAktifHint = document.getElementById("jraAktifHint");
@@ -926,6 +931,8 @@ document.addEventListener("DOMContentLoaded", function () {
         fileName.style.display = "none";
         fileLabel.classList.remove("error");
         jenisSurat.classList.remove("error");
+        kodeKlasifikasi?.classList.remove("error");
+        namaBerkas?.classList.remove("error");
         nomor.classList.remove("error");
         jraAktif?.classList.remove("error");
         jraInaktif?.classList.remove("error");
@@ -959,10 +966,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Reset semua error styling
         jenisSurat.classList.remove("error");
+        kodeKlasifikasi?.classList.remove("error");
+        namaBerkas?.classList.remove("error");
         nomor.classList.remove("error");
         fileLabel.classList.remove("error");
         jraAktif?.classList.remove("error");
         jraInaktif?.classList.remove("error");
+
+        const kodeValue = (kodeKlasifikasi?.value || "").trim();
+        if (!kodeValue) {
+            showErrorModal("Kode belum diisi!");
+            kodeKlasifikasi?.classList.add("error");
+            kodeKlasifikasi?.focus();
+            return;
+        }
+
+        const namaBerkasValue = (namaBerkas?.value || "").trim();
+        if (!namaBerkasValue) {
+            showErrorModal("Nama Berkas belum diisi!");
+            namaBerkas?.classList.add("error");
+            namaBerkas?.focus();
+            return;
+        }
 
         // Cek Jenis Surat
         if (!jenisSurat.value) {

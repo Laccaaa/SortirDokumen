@@ -37,6 +37,27 @@ $jra_aktif         = trim($_POST['jra_aktif'] ?? '');
 $jra_inaktif       = trim($_POST['jra_inaktif'] ?? '');
 $nasib             = trim($_POST['nasib'] ?? '');
 
+if ($kode_klasifikasi === '' || $nama_berkas === '') {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Form tidak lengkap. Pastikan semua field wajib terisi.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
+
+if ($jenis_surat === '' || $nomor_surat === '') {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Form tidak lengkap. Pastikan semua field wajib terisi.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
+
+if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'File surat belum dipilih!';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
+
 if ($jra_aktif === '' || !ctype_digit($jra_aktif)) {
     $_SESSION['status'] = 'error';
     $_SESSION['pesan']  = 'Input JRA Aktif tidak valid.';
