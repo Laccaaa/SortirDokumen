@@ -10,6 +10,15 @@ $filterJenis = $_GET['jenis'] ?? '';
 $filterTahun = $_GET['tahun'] ?? '';
 $filterBulan = $_GET['bulan'] ?? '';
 $filterSub = $_GET['subkode'] ?? '';
+$deleteReturnParams = array_filter([
+  'path' => $path,
+  'q' => $query,
+  'jenis' => $filterJenis,
+  'tahun' => $filterTahun,
+  'bulan' => $filterBulan,
+  'subkode' => $filterSub,
+], static fn($v) => $v !== '' && $v !== null);
+$deleteReturnQuery = http_build_query($deleteReturnParams);
 function isZipAllowedPath(string $path): bool
 {
   $path = urldecode(trim($path, "/"));
@@ -45,7 +54,7 @@ if ($action === 'download' && isset($_GET['id'])) {
 }
 
 if ($action === 'delete' && isset($_GET['id'])) {
-  deleteFile($_GET['id']);
+  deleteFile($_GET['id'], $_GET);
   exit;
 }
 
@@ -978,7 +987,7 @@ $filterOptions = getFilterOptions(
                       <button
                         type="button"
                         class="btn btn-delete js-delete"
-                        data-delete-url="arsip.php?action=delete&id=<?= $item['id'] ?>"
+                        data-delete-url="arsip.php?action=delete&id=<?= $item['id'] ?><?= $deleteReturnQuery !== '' ? '&' . htmlspecialchars($deleteReturnQuery, ENT_QUOTES, 'UTF-8') : '' ?>"
                         title="Hapus">Hapus</button>
                     </div>
                   </div>

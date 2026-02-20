@@ -622,15 +622,31 @@ function downloadFile($id)
  * DELETE FILE
  * ======================================================
  */
-function deleteFile($id)
+function deleteFile($id, array $returnParams = [])
 {
+    $allowedReturnKeys = ['path', 'q', 'jenis', 'tahun', 'bulan', 'subkode'];
+    $cleanReturn = [];
+    foreach ($allowedReturnKeys as $k) {
+        if (!array_key_exists($k, $returnParams)) continue;
+        $v = trim((string)$returnParams[$k]);
+        if ($v === '') continue;
+        $cleanReturn[$k] = $v;
+    }
+
+    $redirect = '/SortirDokumen/pages/arsip.php';
+    $toUrl = static function (string $msg) use ($redirect, $cleanReturn): string {
+        $q = $cleanReturn;
+        $q['msg'] = $msg;
+        return $redirect . '?' . http_build_query($q);
+    };
+
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM surat WHERE id_surat = ?");
     $stmt->execute([(int)$id]);
     $file = $stmt->fetch();
 
     if (!$file) {
-        header("Location: /SortirDokumen/pages/arsip.php?msg=notfound");
+        header("Location: " . $toUrl('notfound'));
         exit;
     }
 
@@ -646,7 +662,7 @@ function deleteFile($id)
     $del = $conn->prepare("DELETE FROM surat WHERE id_surat = ?");
     $del->execute([(int)$id]);
 
-    header("Location: /SortirDokumen/pages/arsip.php?msg=deleted");
+    header("Location: " . $toUrl('deleted'));
     exit;
 }
 
