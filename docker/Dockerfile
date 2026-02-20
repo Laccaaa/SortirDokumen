@@ -3,8 +3,9 @@ FROM php:8.2-apache
 # install extension yang umum + pdo_pgsql untuk Postgres
 RUN apt-get update && apt-get install -y \
     libpq-dev \
+    libzip-dev \
     zip unzip \
-  && docker-php-ext-install pdo_pgsql pgsql \
+  && docker-php-ext-install pdo_pgsql pgsql zip \
   && a2enmod rewrite
 
 WORKDIR /var/www/html

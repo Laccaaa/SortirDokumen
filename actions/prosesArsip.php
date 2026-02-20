@@ -652,6 +652,11 @@ function deleteFile($id)
 
 function downloadFolderZip(string $path): void
 {
+    if (!class_exists('ZipArchive')) {
+        http_response_code(500);
+        exit('Fitur ZIP belum aktif di server. Hubungi administrator.');
+    }
+
     $filters = parsePathFilters($path);
     if (!$filters['valid'] || $path === '' || $path === 'Surat Masuk' || $path === 'Surat Keluar') {
         http_response_code(403);
@@ -680,7 +685,11 @@ function downloadFolderZip(string $path): void
 
     $tmp = tempnam(sys_get_temp_dir(), 'zip_');
     $zip = new ZipArchive();
-    $zip->open($tmp, ZipArchive::OVERWRITE);
+    $open = $zip->open($tmp, ZipArchive::OVERWRITE);
+    if ($open !== true) {
+        http_response_code(500);
+        exit('Gagal membuat file ZIP sementara.');
+    }
 
     foreach ($rows as $r) {
         $fp = $r['path_file'];
