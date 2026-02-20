@@ -1,7 +1,7 @@
 /vendor/
 /node_modules/
 .env
-
+/pgdata
 # ignore folder uploads dan semua isinya
 /uploads/
 /uploads/**
