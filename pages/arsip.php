@@ -504,6 +504,7 @@ $filterOptions = getFilterOptions(
       display: flex;
       align-items: center;
       flex: 1;
+      min-width: 0;
       text-decoration: none;
       color: inherit;
     }
@@ -538,13 +539,22 @@ $filterOptions = getFilterOptions(
 
     .name {
       flex: 1;
+      min-width: 0;
       font-size: 14px;
       color: #2d3748;
       font-weight: 600;
-      pointer-events: none;
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    .name>span:first-child {
+      display: block;
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
     .file-count {
@@ -560,6 +570,7 @@ $filterOptions = getFilterOptions(
       display: flex;
       gap: 8px;
       margin-left: 12px;
+      flex-shrink: 0;
     }
 
     .actions .btn {
@@ -958,7 +969,7 @@ $filterOptions = getFilterOptions(
                     <a href="<?= htmlspecialchars($item['link']) ?>" class="item-link">
                       <div class="icon folder">📁</div>
                       <div class="name">
-                        <span><?= htmlspecialchars($item['name']) ?></span>
+                        <span title="<?= htmlspecialchars($item['name']) ?>"><?= htmlspecialchars($item['name']) ?></span>
                         <span class="file-count">(<?= $item['count'] ?>)</span>
                       </div>
                     </a>
@@ -973,7 +984,7 @@ $filterOptions = getFilterOptions(
                   <div class="item" data-search="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>">
                     <div class="icon file">📄</div>
                     <div class="name">
-                      <span><?= htmlspecialchars($item['name']) ?></span>
+                      <span title="<?= htmlspecialchars($item['name']) ?>"><?= htmlspecialchars($item['name']) ?></span>
                       <?php if (!empty($item['location'])): ?>
                         <div class="meta">
                           Lokasi: <?= htmlspecialchars($item['location']) ?> ·
@@ -982,7 +993,12 @@ $filterOptions = getFilterOptions(
                       <?php endif; ?>
                     </div>
                     <div class="actions">
-                      <button type="button" class="btn btn-view js-preview" data-preview="arsip.php?action=view&id=<?= $item['id'] ?>" title="Preview">Lihat</button>
+                      <button
+                        type="button"
+                        class="btn btn-view js-preview"
+                        data-preview="arsip.php?action=view&id=<?= $item['id'] ?>"
+                        data-name="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>"
+                        title="Preview">Lihat</button>
                       <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">Unduh</a>
                       <button
                         type="button"
@@ -1058,21 +1074,23 @@ $filterOptions = getFilterOptions(
 
   <script>
     const previewModal = document.getElementById("previewModal");
+    const previewTitle = document.getElementById("previewTitle");
     const previewBody = document.getElementById("previewBody");
     const closePreview = document.getElementById("closePreview");
 
-    function openPreview(url) {
+    function openPreview(url, fileName = "Pratinjau Dokumen") {
       const lower = url.toLowerCase();
+      previewTitle.textContent = fileName;
       previewBody.innerHTML = "";
       if (lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png")) {
         const img = document.createElement("img");
         img.src = url;
-        img.alt = "Pratinjau";
+        img.alt = fileName;
         previewBody.appendChild(img);
       } else {
         const iframe = document.createElement("iframe");
         iframe.src = url;
-        iframe.title = "Pratinjau Dokumen";
+        iframe.title = fileName;
         previewBody.appendChild(iframe);
       }
       previewModal.classList.add("show");
@@ -1082,6 +1100,7 @@ $filterOptions = getFilterOptions(
     function closePreviewModal() {
       previewModal.classList.remove("show");
       previewModal.setAttribute("aria-hidden", "true");
+      previewTitle.textContent = "Pratinjau Dokumen";
       previewBody.innerHTML = "";
     }
 
@@ -1089,7 +1108,7 @@ $filterOptions = getFilterOptions(
       const btn = e.target.closest(".js-preview");
       if (btn) {
         e.preventDefault();
-        openPreview(btn.dataset.preview);
+        openPreview(btn.dataset.preview, btn.dataset.name || "Pratinjau Dokumen");
       }
     });
 
@@ -1115,6 +1134,7 @@ $filterOptions = getFilterOptions(
       pendingDeleteUrl = btn.dataset.deleteUrl || "";
       confirmDeleteModal.classList.add("show");
       confirmDeleteModal.setAttribute("aria-hidden", "false");
+      okDelete?.focus();
     });
 
     function closeDeleteModal() {
@@ -1133,6 +1153,10 @@ $filterOptions = getFilterOptions(
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && confirmDeleteModal.classList.contains("show")) {
         closeDeleteModal();
+      }
+      if (e.key === "Enter" && confirmDeleteModal.classList.contains("show")) {
+        e.preventDefault();
+        okDelete?.click();
       }
     });
 

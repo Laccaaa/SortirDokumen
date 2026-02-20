@@ -43,11 +43,11 @@ function hitungFile($jenis = null, $tahun = null, $bulan = null, $kode = null, $
         $params[] = $bulan;
     }
     if ($kode) {
-        $query .= " AND kode_utama = ?";
+        $query .= " AND TRIM(kode_utama) ILIKE TRIM(?)";
         $params[] = $kode;
     }
     if ($subkode) {
-        $query .= " AND subkode = ?";
+        $query .= " AND TRIM(subkode) ILIKE TRIM(?)";
         $params[] = $subkode;
     }
 
@@ -157,29 +157,52 @@ function getItems($path)
     }
 
     // LEVEL 4 - SUBKODE
-    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([A-Z]+)$#', $path, $m)) {
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([^/]+)$#', $path, $m)) {
         $jenis = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
 
         $stmt = $conn->prepare("
             SELECT DISTINCT subkode FROM surat
             WHERE jenis_surat = ? AND tahun = ? AND bulan = ? AND kode_utama = ?
+            AND NULLIF(TRIM(subkode), '') IS NOT NULL
             ORDER BY subkode
         ");
         $stmt->execute([$jenis, $m[2], $m[3], $m[4]]);
 
-        while ($row = $stmt->fetch()) {
+        $subRows = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        if (!empty($subRows)) {
+            foreach ($subRows as $subkode) {
+                $items[] = [
+                    'type' => 'folder',
+                    'name' => $m[4] . '.' . $subkode,
+                    'link' => "?path=$path/{$subkode}",
+                    'count' => hitungFile($jenis, $m[2], $m[3], $m[4], $subkode)
+                ];
+            }
+            return $items;
+        }
+
+        // Fallback: jika subkode kosong/null, tampilkan file langsung di level kode
+        $stmtFiles = $conn->prepare("
+            SELECT id_surat, nama_file, path_file FROM surat
+            WHERE jenis_surat = ? AND tahun = ? AND bulan = ? AND kode_utama = ?
+            AND NULLIF(TRIM(subkode), '') IS NULL
+            ORDER BY nama_file
+        ");
+        $stmtFiles->execute([$jenis, $m[2], $m[3], $m[4]]);
+
+        while ($row = $stmtFiles->fetch()) {
             $items[] = [
-                'type' => 'folder',
-                'name' => $m[4] . '.' . $row['subkode'],
-                'link' => "?path=$path/{$row['subkode']}",
-                'count' => hitungFile($jenis, $m[2], $m[3], $m[4], $row['subkode'])
+                'type' => 'file',
+                'id' => $row['id_surat'],
+                'name' => $row['nama_file'],
+                'path_file' => $row['path_file']
             ];
         }
         return $items;
     }
 
     // LEVEL 5 - FILE
-    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([A-Z]+)/(.+)$#', $path, $m)) {
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([^/]+)/(.+)$#', $path, $m)) {
         $jenis = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
 
         $stmt = $conn->prepare("
@@ -243,7 +266,7 @@ function parsePathFilters($path)
         return $filters;
     }
 
-    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([A-Z]+)$#', $path, $m)) {
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([^/]+)$#', $path, $m)) {
         $filters['jenis'] = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
         $filters['tahun'] = (int)$m[2];
         $filters['bulan'] = $m[3];
@@ -251,7 +274,7 @@ function parsePathFilters($path)
         return $filters;
     }
 
-    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([A-Z]+)/(.+)$#', $path, $m)) {
+    if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})/([^/]+)/([^/]+)/(.+)$#', $path, $m)) {
         $filters['jenis'] = ($m[1] === 'Surat Masuk') ? 'masuk' : 'keluar';
         $filters['tahun'] = (int)$m[2];
         $filters['bulan'] = $m[3];
