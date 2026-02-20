@@ -1,7 +1,7 @@
 <?php
 ob_start();
 session_start();
-require_once __DIR__ . "/config/koneksi.php";
+$dbhandle = require __DIR__ . "/config/koneksi.php";
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: /SortirDokumen/pages/form.php");
@@ -141,7 +141,19 @@ $uploadDir = __DIR__ . "/uploads/$tahun/$bulan/$kode_utama/";
 if (!empty($subkode)) {
     $uploadDir .= "$subkode/";
 }
-if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+if (!is_dir($uploadDir) && !mkdir($uploadDir, 0777, true)) {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Folder upload tidak bisa dibuat. Periksa izin folder uploads.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
+
+if (!is_writable($uploadDir)) {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Folder upload tidak punya izin tulis. Periksa izin folder uploads.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
 
 $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 $allowed_ext = ['pdf','jpg','jpeg','png'];

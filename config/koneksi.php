@@ -22,4 +22,5 @@ try {
     die("Koneksi database gagal. Silakan hubungi administrator.");
 }
 
+$dbhandle = $pdo;
 return $pdo;
