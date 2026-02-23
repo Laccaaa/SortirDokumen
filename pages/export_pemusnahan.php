@@ -298,8 +298,8 @@ body{
               </div>
             </summary>
             <div class="side-sub">
-              <a class="side-sublink" href="/SortirDokumen/pages/export_menu.php">📥 Export Sortir Dokumen</a>
-              <a class="side-sublink active" href="/SortirDokumen/pages/export_pemusnahan.php">🗑️ Export Dokumen Musnah</a>
+              <a class="side-sublink" href="/SortirDokumen/pages/export_menu.php">Export Sortir Dokumen</a>
+              <a class="side-sublink active" href="/SortirDokumen/pages/export_pemusnahan.php">Export Dokumen Musnah</a>
             </div>
           </details>
         </li>
