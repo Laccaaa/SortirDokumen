@@ -4,10 +4,15 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: >
-      sh -c "mkdir -p /var/www/html/uploads &&
+      sh -c "
+      echo 'upload_max_filesize=10M' > /usr/local/etc/php/conf.d/uploads.ini &&
+      echo 'post_max_size=12M' >> /usr/local/etc/php/conf.d/uploads.ini &&
+      echo 'memory_limit=256M' >> /usr/local/etc/php/conf.d/uploads.ini &&
+      mkdir -p /var/www/html/uploads &&
       chown -R www-data:www-data /var/www/html/uploads &&
       chmod -R 0775 /var/www/html/uploads &&
-      apache2-foreground"
+      apache2-foreground
+      "
     ports:
       - "8080:80"
     volumes:
