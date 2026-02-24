@@ -19,6 +19,15 @@ $jenis_surat = $_POST['jenis_surat'];
 $nomor_surat = trim($_POST['nomor_surat']);
 $file = $_FILES['fileInput'];
 
+$maxSize = 5 * 1024 * 1024; // 5MB
+
+if (($file['size'] ?? 0) > $maxSize) {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Ukuran file maksimal 5MB.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
+
 $kode_klasifikasi = trim($_POST['kode_klasifikasi'] ?? '');
 $unit_pengolah    = trim($_POST['unit_pengolah'] ?? '');
 $nama_berkas       = trim($_POST['nama_berkas'] ?? '');
@@ -107,28 +116,25 @@ if (!empty($prefix_kode)) {
         $kode_utama = $bagian_1;
         $subkode    = '';
     }
-    $nomor_urut    = $bagian_2;            // 001
-    $unit_pengirim = $bagian_3;            // KSUB
+    $nomor_urut    = $bagian_2;
+    $unit_pengirim = $bagian_3;
 } else {
-    // Format: kode/nomor/unit/bulan/tahun
-    // Contoh: ME.002/003/DI/XII/2016
     if (strpos($bagian_1, '.') !== false) {
         preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
         if ($kode_match) {
-            $kode_utama = $kode_match[1];  // ME
-            $subkode    = $kode_match[2];  // 002 (TANPA prefix ME)
+            $kode_utama = $kode_match[1]; 
+            $subkode    = $kode_match[2]; 
         } else {
             $kode_utama = $bagian_1;
             $subkode    = '';
         }
-        $nomor_urut    = $bagian_2;        // 003
-        $unit_pengirim = $bagian_3;        // DI
+        $nomor_urut    = $bagian_2; 
+        $unit_pengirim = $bagian_3; 
     } else {
-        // Format tanpa titik: ABC/123/DEF/bulan/tahun
-        $kode_utama    = $bagian_1;        // ABC
-        $subkode       = '';               // kosong
-        $nomor_urut    = $bagian_2;        // 123
-        $unit_pengirim = $bagian_3;        // DEF
+        $kode_utama    = $bagian_1;
+        $subkode       = ''; 
+        $nomor_urut    = $bagian_2;
+        $unit_pengirim = $bagian_3; 
     }
 }
 
@@ -268,7 +274,7 @@ try {
 } catch (Throwable $e) {
     error_log("Insert surat gagal: " . $e->getMessage());
     $_SESSION['status'] = 'error';
-    $_SESSION['pesan']  = 'Gagal menyimpan data. Pastikan kolom database sudah lengkap.';
+    $_SESSION['pesan']  = 'Gagal menyimpan data. Pastikan semua kolom sudah terisi dengan benar.';
     header("Location: /SortirDokumen/pages/form.php");
     exit;
 }

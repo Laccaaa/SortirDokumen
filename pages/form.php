@@ -685,7 +685,7 @@ button.primary:active{ transform: translateY(1px); }
               name="nomor_surat"
               id="nomor_surat"
               value="<?= htmlspecialchars($old_nomor) ?>"
-              placeholder="Contoh: ME.002/003/DI/XII/2016"
+              placeholder="Contoh: e.B/PL.01.00/001/KSUB/V/2019"
               required
             >
           </div>
@@ -721,6 +721,7 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="jumlah"
+              maxlength="50"
               placeholder="3 lembar"
             >
           </div>
@@ -730,6 +731,7 @@ button.primary:active{ transform: translateY(1px); }
             <input
               type="text"
               name="lokasi"
+              maxlength="150"
               placeholder="Filling Kabinet"
             >
           </div>
@@ -770,6 +772,7 @@ button.primary:active{ transform: translateY(1px); }
               placeholder="1"
               inputmode="numeric"
               pattern="[0-9]+"
+              maxlength="10"
               required
               title="Wajib isi angka"
             >
@@ -783,6 +786,7 @@ button.primary:active{ transform: translateY(1px); }
               placeholder="1"
               inputmode="numeric"
               pattern="[0-9]+"
+              maxlength="10"
               required
               title="Wajib isi angka"
             >
@@ -891,6 +895,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!this.files.length) return;
 
         const file = this.files[0];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            showErrorModal("Ukuran file maksimal 5MB!");
+            this.value = "";
+            fileName.innerText = "";
+            fileName.style.display = "none";
+            fileLabel.classList.add("error");
+            filePreview.innerHTML = "";
+            return;
+        }
+
         const allowedExt = ["pdf", "jpg", "jpeg", "png"];
         const allowedMime = ["application/pdf", "image/jpeg", "image/png"];
         const ext = (file.name.split(".").pop() || "").toLowerCase();
@@ -1031,7 +1046,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Cek File Upload
+        // ✅ Cek file ada atau belum
         if (!fileInput.files.length) {
             showErrorModal("File surat belum dipilih!");
             fileLabel.classList.add("error");
@@ -1039,6 +1054,16 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        // ✅ Baru ambil file
+        const file = fileInput.files[0];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        // ✅ Cek ukuran
+        if (file.size > maxSize) {
+            showErrorModal("Ukuran file maksimal 5MB!");
+            fileLabel.classList.add("error");
+            return;
+        }
         // Semua validasi OK -> submit form
         form.submit();
     });
@@ -1127,7 +1152,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-/* ========= FUNGSI GLOBAL ========= */
 function closeErrorModal() {
     document.getElementById("errorModal").classList.remove("show");
 }
@@ -1135,6 +1159,31 @@ function closeErrorModal() {
 function closeModal() {
     document.getElementById("successModal").classList.remove("show");
 }
+
+document.addEventListener("input", function (e) {
+  const el = e.target;
+
+  if (el.classList.contains("number-limit")) {
+    el.value = el.value.replace(/\D/g, "");
+
+    if (el.value.length > 10) {
+      el.value = el.value.slice(0, 10);
+    }
+  }
+
+  const limits = {
+    jumlah: 50,
+    lokasi: 150
+  };
+
+  const name = el.name;
+  if (!limits[name]) return;
+
+  const max = limits[name];
+  if (el.value.length > max) {
+    el.value = el.value.slice(0, max);
+  }
+});
 </script>
 
 </body>
