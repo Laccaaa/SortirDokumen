@@ -25,10 +25,16 @@ $data = [
   "nama_berkas"      => "",
   "no_isi"           => "",
   "pencipta"         => "",
+  "tujuan_surat"     => "",
   "no_surat"         => "",
   "uraian"           => "",
+  "uraian_informasi_1" => "",
+  "uraian_informasi_2" => "",
   "tanggal"          => "",
+  "tanggal_surat"    => "",
+  "kurun_waktu"      => "",
   "jumlah"           => "",
+  "skkad"            => "",
   "tingkat"          => "",
   "lokasi"           => "",
   "keterangan"       => "",
@@ -63,7 +69,19 @@ if (!empty($_GET['edit']) && ctype_digit($_GET['edit'])) {
       foreach ($data as $k => $_) {
         $data[$k] = $found[$k] ?? "";
       }
+      if ($data["uraian_informasi_1"] === "" && !empty($found["uraian"])) {
+        $data["uraian_informasi_1"] = (string)$found["uraian"];
+      }
+      if ($data["tanggal_surat"] === "" && !empty($found["tanggal"])) {
+        $legacyTanggal = normalizeTanggalForInput((string)$found["tanggal"]);
+        if ($legacyTanggal !== "") {
+          $data["tanggal_surat"] = $legacyTanggal;
+        } elseif ($data["kurun_waktu"] === "") {
+          $data["kurun_waktu"] = (string)$found["tanggal"];
+        }
+      }
       $data["tanggal"] = normalizeTanggalForInput($data["tanggal"]);
+      $data["tanggal_surat"] = normalizeTanggalForInput($data["tanggal_surat"]);
     }
   } catch (PDOException $e) {
     $error = "Gagal ambil data edit: " . $e->getMessage();
@@ -86,10 +104,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data["nama_berkas"]      = trim($_POST["nama_berkas"] ?? "");
     $data["no_isi"]           = trim($_POST["no_isi"] ?? "");
     $data["pencipta"]         = trim($_POST["pencipta"] ?? "");
-    $data["tanggal"]          = normalizeTanggalForInput($_POST["tanggal"] ?? "");
+    $data["tujuan_surat"]     = trim($_POST["tujuan_surat"] ?? "");
     $data["no_surat"]         = trim($_POST["no_surat"] ?? "");
-    $data["uraian"]           = trim($_POST["uraian"] ?? "");
+    $data["uraian_informasi_1"] = trim($_POST["uraian_informasi_1"] ?? "");
+    $data["uraian_informasi_2"] = trim($_POST["uraian_informasi_2"] ?? "");
+    $data["uraian"]           = $data["uraian_informasi_1"];
+    $data["tanggal_surat"]    = normalizeTanggalForInput($_POST["tanggal_surat"] ?? "");
+    $data["kurun_waktu"]      = trim($_POST["kurun_waktu"] ?? "");
+    $data["tanggal"]          = $data["tanggal_surat"] !== "" ? $data["tanggal_surat"] : $data["kurun_waktu"];
     $data["jumlah"]           = trim($_POST["jumlah"] ?? "");
+    $data["skkad"]            = trim($_POST["skkad"] ?? "");
     $data["tingkat"]          = trim($_POST["tingkat"] ?? "");
     $data["lokasi"]           = trim($_POST["lokasi"] ?? "");
     $data["keterangan"]       = trim($_POST["keterangan"] ?? "");
@@ -110,10 +134,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             nama_berkas      = :nama_berkas,
             no_isi           = :no_isi,
             pencipta         = :pencipta,
+            tujuan_surat     = :tujuan_surat,
             tanggal          = :tanggal,
+            tanggal_surat    = :tanggal_surat,
+            kurun_waktu      = :kurun_waktu,
             no_surat         = :no_surat,
             uraian           = :uraian,
+            uraian_informasi_1 = :uraian_informasi_1,
+            uraian_informasi_2 = :uraian_informasi_2,
             jumlah           = :jumlah,
+            skkad            = :skkad,
             tingkat          = :tingkat,
             lokasi           = :lokasi,
             keterangan       = :keterangan
@@ -121,15 +151,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           $stmt = $dbhandle->prepare($sql);
           $tanggalParam = ($data["tanggal"] === "") ? null : $data["tanggal"];
+          $tanggalSuratParam = ($data["tanggal_surat"] === "") ? null : $data["tanggal_surat"];
           $stmt->execute([
             ":kode_klasifikasi" => $data["kode_klasifikasi"],
             ":nama_berkas"      => $data["nama_berkas"],
             ":no_isi"           => $data["no_isi"],
             ":pencipta"         => $data["pencipta"],
+            ":tujuan_surat"     => $data["tujuan_surat"],
             ":tanggal"          => $tanggalParam,
+            ":tanggal_surat"    => $tanggalSuratParam,
+            ":kurun_waktu"      => $data["kurun_waktu"],
             ":no_surat"         => $data["no_surat"],
             ":uraian"           => $data["uraian"],
+            ":uraian_informasi_1" => $data["uraian_informasi_1"],
+            ":uraian_informasi_2" => $data["uraian_informasi_2"],
             ":jumlah"           => $data["jumlah"],
+            ":skkad"            => $data["skkad"],
             ":tingkat"          => $data["tingkat"],
             ":lokasi"           => $data["lokasi"],
             ":keterangan"       => $data["keterangan"],
@@ -140,21 +177,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           exit;
         } else {
           $sql = "INSERT INTO arsip_dimusnahkan
-            (kode_klasifikasi, nama_berkas, no_isi, pencipta, tanggal, no_surat, uraian, jumlah, tingkat, lokasi, keterangan)
+            (kode_klasifikasi, nama_berkas, no_isi, pencipta, tujuan_surat, tanggal, tanggal_surat, kurun_waktu, no_surat, uraian, uraian_informasi_1, uraian_informasi_2, jumlah, skkad, tingkat, lokasi, keterangan)
             VALUES
-            (:kode_klasifikasi, :nama_berkas, :no_isi, :pencipta, :tanggal, :no_surat, :uraian, :jumlah, :tingkat, :lokasi, :keterangan)";
+            (:kode_klasifikasi, :nama_berkas, :no_isi, :pencipta, :tujuan_surat, :tanggal, :tanggal_surat, :kurun_waktu, :no_surat, :uraian, :uraian_informasi_1, :uraian_informasi_2, :jumlah, :skkad, :tingkat, :lokasi, :keterangan)";
 
           $stmt = $dbhandle->prepare($sql);
           $tanggalParam = ($data["tanggal"] === "") ? null : $data["tanggal"];
+          $tanggalSuratParam = ($data["tanggal_surat"] === "") ? null : $data["tanggal_surat"];
           $stmt->execute([
             ":kode_klasifikasi" => $data["kode_klasifikasi"],
             ":nama_berkas"      => $data["nama_berkas"],
             ":no_isi"           => $data["no_isi"],
             ":pencipta"         => $data["pencipta"],
+            ":tujuan_surat"     => $data["tujuan_surat"],
             ":tanggal"          => $tanggalParam,
+            ":tanggal_surat"    => $tanggalSuratParam,
+            ":kurun_waktu"      => $data["kurun_waktu"],
             ":no_surat"         => $data["no_surat"],
             ":uraian"           => $data["uraian"],
+            ":uraian_informasi_1" => $data["uraian_informasi_1"],
+            ":uraian_informasi_2" => $data["uraian_informasi_2"],
             ":jumlah"           => $data["jumlah"],
+            ":skkad"            => $data["skkad"],
             ":tingkat"          => $data["tingkat"],
             ":lokasi"           => $data["lokasi"],
             ":keterangan"       => $data["keterangan"],
@@ -641,6 +685,13 @@ input:focus, textarea:focus, select:focus{
   width:100%;
 }
 .row3.full{ grid-column: 1 / -1; }
+.row4{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px 12px;
+  width:100%;
+}
+.row4.full{ grid-column: 1 / -1; }
 
 .help{
   font-size: 12.5px;
@@ -705,6 +756,7 @@ button.ghost:active{ transform: translateY(1px); }
   .titles h1{ font-size: 20px; }
   .form{ grid-template-columns: 1fr; }
   .row3{ grid-template-columns: 1fr; }
+  .row4{ grid-template-columns: 1fr; }
 
   .bottomActions{ justify-content:stretch; }
   button.primary, button.ghost{ width:100%; justify-content:center; }
@@ -864,16 +916,16 @@ button.ghost:active{ transform: translateY(1px); }
           </div>
 
           <div class="field">
-            <label>Tanggal Surat / Kurun Waktu</label>
+            <label>Tujuan Surat</label>
             <input
-              type="date"
-              name="tanggal"
-              value="<?= htmlspecialchars($data["tanggal"]) ?>"
+              name="tujuan_surat"
+              value="<?= htmlspecialchars($data["tujuan_surat"]) ?>"
+              placeholder="Instansi / pihak tujuan surat"
             >
             
           </div>
 
-          <div class="field full">
+          <div class="field">
             <label>No. Surat</label>
             <input
               name="no_surat"
@@ -884,21 +936,60 @@ button.ghost:active{ transform: translateY(1px); }
           </div>
 
           <div class="field full">
-            <label>Uraian Informasi Dokumen</label>
+            <label>Uraian Informasi</label>
             <textarea
-              name="uraian"
+              name="uraian_informasi_1"
               placeholder="Jelaskan singkat isi informasi arsip..."
-            ><?= htmlspecialchars($data["uraian"]) ?></textarea>
+            ><?= htmlspecialchars($data["uraian_informasi_1"]) ?></textarea>
             
           </div>
 
-          <div class="row3 full">
+          <div class="field full">
+            <label>Uraian Informasi</label>
+            <textarea
+              name="uraian_informasi_2"
+              placeholder="Tambahan uraian informasi (opsional)..."
+            ><?= htmlspecialchars($data["uraian_informasi_2"]) ?></textarea>
+            
+          </div>
+
+          <div class="field">
+            <label>Tanggal Surat</label>
+            <input
+              type="date"
+              name="tanggal_surat"
+              value="<?= htmlspecialchars($data["tanggal_surat"]) ?>"
+            >
+            
+          </div>
+
+          <div class="field">
+            <label>Kurun Waktu</label>
+            <input
+              name="kurun_waktu"
+              value="<?= htmlspecialchars($data["kurun_waktu"]) ?>"
+              placeholder="Contoh: 2020-2022"
+            >
+            
+          </div>
+
+          <div class="row4 full">
             <div class="field">
               <label>Jumlah</label>
               <input
                 name="jumlah"
                 value="<?= htmlspecialchars($data["jumlah"]) ?>"
                 placeholder="3 lembar"
+              >
+              
+            </div>
+
+            <div class="field">
+              <label>SKKAD</label>
+              <input
+                name="skkad"
+                value="<?= htmlspecialchars($data["skkad"]) ?>"
+                placeholder="Nomor / kode SKKAD"
               >
               
             </div>
@@ -924,11 +1015,11 @@ button.ghost:active{ transform: translateY(1px); }
             </div>
 
             <div class="field">
-              <label>Lokasi Simpan</label>
+              <label>Boks</label>
               <input
                 name="lokasi"
                 value="<?= htmlspecialchars($data["lokasi"]) ?>"
-                placeholder="Rak A1 / Lemari 1"
+                placeholder="Boks 01 / Boks A"
               >
               
             </div>
