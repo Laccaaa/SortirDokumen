@@ -679,6 +679,15 @@ button.primary:active{ transform: translateY(1px); }
           </div>
 
           <div class="field">
+            <label>Jenis Surat <span class="required">*</span></label>
+            <select name="jenis_surat" id="jenis_surat" required>
+              <option value="">-- Pilih Jenis Surat --</option>
+              <option value="masuk" <?= $old_jenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
+              <option value="keluar" <?= $old_jenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
+            </select>
+          </div>
+
+          <div class="field">
             <label>Nomor Surat <span class="required">*</span></label>
             <input
               type="text"
@@ -792,22 +801,13 @@ button.primary:active{ transform: translateY(1px); }
             >
           </div>
 
-          <div class="field full">
+          <div class="field">
             <label>Nasib</label>
             <input
               type="text"
               name="nasib"
               placeholder="Musnah"
             >
-          </div>
-
-          <div class="field">
-            <label>Jenis Surat <span class="required">*</span></label>
-            <select name="jenis_surat" id="jenis_surat" required>
-              <option value="">-- Pilih Jenis Surat --</option>
-              <option value="masuk" <?= $old_jenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
-              <option value="keluar" <?= $old_jenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
-            </select>
           </div>
 
           <div class="field full">
@@ -1165,7 +1165,6 @@ document.addEventListener("input", function (e) {
 
   if (el.classList.contains("number-limit")) {
     el.value = el.value.replace(/\D/g, "");
-
     if (el.value.length > 10) {
       el.value = el.value.slice(0, 10);
     }
