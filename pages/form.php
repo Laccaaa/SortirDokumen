@@ -293,7 +293,7 @@ input, select{
   width:100%;
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid var(--line);
+  border: 1.5px solid #d7dee9;
   outline:none;
   font-size: 14px;
   background:#fff;
@@ -355,7 +355,7 @@ input[type="file"]{ display:none; }
   margin-top: 8px;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #ddd;
+  border: 1.5px solid #d7dce3;
   background: #f5f7fb;
 }
 .file-preview iframe,

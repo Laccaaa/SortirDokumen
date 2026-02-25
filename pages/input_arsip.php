@@ -21,6 +21,7 @@ $isEdit = false;
 $editId = null;
 
 $data = [
+  "nomor_berkas"     => "",
   "kode_klasifikasi" => "",
   "nama_berkas"      => "",
   "no_isi"           => "",
@@ -100,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $idPost = $_POST['id'] ?? '';
 
     // ambil input
+    $data["nomor_berkas"]     = trim($_POST["nomor_berkas"] ?? "");
     $data["kode_klasifikasi"] = trim($_POST["kode_klasifikasi"] ?? "");
     $data["nama_berkas"]      = trim($_POST["nama_berkas"] ?? "");
     $data["no_isi"]           = trim($_POST["no_isi"] ?? "");
@@ -119,8 +121,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data["keterangan"]       = trim($_POST["keterangan"] ?? "");
 
     // validasi minimal
-    if ($data["kode_klasifikasi"] === "" || $data["nama_berkas"] === "" || $data["no_isi"] === "") {
-      $error = "Kode Klasifikasi, Nama Berkas, dan No. Isi wajib diisi.";
+    if ($data["nomor_berkas"] === "" || $data["kode_klasifikasi"] === "" || $data["nama_berkas"] === "" || $data["no_isi"] === "") {
+      $error = "Nomor Berkas, Kode Klasifikasi, Nama Berkas, dan No. Isi wajib diisi.";
+    } elseif (!preg_match('/^\d+$/', $data["nomor_berkas"])) {
+      $error = "Nomor Berkas wajib berupa angka.";
+    } elseif (!preg_match('/^\d+$/', $data["no_isi"])) {
+      $error = "No. Isi Berkas wajib berupa angka.";
     } else {
       try {
         if ($action === "update") {
@@ -130,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $idPost = (int)$idPost;
 
           $sql = "UPDATE arsip_dimusnahkan SET
+            nomor_berkas     = :nomor_berkas,
             kode_klasifikasi = :kode_klasifikasi,
             nama_berkas      = :nama_berkas,
             no_isi           = :no_isi,
@@ -153,6 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $tanggalParam = ($data["tanggal"] === "") ? null : $data["tanggal"];
           $tanggalSuratParam = ($data["tanggal_surat"] === "") ? null : $data["tanggal_surat"];
           $stmt->execute([
+            ":nomor_berkas"     => $data["nomor_berkas"],
             ":kode_klasifikasi" => $data["kode_klasifikasi"],
             ":nama_berkas"      => $data["nama_berkas"],
             ":no_isi"           => $data["no_isi"],
@@ -177,14 +185,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           exit;
         } else {
           $sql = "INSERT INTO arsip_dimusnahkan
-            (kode_klasifikasi, nama_berkas, no_isi, pencipta, tujuan_surat, tanggal, tanggal_surat, kurun_waktu, no_surat, uraian, uraian_informasi_1, uraian_informasi_2, jumlah, skkad, tingkat, lokasi, keterangan)
+            (nomor_berkas, kode_klasifikasi, nama_berkas, no_isi, pencipta, tujuan_surat, tanggal, tanggal_surat, kurun_waktu, no_surat, uraian, uraian_informasi_1, uraian_informasi_2, jumlah, skkad, tingkat, lokasi, keterangan)
             VALUES
-            (:kode_klasifikasi, :nama_berkas, :no_isi, :pencipta, :tujuan_surat, :tanggal, :tanggal_surat, :kurun_waktu, :no_surat, :uraian, :uraian_informasi_1, :uraian_informasi_2, :jumlah, :skkad, :tingkat, :lokasi, :keterangan)";
+            (:nomor_berkas, :kode_klasifikasi, :nama_berkas, :no_isi, :pencipta, :tujuan_surat, :tanggal, :tanggal_surat, :kurun_waktu, :no_surat, :uraian, :uraian_informasi_1, :uraian_informasi_2, :jumlah, :skkad, :tingkat, :lokasi, :keterangan)";
 
           $stmt = $dbhandle->prepare($sql);
           $tanggalParam = ($data["tanggal"] === "") ? null : $data["tanggal"];
           $tanggalSuratParam = ($data["tanggal_surat"] === "") ? null : $data["tanggal_surat"];
           $stmt->execute([
+            ":nomor_berkas"     => $data["nomor_berkas"],
             ":kode_klasifikasi" => $data["kode_klasifikasi"],
             ":nama_berkas"      => $data["nama_berkas"],
             ":no_isi"           => $data["no_isi"],
@@ -208,7 +217,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           exit;
         }
       } catch (Throwable $e) {
-        $error = "Gagal simpan: " . $e->getMessage();
+        $msg = (string)$e->getMessage();
+        if (stripos($msg, "invalid input syntax for type integer") !== false) {
+          $error = "Nomor Berkas dan No. Isi Berkas wajib berupa angka.";
+        } else {
+          $error = "Gagal simpan ke database. Periksa input dan coba lagi.";
+        }
       }
     }
   }
@@ -561,6 +575,35 @@ a.btn.dark:hover{
   background:#0f172a;
   color:#fff;
 }
+.btn-confirm.warning{
+  background:#2563eb;
+  color:#fff;
+}
+
+#alertModal .confirm-card{
+  width: min(560px, 94vw);
+  padding: 28px 24px 24px;
+}
+#alertModal .confirm-icon{
+  width:74px;
+  height:74px;
+  margin-bottom: 14px;
+}
+#alertModal .confirm-icon svg{
+  width:70px;
+  height:70px;
+}
+#alertModal .confirm-title{
+  font-size: 22px;
+  color:#2f3a5f;
+  margin-bottom: 10px;
+}
+#alertModal .confirm-text{
+  font-size: 15px;
+  color:#0f172a;
+  line-height: 1.45;
+  margin-bottom: 20px;
+}
 
 #confirmResetModal{
   background: rgba(0,0,0,0.45);
@@ -658,7 +701,7 @@ input, textarea, select{
   width:100%;
   padding: 10px 12px;              /* lebih compact */
   border-radius: 12px;
-  border: 1px solid var(--line);
+  border: 1.5px solid #d7dee9;
   outline:none;
   font-size: 14px;
   background:#fff;
@@ -864,7 +907,7 @@ button.ghost:active{ transform: translateY(1px); }
         <div class="alert-err"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
 
-      <form method="POST" action="" id="arsipForm">
+      <form method="POST" action="" id="arsipForm" novalidate>
         <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
         <input type="hidden" name="action" value="<?= $isEdit ? 'update' : 'create' ?>">
         <?php if ($isEdit): ?>
@@ -872,6 +915,17 @@ button.ghost:active{ transform: translateY(1px); }
         <?php endif; ?>
 
         <div class="form">
+          <div class="field full">
+            <label>Nomor Berkas <span class="req">*</span></label>
+            <input
+              name="nomor_berkas"
+              inputmode="numeric"
+              value="<?= htmlspecialchars($data["nomor_berkas"]) ?>"
+              placeholder="1"
+              required
+            >
+          </div>
+
           <div class="field">
             <label>Kode Klasifikasi <span class="req">*</span></label>
             <input
@@ -898,6 +952,7 @@ button.ghost:active{ transform: translateY(1px); }
             <label>No. Isi Berkas <span class="req">*</span></label>
             <input
               name="no_isi"
+              inputmode="numeric"
               value="<?= htmlspecialchars($data["no_isi"]) ?>"
               placeholder="1"
               required
@@ -1075,6 +1130,23 @@ button.ghost:active{ transform: translateY(1px); }
       </div>
     </div>
   </div>
+
+  <div id="alertModal" class="modal" aria-hidden="true">
+    <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="alertModalTitle" aria-describedby="alertModalText">
+      <div class="confirm-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Warning">
+          <path d="M32 6L60 54a4 4 0 0 1-3.46 6H7.46A4 4 0 0 1 4 54L32 6Z" fill="#FACC15"/>
+          <path d="M32 20v18" stroke="#111827" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="32" cy="45" r="3.5" fill="#111827"/>
+        </svg>
+      </div>
+      <div class="confirm-title" id="alertModalTitle">Perhatian!</div>
+      <div class="confirm-text" id="alertModalText">Field wajib belum diisi.</div>
+      <div class="confirm-actions">
+        <button type="button" class="btn-confirm warning" id="okAlert">OK, Saya Mengerti</button>
+      </div>
+    </div>
+  </div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("arsipForm");
@@ -1087,7 +1159,74 @@ document.addEventListener("DOMContentLoaded", function () {
   const okUpdate = document.getElementById("okUpdate");
   const cancelReset = document.getElementById("cancelReset");
   const okReset = document.getElementById("okReset");
+  const alertModal = document.getElementById("alertModal");
+  const okAlert = document.getElementById("okAlert");
+  const alertModalTitle = document.getElementById("alertModalTitle");
+  const alertModalText = document.getElementById("alertModalText");
+  const nomorBerkasInput = form?.querySelector('input[name="nomor_berkas"]');
+  const noIsiInput = form?.querySelector('input[name="no_isi"]');
   let allowSubmit = false;
+
+  function showAlertModal(message, title = "Perhatian!") {
+    if (!alertModal) return;
+    if (alertModalTitle) alertModalTitle.textContent = title;
+    if (alertModalText) alertModalText.textContent = message;
+    alertModal.classList.add("show");
+    alertModal.setAttribute("aria-hidden", "false");
+    okAlert?.focus();
+  }
+
+  function closeAlertModal() {
+    alertModal?.classList.remove("show");
+    alertModal?.setAttribute("aria-hidden", "true");
+  }
+
+  function getFieldLabelText(field) {
+    const wrapper = field?.closest(".field");
+    const labelEl = wrapper?.querySelector("label");
+    if (!labelEl) return "Field";
+    const clone = labelEl.cloneNode(true);
+    clone.querySelectorAll(".req").forEach((el) => el.remove());
+    return (clone.textContent || "Field").trim();
+  }
+
+  function validateFormBeforeSubmit() {
+    const requiredFields = Array.from(
+      form?.querySelectorAll("input[required], select[required], textarea[required]") ?? []
+    );
+
+    for (const field of requiredFields) {
+      const value = (field.value ?? "").trim();
+      if (value === "") {
+        field.focus();
+        field.scrollIntoView({ behavior: "smooth", block: "center" });
+        showAlertModal(`${getFieldLabelText(field)} belum diisi!`);
+        return false;
+      }
+    }
+
+    if (noIsiInput) {
+      const nomorBerkasValue = (nomorBerkasInput?.value ?? "").trim();
+      if (nomorBerkasInput && !/^\d+$/.test(nomorBerkasValue)) {
+        nomorBerkasInput.focus();
+        nomorBerkasInput.scrollIntoView({ behavior: "smooth", block: "center" });
+        showAlertModal("Nomor Berkas wajib berupa angka.");
+        return false;
+      }
+    }
+
+    if (noIsiInput) {
+      const value = noIsiInput.value.trim();
+      if (!/^\d+$/.test(value)) {
+        noIsiInput.focus();
+        noIsiInput.scrollIntoView({ behavior: "smooth", block: "center" });
+        showAlertModal("No. Isi Berkas wajib berupa angka.");
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   resetBtn?.addEventListener("click", (e) => {
     e.preventDefault();
@@ -1101,6 +1240,15 @@ document.addEventListener("DOMContentLoaded", function () {
       shell?.scrollTo({ top: 0, behavior: "smooth" });
     });
   });
+
+  form?.addEventListener("invalid", (e) => {
+    e.preventDefault();
+    const field = e.target;
+    if (!(field instanceof HTMLElement)) return;
+    field.focus();
+    field.scrollIntoView({ behavior: "smooth", block: "center" });
+    showAlertModal(`${getFieldLabelText(field)} belum diisi!`);
+  }, true);
 
   const getFields = () => Array.from(
     form?.querySelectorAll("input, select, textarea, button") ?? []
@@ -1126,6 +1274,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   form?.addEventListener("submit", (e) => {
+    if (!validateFormBeforeSubmit()) {
+      e.preventDefault();
+      return;
+    }
     if (allowSubmit) return;
     if (actionInput?.value !== "update") return;
     e.preventDefault();
@@ -1156,9 +1308,19 @@ document.addEventListener("DOMContentLoaded", function () {
   confirmResetModal?.addEventListener("click", (e) => {
     if (e.target === confirmResetModal) closeResetModal();
   });
+  alertModal?.addEventListener("click", (e) => {
+    if (e.target === alertModal) closeAlertModal();
+  });
   okReset?.addEventListener("click", () => {
     form?.reset();
     closeResetModal();
+  });
+  okAlert?.addEventListener("click", closeAlertModal);
+  nomorBerkasInput?.addEventListener("input", () => {
+    nomorBerkasInput.setCustomValidity("");
+  });
+  noIsiInput?.addEventListener("input", () => {
+    noIsiInput.setCustomValidity("");
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && confirmUpdateModal.classList.contains("show")) {
@@ -1167,6 +1329,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (e.key === "Escape" && confirmResetModal?.classList.contains("show")) {
       closeResetModal();
     }
+    if (e.key === "Escape" && alertModal?.classList.contains("show")) {
+      closeAlertModal();
+    }
     if (e.key === "Enter" && confirmUpdateModal.classList.contains("show")) {
       e.preventDefault();
       okUpdate?.click();
@@ -1174,6 +1339,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (e.key === "Enter" && confirmResetModal?.classList.contains("show")) {
       e.preventDefault();
       okReset?.click();
+    }
+    if (e.key === "Enter" && alertModal?.classList.contains("show")) {
+      e.preventDefault();
+      okAlert?.click();
     }
   });
 });
