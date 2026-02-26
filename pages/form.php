@@ -977,111 +977,115 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* ========= VALIDASI FORM SUBMIT ========= */
     form.addEventListener("submit", function (e) {
-        e.preventDefault();
+      e.preventDefault();
 
-        // Reset semua error styling
-        jenisSurat.classList.remove("error");
-        kodeKlasifikasi?.classList.remove("error");
-        namaBerkas?.classList.remove("error");
-        nomor.classList.remove("error");
-        fileLabel.classList.remove("error");
-        jraAktif?.classList.remove("error");
-        jraInaktif?.classList.remove("error");
+      // Reset semua error styling
+      jenisSurat.classList.remove("error");
+      kodeKlasifikasi?.classList.remove("error");
+      namaBerkas?.classList.remove("error");
+      nomor.classList.remove("error");
+      fileLabel.classList.remove("error");
+      jraAktif?.classList.remove("error");
+      jraInaktif?.classList.remove("error");
 
-        const kodeValue = (kodeKlasifikasi?.value || "").trim();
-        if (!kodeValue) {
-            showErrorModal("Kode belum diisi!");
-            kodeKlasifikasi?.classList.add("error");
-            kodeKlasifikasi?.focus();
-            return;
+      const kodeValue = (kodeKlasifikasi?.value || "").trim();
+      if (!kodeValue) {
+        showErrorModal("Kode belum diisi!");
+        kodeKlasifikasi?.classList.add("error");
+        kodeKlasifikasi?.focus();
+        return;
+      }
+
+      const namaBerkasValue = (namaBerkas?.value || "").trim();
+      if (!namaBerkasValue) {
+        showErrorModal("Nama Berkas belum diisi!");
+        namaBerkas?.classList.add("error");
+        namaBerkas?.focus();
+        return;
+      }
+
+      // Cek Jenis Surat
+      if (!jenisSurat.value) {
+        showErrorModal("Jenis Surat belum dipilih!");
+        jenisSurat.classList.add("error");
+        jenisSurat.focus();
+        return;
+      }
+
+      // Cek Nomor Surat (kosong)
+      const no = nomor.value.trim();
+      if (!no) {
+        showErrorModal("Nomor Surat belum diisi!");
+        nomor.classList.add("error");
+        nomor.focus();
+        return;
+      }
+
+      // ✅ Validasi format nomor surat sesuai jenis
+      if (jenisSurat.value === "keluar") {
+        // ketat: harus segment lengkap + bulan romawi + tahun
+        const regexKeluar =
+          /^(?:[a-zA-Z0-9.]+\/)?[^\/]+\/[^\/]+\/[^\/]+\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/;
+
+        if (!regexKeluar.test(no)) {
+          showErrorModal(
+            "Format Nomor Surat keluar tidak valid!<br><small>Contoh: ME.002/003/DI/XII/2016 atau e.B/PL.01.00/001/KSUB/V/2024</small>"
+          );
+          nomor.classList.add("error");
+          nomor.focus();
+          return;
         }
+      } else if (jenisSurat.value === "masuk") {
+        // fleksibel: minimal ada bulan romawi dan tahun agar bisa dipetakan (kalau tidak ada → backend masuk OTHER)
+        const regexMasuk = /\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\b.*\b(\d{4})\b/;
 
-        const namaBerkasValue = (namaBerkas?.value || "").trim();
-        if (!namaBerkasValue) {
-            showErrorModal("Nama Berkas belum diisi!");
-            namaBerkas?.classList.add("error");
-            namaBerkas?.focus();
-            return;
+        if (!regexMasuk.test(no)) {
+          // Tidak diblokir, hanya warning (biar tetap bisa submit -> masuk OTHER)
+          showErrorModal(
+            'Nomor surat masuk tidak mengandung BULAN ROMAWI & TAHUN (mis. "V 2024").<br><small>File akan masuk folder <b>OTHER</b>.</small>'
+          );
+          // tidak return
         }
+      }
 
-        // Cek Jenis Surat
-        if (!jenisSurat.value) {
-            showErrorModal("Jenis Surat belum dipilih!");
-            jenisSurat.classList.add("error");
-            jenisSurat.focus();
-            return;
-        }
+      const jraAktifValue = (jraAktif?.value || "").trim();
+      const jraInaktifValue = (jraInaktif?.value || "").trim();
 
-        // Cek Nomor Surat (kosong)
-        if (!nomor.value.trim()) {
-            showErrorModal("Nomor Surat belum diisi!");
-            nomor.classList.add("error");
-            nomor.focus();
-            return;
-        }
+      if (!jraAktifValue || !/^\d+$/.test(jraAktifValue)) {
+        showErrorModal("JRA Aktif wajib diisi angka saja!");
+        jraAktif?.classList.add("error");
+        jraAktif?.focus();
+        return;
+      }
 
-        // Cek Format Nomor Surat (Dinamis - hanya validasi bulan romawi & tahun)
-        const regex = /^(?:[a-zA-Z0-9.]+\/)?[^\/]+\/[^\/]+\/[^\/]+\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/;
-        if (!regex.test(nomor.value.trim())) {
-            showErrorModal("Format Nomor Surat tidak valid!<br><small>Contoh: ME.002/003/DI/XII/2016 atau e.B/PL.01.00/001/KSUB/V/2024</small>");
-            nomor.classList.add("error");
-            nomor.focus();
-            return;
-        }
+      if (!jraInaktifValue || !/^\d+$/.test(jraInaktifValue)) {
+        showErrorModal("JRA Inaktif wajib diisi angka saja!");
+        jraInaktif?.classList.add("error");
+        jraInaktif?.focus();
+        return;
+      }
 
-        const jraAktifValue = (jraAktif?.value || "").trim();
-        const jraInaktifValue = (jraInaktif?.value || "").trim();
+      // ✅ Cek file ada atau belum
+      if (!fileInput.files.length) {
+        showErrorModal("File surat belum dipilih!");
+        fileLabel.classList.add("error");
+        fileInput.focus();
+        return;
+      }
 
-        if (!jraAktifValue || !/^\d+$/.test(jraAktifValue)) {
-            showErrorModal("JRA Aktif wajib diisi angka saja!");
-            jraAktif?.classList.add("error");
-            jraAktif?.focus();
-            return;
-        }
+      // ✅ Baru ambil file
+      const file = fileInput.files[0];
+      const maxSize = 5 * 1024 * 1024; // 5MB
 
-        if (!jraInaktifValue || !/^\d+$/.test(jraInaktifValue)) {
-            showErrorModal("JRA Inaktif wajib diisi angka saja!");
-            jraInaktif?.classList.add("error");
-            jraInaktif?.focus();
-            return;
-        }
+      // ✅ Cek ukuran
+      if (file.size > maxSize) {
+        showErrorModal("Ukuran file maksimal 5MB!");
+        fileLabel.classList.add("error");
+        return;
+      }
 
-        // ✅ Cek file ada atau belum
-        if (!fileInput.files.length) {
-            showErrorModal("File surat belum dipilih!");
-            fileLabel.classList.add("error");
-            fileInput.focus();
-            return;
-        }
-
-        // ✅ Baru ambil file
-        const file = fileInput.files[0];
-        const maxSize = 5 * 1024 * 1024; // 5MB
-
-        // ✅ Cek ukuran
-        if (file.size > maxSize) {
-            showErrorModal("Ukuran file maksimal 5MB!");
-            fileLabel.classList.add("error");
-            return;
-        }
-        // Semua validasi OK -> submit form
-        form.submit();
-    });
-
-    [jraAktif, jraInaktif].forEach((field) => {
-        field?.addEventListener("input", function () {
-            const rawValue = this.value;
-            const cleanValue = rawValue.replace(/\D/g, "");
-            const hasInvalidChar = rawValue !== cleanValue;
-            this.value = cleanValue;
-
-            if (this === jraAktif) {
-                jraAktifHint?.classList.toggle("show", hasInvalidChar);
-            }
-            if (this === jraInaktif) {
-                jraInaktifHint?.classList.toggle("show", hasInvalidChar);
-            }
-        });
+      // Semua validasi OK -> submit form
+      form.submit();
     });
 
     /* ========= FUNGSI SHOW ERROR MODAL ========= */

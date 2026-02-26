@@ -15,18 +15,48 @@ if (!isset($_POST['jenis_surat'], $_POST['nomor_surat'], $_FILES['fileInput'])) 
     exit;
 }
 
-$jenis_surat = $_POST['jenis_surat'];
-$nomor_surat = trim($_POST['nomor_surat']);
-$file = $_FILES['fileInput'];
-
-$maxSize = 5 * 1024 * 1024; // 5MB
-
-if (($file['size'] ?? 0) > $maxSize) {
-    $_SESSION['status'] = 'error';
-    $_SESSION['pesan']  = 'Ukuran file maksimal 5MB.';
-    header("Location: /SortirDokumen/pages/form.php");
-    exit;
+/* =======================
+   HELPER FUNCTIONS
+======================= */
+function romawiKeBulan($r) {
+    return [
+        'I'=>'Januari','II'=>'Februari','III'=>'Maret','IV'=>'April',
+        'V'=>'Mei','VI'=>'Juni','VII'=>'Juli','VIII'=>'Agustus',
+        'IX'=>'September','X'=>'Oktober','XI'=>'November','XII'=>'Desember'
+    ][$r] ?? null;
 }
+
+function namaFileUnik($dir, $filename) {
+    $pathinfo = pathinfo($filename);
+    $nama = $pathinfo['filename'];
+    $ext  = isset($pathinfo['extension']) ? '.' . $pathinfo['extension'] : '';
+    $counter = 1;
+    $newName = $filename;
+    while (file_exists($dir . $newName)) {
+        $newName = $nama . " ($counter)" . $ext;
+        $counter++;
+    }
+    return $newName;
+}
+
+function safeFolderName(string $s, int $maxLen = 80): string {
+    $s = trim($s);
+    $s = str_replace(['/', '\\'], '-', $s);
+    $s = preg_replace('/[^a-zA-Z0-9._-]+/', '_', $s);
+    $s = trim($s, '._-');
+    if (strlen($s) > $maxLen) {
+        $hash = substr(sha1($s), 0, 8);
+        $s = substr($s, 0, $maxLen - 9) . '_' . $hash;
+    }
+    return $s ?: 'NO_NAME';
+}
+
+/* =======================
+   BASIC INPUT
+======================= */
+$jenis_surat = trim($_POST['jenis_surat'] ?? '');
+$nomor_surat = trim($_POST['nomor_surat'] ?? '');
+$file        = $_FILES['fileInput'];
 
 $kode_klasifikasi = trim($_POST['kode_klasifikasi'] ?? '');
 $unit_pengolah    = trim($_POST['unit_pengolah'] ?? '');
@@ -46,14 +76,7 @@ $jra_aktif         = trim($_POST['jra_aktif'] ?? '');
 $jra_inaktif       = trim($_POST['jra_inaktif'] ?? '');
 $nasib             = trim($_POST['nasib'] ?? '');
 
-if ($kode_klasifikasi === '' || $nama_berkas === '') {
-    $_SESSION['status'] = 'error';
-    $_SESSION['pesan']  = 'Form tidak lengkap. Pastikan semua field wajib terisi.';
-    header("Location: /SortirDokumen/pages/form.php");
-    exit;
-}
-
-if ($jenis_surat === '' || $nomor_surat === '') {
+if ($kode_klasifikasi === '' || $nama_berkas === '' || $jenis_surat === '' || $nomor_surat === '') {
     $_SESSION['status'] = 'error';
     $_SESSION['pesan']  = 'Form tidak lengkap. Pastikan semua field wajib terisi.';
     header("Location: /SortirDokumen/pages/form.php");
@@ -81,100 +104,156 @@ if ($jra_inaktif === '' || !ctype_digit($jra_inaktif)) {
     exit;
 }
 
-$pattern = '/^
-    (?:([a-zA-Z0-9.]+)\/)?      # Group 1: Prefix opsional (e.B, ME.002, dll)
-    ([^\/]+)                     # Group 2: Bagian pertama
-    \/([^\/]+)                   # Group 3: Bagian kedua
-    \/([^\/]+)                   # Group 4: Bagian ketiga
-    \/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)  # Group 5: BULAN ROMAWI (WAJIB)
-    \/(\d{4})                    # Group 6: TAHUN 4 digit (WAJIB)
-$/x';
-
-if (!preg_match($pattern, $nomor_surat, $matches)) {
-    $_SESSION['error_nomor'] = "Format nomor surat tidak valid";
-    $_SESSION['old_jenis_surat'] = $jenis_surat;
-    $_SESSION['old_nomor_surat'] = $nomor_surat;
+/* =======================
+   FILE SIZE
+======================= */
+$maxSize = 5 * 1024 * 1024; // 5MB
+if (($file['size'] ?? 0) > $maxSize) {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Ukuran file maksimal 5MB.';
     header("Location: /SortirDokumen/pages/form.php");
     exit;
 }
 
-// Parsing hasil regex
-$prefix_kode   = $matches[1] ?? '';
-$bagian_1      = $matches[2];
-$bagian_2      = $matches[3];
-$bagian_3      = $matches[4];
-$bulan_romawi  = $matches[5];
-$tahun         = $matches[6];
+/* =======================
+   REGEX PATTERNS
+======================= */
+$pattern_masuk = '/\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\b.*\b(\d{4})\b/';
 
-// Parsing cerdas untuk menentukan struktur
-if (!empty($prefix_kode)) {
-    preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
-    if ($kode_match) {
-        $kode_utama = $kode_match[1];      // PL
-        $subkode    = $kode_match[2];      // 01.00 (TANPA prefix PL)
-    } else {
-        $kode_utama = $bagian_1;
-        $subkode    = '';
+$pattern_keluar = '/^
+    (?:([a-zA-Z0-9.]+)\/)?      
+    ([^\/]+)
+    \/([^\/]+)
+    \/([^\/]+)
+    \/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)
+    \/(\d{4})
+$/x';
+
+$matches = [];
+$is_match = false;
+
+/* =======================
+   PARSE & MODE
+======================= */
+$kode_utama = '';
+$subkode = '';
+$nomor_urut = '';
+$unit_pengirim = '';
+$bulan_romawi = '';
+$bulan = '';
+$tahun = '';
+$mode_folder = 'OTHER_MASUK';
+
+if ($jenis_surat === 'keluar') {
+    $is_match = preg_match($pattern_keluar, $nomor_surat, $matches) === 1;
+
+    if (!$is_match) {
+        $_SESSION['error_nomor'] = "Format nomor surat keluar tidak valid";
+        $_SESSION['old_jenis_surat'] = $jenis_surat;
+        $_SESSION['old_nomor_surat'] = $nomor_surat;
+        header("Location: /SortirDokumen/pages/form.php");
+        exit;
     }
-    $nomor_urut    = $bagian_2;
-    $unit_pengirim = $bagian_3;
-} else {
-    if (strpos($bagian_1, '.') !== false) {
+
+    $prefix_kode   = $matches[1] ?? '';
+    $bagian_1      = $matches[2];
+    $bagian_2      = $matches[3];
+    $bagian_3      = $matches[4];
+    $bulan_romawi  = $matches[5];
+    $tahun         = (string)$matches[6];
+
+    if (!empty($prefix_kode)) {
         preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
         if ($kode_match) {
-            $kode_utama = $kode_match[1]; 
-            $subkode    = $kode_match[2]; 
+            $kode_utama = $kode_match[1];
+            $subkode    = $kode_match[2];
         } else {
             $kode_utama = $bagian_1;
             $subkode    = '';
         }
-        $nomor_urut    = $bagian_2; 
-        $unit_pengirim = $bagian_3; 
-    } else {
-        $kode_utama    = $bagian_1;
-        $subkode       = ''; 
         $nomor_urut    = $bagian_2;
-        $unit_pengirim = $bagian_3; 
+        $unit_pengirim = $bagian_3;
+    } else {
+        if (strpos($bagian_1, '.') !== false) {
+            preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
+            if ($kode_match) {
+                $kode_utama = $kode_match[1];
+                $subkode    = $kode_match[2];
+            } else {
+                $kode_utama = $bagian_1;
+                $subkode    = '';
+            }
+            $nomor_urut    = $bagian_2;
+            $unit_pengirim = $bagian_3;
+        } else {
+            $kode_utama    = $bagian_1;
+            $subkode       = '';
+            $nomor_urut    = $bagian_2;
+            $unit_pengirim = $bagian_3;
+        }
     }
-}
 
-function romawiKeBulan($r) {
-    return [
-        'I'=>'Januari','II'=>'Februari','III'=>'Maret','IV'=>'April',
-        'V'=>'Mei','VI'=>'Juni','VII'=>'Juli','VIII'=>'Agustus',
-        'IX'=>'September','X'=>'Oktober','XI'=>'November','XII'=>'Desember'
-    ][$r] ?? null;
-}
-
-function namaFileUnik($dir, $filename) {
-    $pathinfo = pathinfo($filename);
-    $nama = $pathinfo['filename'];
-    $ext  = isset($pathinfo['extension']) ? '.' . $pathinfo['extension'] : '';
-    $counter = 1;
-    $newName = $filename;
-    while (file_exists($dir . $newName)) {
-        $newName = $nama . " ($counter)" . $ext;
-        $counter++;
+    $bulan = romawiKeBulan($bulan_romawi);
+    if (!$bulan) {
+        $_SESSION['status'] = 'error';
+        $_SESSION['pesan']  = 'Bulan tidak valid.';
+        header("Location: /SortirDokumen/pages/form.php");
+        exit;
     }
-    return $newName;
+
+    $mode_folder = 'KELUAR_OK';
+
+} else { // masuk
+    $is_match = preg_match($pattern_masuk, $nomor_surat, $matches) === 1;
+
+    if ($is_match) {
+        $bulan_romawi = $matches[1];
+        $tahun        = (string)$matches[2];
+
+        $bulan = romawiKeBulan($bulan_romawi);
+        if ($bulan) {
+            $mode_folder = 'MASUK_PARSED';
+        } else {
+            $mode_folder = 'OTHER_MASUK';
+        }
+    } else {
+        $mode_folder = 'OTHER_MASUK';
+    }
+
+    // grouping by kode_klasifikasi
+    $kode_utama = $kode_klasifikasi !== '' ? $kode_klasifikasi : 'NO_KODE';
 }
 
-$bulan = romawiKeBulan($bulan_romawi);
-if (!$bulan) die("Bulan tidak valid");
+/* =======================
+   BUILD UPLOAD PATH
+======================= */
+$destBaseRel = '';
+if ($mode_folder === 'KELUAR_OK') {
+    $uploadDir = __DIR__ . "/uploads/keluar/$tahun/$bulan/$kode_utama/";
+    if (!empty($subkode)) $uploadDir .= "$subkode/";
+    $destBaseRel = "uploads/keluar/$tahun/$bulan/$kode_utama/" . (!empty($subkode) ? "$subkode/" : "");
 
-if ($file['error'] !== 0) die("File upload error");
+} elseif ($mode_folder === 'MASUK_PARSED') {
+    $kodeFolder = safeFolderName($kode_klasifikasi ?: 'NO_KODE');
+    $uploadDir = __DIR__ . "/uploads/masuk/$tahun/$bulan/$kodeFolder/";
+    $destBaseRel = "uploads/masuk/$tahun/$bulan/$kodeFolder/";
 
-$uploadDir = __DIR__ . "/uploads/$tahun/$bulan/$kode_utama/";
-if (!empty($subkode)) {
-    $uploadDir .= "$subkode/";
+} else { // OTHER_MASUK
+    $kodeFolder = safeFolderName($kode_klasifikasi ?: 'NO_KODE');
+    $safeNomor  = safeFolderName($nomor_surat);
+    $uploadDir = __DIR__ . "/uploads/masuk/OTHER/$kodeFolder/$safeNomor/";
+    $destBaseRel = "uploads/masuk/OTHER/$kodeFolder/$safeNomor/";
 }
+
+/* =======================
+   ENSURE FOLDER EXISTS
+======================= */
 if (!is_dir($uploadDir) && !mkdir($uploadDir, 0777, true)) {
     $_SESSION['status'] = 'error';
     $_SESSION['pesan']  = 'Folder upload tidak bisa dibuat. Periksa izin folder uploads.';
     header("Location: /SortirDokumen/pages/form.php");
     exit;
 }
-
 if (!is_writable($uploadDir)) {
     $_SESSION['status'] = 'error';
     $_SESSION['pesan']  = 'Folder upload tidak punya izin tulis. Periksa izin folder uploads.';
@@ -182,9 +261,12 @@ if (!is_writable($uploadDir)) {
     exit;
 }
 
+/* =======================
+   FILE TYPE VALIDATION
+======================= */
 $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 $allowed_ext = ['pdf','jpg','jpeg','png'];
-if (!in_array($ext, $allowed_ext)) {
+if (!in_array($ext, $allowed_ext, true)) {
     $_SESSION['status'] = 'error';
     $_SESSION['pesan']  = 'Format file tidak didukung. Gunakan PDF atau gambar (JPG, JPEG, PNG).';
     header("Location: /SortirDokumen/pages/form.php");
@@ -197,20 +279,22 @@ $allowed_mime = [
     'image/png'
 ];
 $mime = mime_content_type($file['tmp_name']);
-if (!in_array($mime, $allowed_mime)) {
+if (!in_array($mime, $allowed_mime, true)) {
     $_SESSION['status'] = 'error';
     $_SESSION['pesan']  = 'Tipe file tidak valid. Gunakan PDF atau gambar (JPG, JPEG, PNG).';
     header("Location: /SortirDokumen/pages/form.php");
     exit;
 }
 
+/* =======================
+   FINAL FILE NAME + MOVE
+======================= */
 $nama_asli = basename($file['name']);
 $nama_file = preg_replace('/[^a-zA-Z0-9._-]/', '_', $nama_asli);
-
-/* auto rename jika duplikat */
 $nama_file = namaFileUnik($uploadDir, $nama_file);
-$destPath = $uploadDir . $nama_file;
-$destPathRel = "uploads/$tahun/$bulan/$kode_utama/" . (!empty($subkode) ? "$subkode/" : "") . $nama_file;
+
+$destPath    = $uploadDir . $nama_file;
+$destPathRel = $destBaseRel . $nama_file;
 
 if (!is_uploaded_file($file['tmp_name'])) {
     $_SESSION['status'] = 'error';
@@ -226,6 +310,9 @@ if (!move_uploaded_file($file['tmp_name'], $destPath)) {
     exit;
 }
 
+/* =======================
+   INSERT DB
+======================= */
 $sql = "
 INSERT INTO surat (
     jenis_surat, nomor_surat, kode_utama, subkode,
@@ -250,10 +337,11 @@ try {
         $subkode,
         $nomor_urut,
         $unit_pengirim,
-        $bulan,
-        $tahun,
+        $bulan !== '' ? $bulan : null,
+        $tahun !== '' ? $tahun : null,
         $nama_file,
         $destPathRel,
+
         $unit_pengolah !== '' ? $unit_pengolah : null,
         $nama_berkas !== '' ? $nama_berkas : null,
         $nomor_isi !== '' ? $nomor_isi : null,
@@ -266,6 +354,7 @@ try {
         $lokasi_simpan !== '' ? $lokasi_simpan : null,
         $tingkat !== '' ? $tingkat : null,
         $keterangan !== '' ? $keterangan : null,
+
         $skkad !== '' ? $skkad : null,
         $jra_aktif !== '' ? $jra_aktif : null,
         $jra_inaktif !== '' ? $jra_inaktif : null,
@@ -279,7 +368,7 @@ try {
     exit;
 }
 
-if ($result) {
+if (!empty($result)) {
     $_SESSION['status'] = 'success';
     $_SESSION['pesan']  = 'Data berhasil disimpan';
     header("Location: /SortirDokumen/pages/form.php");
