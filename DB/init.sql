@@ -43,6 +43,7 @@ CREATE TABLE public.arsip_dimusnahkan (
     id integer NOT NULL DEFAULT nextval('public.arsip_dimusnahkan_id_seq'::regclass),
     kode_klasifikasi character varying(50) NOT NULL,
     nama_berkas character varying(255) NOT NULL,
+    nomor_berkas character varying (100),
     no_isi integer NOT NULL,
     pencipta character varying(150),
     no_surat character varying(100),

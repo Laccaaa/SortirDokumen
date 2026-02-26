@@ -2,7 +2,6 @@
 $dbhandle = require __DIR__ . "/../config/koneksi.php";
 require_once __DIR__ . "/../auth/auth_check.php";
 
-$jenis = $_GET['jenis'] ?? '';
 $tahun = $_GET['tahun'] ?? '';
 $bulan = $_GET['bulan'] ?? '';
 
@@ -53,8 +52,10 @@ function getPemusnahanRows($conn, $tahun = null, $bulan = null) {
     END";
 
     $sql = "SELECT
-        id, kode_klasifikasi, nama_berkas, no_isi, pencipta, no_surat,
-        uraian, tanggal, jumlah, tingkat, lokasi, keterangan, created_at
+        id, nomor_berkas, kode_klasifikasi, nama_berkas, no_isi, pencipta, tujuan_surat, no_surat,
+        uraian, uraian_informasi_1, uraian_informasi_2,
+        tanggal, tanggal_surat, kurun_waktu,
+        jumlah, skkad, tingkat, lokasi, keterangan, created_at
         FROM arsip_dimusnahkan WHERE 1=1";
     $params = [];
 
@@ -220,10 +221,18 @@ body{
 }
 .filter-note{ font-size: 11px; color: var(--muted); }
 
-.table-wrap{ border: 1px solid #e9ecef; border-radius: 12px; overflow:auto; background:#fff; }
-.table{ width:100%; border-collapse: collapse; font-size: 12px; }
-.table th, .table td{ border-bottom:1px solid #eef2f6; padding: 8px 10px; text-align:left; vertical-align:top; }
-.table th{ background:#f8fafc; color:#1f2a44; position:sticky; top:0; z-index:1; }
+.table-wrap{ border: 1px solid #e5e7eb; border-radius: 12px; overflow:auto; background:#fff; }
+.table{ width:max-content; min-width: 2200px; border-collapse: collapse; font-size: 12px; }
+.table th, .table td{ border-bottom:1px solid #eef2f6; padding: 10px 12px; text-align:left; vertical-align:top; }
+.table th{ background:#e5e7eb; color:#1f2a44; position:sticky; top:0; z-index:1; }
+.table th:nth-child(2), .table td:nth-child(2){ min-width: 120px; }  /* Nomor Berkas */
+.table th:nth-child(3), .table td:nth-child(3){ min-width: 140px; }  /* Kode Klasifikasi */
+.table th:nth-child(4), .table td:nth-child(4){ min-width: 170px; }  /* Nama Berkas */
+.table th:nth-child(7), .table td:nth-child(7){ min-width: 150px; }  /* Tujuan Surat */
+.table th:nth-child(9), .table td:nth-child(9),
+.table th:nth-child(10), .table td:nth-child(10){ min-width: 170px; } /* Uraian */
+.table th:nth-child(15), .table td:nth-child(15){ min-width: 170px; } /* Tingkat Perkembangan */
+.table th:nth-child(17), .table td:nth-child(17){ min-width: 180px; } /* Keterangan */
 
 .empty-state{ text-align:center; padding: 40px 20px; color:#94a3b8; }
 
@@ -323,9 +332,6 @@ body{
       </div>
 
       <form class="filter-row" method="get" action="export_pemusnahan.php">
-        <select class="filter-select" name="jenis" disabled>
-          <option value="">Semua jenis</option>
-        </select>
         <select class="filter-select" name="tahun">
           <option value="">Semua tahun</option>
           <?php foreach ($filterOptions['years'] as $yr): ?>
@@ -355,32 +361,55 @@ body{
             <thead>
               <tr>
                 <th>No</th>
-                <th>Kode</th>
+                <th>Nomor Berkas</th>
+                <th>Kode Klasifikasi</th>
                 <th>Nama Berkas</th>
-                <th>No Isi</th>
+                <th>No. Isi Berkas</th>
                 <th>Pencipta</th>
+                <th>Tujuan Surat</th>
                 <th>No Surat</th>
-                <th>Uraian</th>
-                <th>Tanggal</th>
+                <th>Uraian Informasi 1</th>
+                <th>Uraian Informasi 2</th>
+                <th>Tanggal Surat</th>
+                <th>Kurun Waktu</th>
                 <th>Jumlah</th>
-                <th>Tingkat</th>
-                <th>Lokasi</th>
+                <th>SKKAD</th>
+                <th>Tingkat Perkembangan</th>
+                <th>Boks</th>
                 <th>Keterangan</th>
                 <th>Created At</th>
               </tr>
             </thead>
             <tbody>
               <?php foreach ($rows as $i => $row): ?>
+                <?php
+                  $uraian1 = $row['uraian_informasi_1'] ?? ($row['uraian'] ?? '');
+                  $uraian2 = $row['uraian_informasi_2'] ?? '';
+                  $tanggalSurat = $row['tanggal_surat'] ?? '';
+                  $kurunWaktu = $row['kurun_waktu'] ?? '';
+                  $tanggalLegacy = (string)($row['tanggal'] ?? '');
+                  if ($tanggalSurat === '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalLegacy)) {
+                    $tanggalSurat = $tanggalLegacy;
+                  }
+                  if ($kurunWaktu === '' && $tanggalLegacy !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalLegacy)) {
+                    $kurunWaktu = $tanggalLegacy;
+                  }
+                ?>
                 <tr>
                   <td><?= $i + 1 ?></td>
+                  <td><?= htmlspecialchars($row['nomor_berkas'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['kode_klasifikasi'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['nama_berkas'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['no_isi'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['pencipta'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['tujuan_surat'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['no_surat'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['uraian'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['tanggal'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($uraian1) ?></td>
+                  <td><?= htmlspecialchars($uraian2) ?></td>
+                  <td><?= htmlspecialchars($tanggalSurat) ?></td>
+                  <td><?= htmlspecialchars($kurunWaktu) ?></td>
                   <td><?= htmlspecialchars($row['jumlah'] ?? '') ?></td>
+                  <td><?= htmlspecialchars($row['skkad'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['tingkat'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['lokasi'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['keterangan'] ?? '') ?></td>

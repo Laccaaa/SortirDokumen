@@ -62,14 +62,21 @@ $q = trim($_GET['q'] ?? '');
 $sql = "
   SELECT
     id,
+    nomor_berkas,
     kode_klasifikasi,
     nama_berkas,
     no_isi,
     pencipta,
+    tujuan_surat,
     no_surat,
     uraian,
+    uraian_informasi_1,
+    uraian_informasi_2,
     tanggal,
+    tanggal_surat,
+    kurun_waktu,
     jumlah,
+    skkad,
     tingkat,
     lokasi,
     keterangan
@@ -81,13 +88,20 @@ if ($q !== '') {
   $sql .= "
     WHERE
       kode_klasifikasi ILIKE :q OR
+      nomor_berkas     ILIKE :q OR
       nama_berkas      ILIKE :q OR
       no_isi::text     ILIKE :q OR
       pencipta         ILIKE :q OR
+      tujuan_surat     ILIKE :q OR
       no_surat         ILIKE :q OR
       uraian           ILIKE :q OR
+      uraian_informasi_1 ILIKE :q OR
+      uraian_informasi_2 ILIKE :q OR
       tanggal::text    ILIKE :q OR
+      tanggal_surat::text ILIKE :q OR
+      kurun_waktu      ILIKE :q OR
       jumlah::text     ILIKE :q OR
+      skkad            ILIKE :q OR
       tingkat          ILIKE :q OR
       lokasi::text     ILIKE :q OR
       keterangan       ILIKE :q

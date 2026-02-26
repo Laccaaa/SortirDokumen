@@ -348,27 +348,29 @@ a.clear{
   height: 100%;
   border-radius:16px;
   overflow:auto;                 /* ✅ scroll vertikal di sini */
-  overflow-x:hidden;             /* ✅ no scroll kanan-kiri */
+  overflow-x:auto;               /* ✅ allow scroll kanan-kiri */
   -webkit-overflow-scrolling: touch;
-  border:1px solid #eef2f7;
+  border:1px solid #e5e7eb;
   box-shadow:0 8px 24px rgba(15,23,42,.06);
 }
 
 /* table */
 table{
-  width:100%;
+  width:max-content;
+  min-width: 1800px;
   border-collapse:collapse;
-  font-size:11px;
-  table-layout: fixed;
+  font-size:12px;
+  table-layout: auto;
 }
 
 thead th{
-  background:#f8fafc;
-  padding:10px 8px;
-  border-bottom:1px solid #e5e7eb;
-  font-size:10px;
+  background:#e5e7eb;
+  padding:10px 10px;
+  border-bottom:1px solid #d1d5db;
+  border-right:1px solid #d1d5db;
+  font-size:11px;
   font-weight:900;
-  color:#475569;
+  color:#334155;
   white-space:nowrap;
 
   position: sticky;
@@ -376,17 +378,52 @@ thead th{
   z-index: 5;
 }
 
+thead th:last-child{
+  position: sticky;
+  right: 0;
+  z-index: 7;
+  box-shadow: none;
+  background: transparent;
+  border-bottom-color: transparent;
+  border-right:none;
+  width: 130px;
+  min-width: 130px;
+  max-width: 130px;
+  padding: 0;
+  overflow: visible;
+}
+
 tbody td{
-  padding:10px 8px;
-  border-bottom:1px solid #eef2f7;
+  padding:10px 10px;
+  border-bottom:1px solid #e5e7eb;
+  border-right:1px solid #eef2f6;
   color:#1f2937;
   vertical-align:top;
   background:#fff;
   word-break: break-word;
 }
 
+tbody td:last-child{
+  position: sticky;
+  right: 0;
+  z-index: 6;
+  min-width: 130px;
+  width: 130px;
+  max-width: 130px;
+  box-shadow: none;
+  border-bottom-color: transparent;
+  border-right:none;
+  background: transparent !important;
+  padding: 0;
+  text-align: right;
+  vertical-align: middle;
+  overflow: visible;
+}
+
 tbody tr:nth-child(even) td{ background:#fafbff; }
 tbody tr:hover td{ background:#f1f5ff; }
+tbody tr:nth-child(even) td:last-child{ background:transparent !important; }
+tbody tr:hover td:last-child{ background:transparent !important; }
 
 td.muted{
   text-align:center;
@@ -398,25 +435,36 @@ td.muted{
 .actions{
   display:flex;
   gap:6px;
-  flex-direction:column;
-  align-items:stretch;
+  flex-direction:row;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:nowrap;
+  width: max-content;
+  margin-left: auto;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 a.btn-edit{
   display:inline-flex;
   align-items:center;
   gap:6px;
-  padding:8px 12px;
-  border-radius:12px;
+  padding:5px 10px;
+  border-radius:999px;
   text-decoration:none;
   font-weight:900;
-  font-size:12px;
+  font-size:10px;
+  line-height:1;
   background:#6366F1;
   color:#ffffff;
   border:1px solid #4F46E5;
-  width: 100%;
-  min-width: 0;
+  width: auto;
+  min-width: 48px;
+  white-space: nowrap;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(79,70,229,.25);
 }
 a.btn-edit:hover{
   background:#4F46E5;
@@ -427,13 +475,18 @@ a.btn-edit:hover{
   background:#EF4444;
   color:#ffffff;
   font-weight:900;
-  font-size:11px;
-  padding:8px 12px;
-  border-radius:12px;
+  font-size:10px;
+  line-height:1;
+  padding:5px 10px;
+  border-radius:999px;
   cursor:pointer;
-  width: 100%;
-  min-width: 0;
+  width: auto;
+  min-width: 52px;
+  white-space: nowrap;
+  display:inline-flex;
+  align-items:center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(220,38,38,.22);
 }
 .btn-del:hover{
   background:#DC2626;
@@ -548,6 +601,7 @@ a.btn-edit:hover{
     border-bottom:1px solid #eef2f7;
     padding:12px 14px;
     background:#fff;
+    position: relative;
   }
   tbody tr:nth-child(even){ background:#fbfcff; }
 
@@ -557,6 +611,9 @@ a.btn-edit:hover{
     overflow-wrap:anywhere;
     word-break:break-word;
     background: transparent !important;
+    position: static !important;
+    right: auto !important;
+    box-shadow: none !important;
   }
 
   td::before{
@@ -568,7 +625,13 @@ a.btn-edit:hover{
     margin-bottom:4px;
   }
 
-  .actions{ width:100%; }
+  .actions{
+    width:100%;
+    position: static;
+    transform: none;
+    flex-direction:column;
+    align-items:stretch;
+  }
   a.btn-edit, .btn-del{
     width:100%;
     justify-content:center;
@@ -732,44 +795,65 @@ a.btn-edit:hover{
           <table>
             <thead>
               <tr>
-                <th>No</th>
+                <th>Nomor Berkas</th>
                 <th>Kode Klasifikasi</th>
                 <th>Nama Berkas</th>
                 <th>No. Isi</th>
                 <th>Pencipta</th>
+                <th>Tujuan Surat</th>
                 <th>No. Surat</th>
-                <th>Uraian</th>
-                <th>Tanggal</th>
+                <th>Uraian Informasi 1</th>
+                <th>Uraian Informasi 2</th>
+                <th>Tanggal Surat</th>
+                <th>Kurun Waktu</th>
                 <th>Jumlah</th>
-                <th>Tingkat</th>
-                <th>Lokasi</th>
+                <th>SKKAD</th>
+                <th>Tingkat Perkembangan</th>
+                <th>Boks</th>
                 <th>Keterangan</th>
-                <th>Aksi</th>
+                <th aria-label="Aksi"></th>
               </tr>
             </thead>
 
             <tbody>
             <?php if (empty($rows) || count($rows) === 0): ?>
               <tr>
-                <td class="muted" colspan="13">
+                <td class="muted" colspan="17">
                   <?= !empty($q) ? "Data tidak ditemukan untuk pencarian: " . htmlspecialchars($q) : "Belum ada data" ?>
                 </td>
               </tr>
             <?php else: ?>
-              <?php $no = 1; foreach ($rows as $r): ?>
+              <?php foreach ($rows as $r): ?>
               <?php $rowId = $r["id"] ?? null; ?>
+              <?php
+                $uraian1 = $r["uraian_informasi_1"] ?? ($r["uraian"] ?? "");
+                $uraian2 = $r["uraian_informasi_2"] ?? "";
+                $tanggalSurat = $r["tanggal_surat"] ?? "";
+                $kurunWaktu = $r["kurun_waktu"] ?? "";
+                $tanggalLegacy = (string)($r["tanggal"] ?? "");
+                if ($tanggalSurat === "" && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalLegacy)) {
+                  $tanggalSurat = $tanggalLegacy;
+                }
+                if ($kurunWaktu === "" && $tanggalLegacy !== "" && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalLegacy)) {
+                  $kurunWaktu = $tanggalLegacy;
+                }
+              ?>
               <tr>
-                <td data-label="No"><?= $no++ ?></td>
+                <td data-label="Nomor Berkas"><?= htmlspecialchars($r["nomor_berkas"] ?? "") ?></td>
                 <td data-label="Kode Klasifikasi"><?= htmlspecialchars($r["kode_klasifikasi"] ?? "") ?></td>
                 <td data-label="Nama Berkas"><?= htmlspecialchars($r["nama_berkas"] ?? "") ?></td>
                 <td data-label="No. Isi"><?= htmlspecialchars($r["no_isi"] ?? "") ?></td>
                 <td data-label="Pencipta"><?= htmlspecialchars($r["pencipta"] ?? "") ?></td>
+                <td data-label="Tujuan Surat"><?= htmlspecialchars($r["tujuan_surat"] ?? "") ?></td>
                 <td data-label="No. Surat"><?= htmlspecialchars($r["no_surat"] ?? "") ?></td>
-                <td data-label="Uraian"><?= htmlspecialchars($r["uraian"] ?? "") ?></td>
-                <td data-label="Tanggal"><?= htmlspecialchars($r["tanggal"] ?? "") ?></td>
+                <td data-label="Uraian Informasi 1"><?= htmlspecialchars($uraian1) ?></td>
+                <td data-label="Uraian Informasi 2"><?= htmlspecialchars($uraian2) ?></td>
+                <td data-label="Tanggal Surat"><?= htmlspecialchars($tanggalSurat) ?></td>
+                <td data-label="Kurun Waktu"><?= htmlspecialchars($kurunWaktu) ?></td>
                 <td data-label="Jumlah"><?= htmlspecialchars($r["jumlah"] ?? "") ?></td>
-                <td data-label="Tingkat"><?= htmlspecialchars($r["tingkat"] ?? "") ?></td>
-                <td data-label="Lokasi"><?= htmlspecialchars($r["lokasi"] ?? "") ?></td>
+                <td data-label="SKKAD"><?= htmlspecialchars($r["skkad"] ?? "") ?></td>
+                <td data-label="Tingkat Perkembangan"><?= htmlspecialchars($r["tingkat"] ?? "") ?></td>
+                <td data-label="Boks"><?= htmlspecialchars($r["lokasi"] ?? "") ?></td>
                 <td data-label="Keterangan"><?= htmlspecialchars($r["keterangan"] ?? "") ?></td>
                 
                 <td data-label="Aksi">
@@ -863,6 +947,7 @@ a.btn-edit:hover{
         if (pendingDeleteForm) pendingDeleteForm.submit();
       }
     });
+
   </script>
 </body>
 </html>
