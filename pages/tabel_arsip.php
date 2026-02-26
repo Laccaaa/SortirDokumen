@@ -350,7 +350,7 @@ a.clear{
   overflow:auto;                 /* ✅ scroll vertikal di sini */
   overflow-x:auto;               /* ✅ allow scroll kanan-kiri */
   -webkit-overflow-scrolling: touch;
-  border:1px solid #eef2f7;
+  border:1px solid #e5e7eb;
   box-shadow:0 8px 24px rgba(15,23,42,.06);
 }
 
@@ -359,17 +359,18 @@ table{
   width:max-content;
   min-width: 1800px;
   border-collapse:collapse;
-  font-size:11px;
+  font-size:12px;
   table-layout: auto;
 }
 
 thead th{
-  background:#f8fafc;
-  padding:10px 8px;
-  border-bottom:1px solid #e5e7eb;
-  font-size:10px;
+  background:#e5e7eb;
+  padding:10px 10px;
+  border-bottom:1px solid #d1d5db;
+  border-right:1px solid #d1d5db;
+  font-size:11px;
   font-weight:900;
-  color:#475569;
+  color:#334155;
   white-space:nowrap;
 
   position: sticky;
@@ -384,6 +385,7 @@ thead th:last-child{
   box-shadow: none;
   background: transparent;
   border-bottom-color: transparent;
+  border-right:none;
   width: 130px;
   min-width: 130px;
   max-width: 130px;
@@ -392,8 +394,9 @@ thead th:last-child{
 }
 
 tbody td{
-  padding:10px 8px;
-  border-bottom:1px solid #eef2f7;
+  padding:10px 10px;
+  border-bottom:1px solid #e5e7eb;
+  border-right:1px solid #eef2f6;
   color:#1f2937;
   vertical-align:top;
   background:#fff;
@@ -409,6 +412,7 @@ tbody td:last-child{
   max-width: 130px;
   box-shadow: none;
   border-bottom-color: transparent;
+  border-right:none;
   background: transparent !important;
   padding: 0;
   text-align: right;
