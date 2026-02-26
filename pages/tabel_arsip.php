@@ -358,7 +358,6 @@ a.clear{
 table{
   width:max-content;
   min-width: 1800px;
-  margin-right: 120px;          /* space kosong saat scroll mentok kanan */
   border-collapse:collapse;
   font-size:11px;
   table-layout: auto;
@@ -385,9 +384,9 @@ thead th:last-child{
   box-shadow: none;
   background: transparent;
   border-bottom-color: transparent;
-  width: 0;
-  min-width: 0;
-  max-width: 0;
+  width: 170px;
+  min-width: 170px;
+  max-width: 170px;
   padding: 0;
   overflow: visible;
 }
@@ -405,9 +404,9 @@ tbody td:last-child{
   position: sticky;
   right: 0;
   z-index: 6;
-  min-width: 0;
-  width: 0;
-  max-width: 0;
+  min-width: 170px;
+  width: 170px;
+  max-width: 170px;
   box-shadow: none;
   border-bottom-color: transparent;
   background: transparent !important;
@@ -439,7 +438,7 @@ td.muted{
   width: max-content;
   margin-left: auto;
   position: absolute;
-  right: 10px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
 }

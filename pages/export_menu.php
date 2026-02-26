@@ -224,7 +224,7 @@ body{
 }
 .filter-note{ font-size: 11px; color: var(--muted); }
 
-.table-wrap{ border: 1px solid #d8e1d3; border-radius: 12px; overflow:auto; background:#fff; }
+.table-wrap{ border: 1px solid #e5e7eb; border-radius: 12px; overflow:auto; background:#fff; }
 .table{ width:100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
 .table th, .table td{
   border-bottom:1px solid #eef2f6;
@@ -235,7 +235,7 @@ body{
   white-space: nowrap;
 }
 .table th{
-  background:#b8d5a8;
+  background:#e5e7eb;
   color:#0f172a;
   position:sticky;
   top:0;
