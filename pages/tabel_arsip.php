@@ -384,9 +384,9 @@ thead th:last-child{
   box-shadow: none;
   background: transparent;
   border-bottom-color: transparent;
-  width: 170px;
-  min-width: 170px;
-  max-width: 170px;
+  width: 130px;
+  min-width: 130px;
+  max-width: 130px;
   padding: 0;
   overflow: visible;
 }
@@ -404,9 +404,9 @@ tbody td:last-child{
   position: sticky;
   right: 0;
   z-index: 6;
-  min-width: 170px;
-  width: 170px;
-  max-width: 170px;
+  min-width: 130px;
+  width: 130px;
+  max-width: 130px;
   box-shadow: none;
   border-bottom-color: transparent;
   background: transparent !important;
@@ -438,7 +438,7 @@ td.muted{
   width: max-content;
   margin-left: auto;
   position: absolute;
-  right: 14px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -791,7 +791,6 @@ a.btn-edit:hover{
           <table>
             <thead>
               <tr>
-                <th>No</th>
                 <th>Nomor Berkas</th>
                 <th>Kode Klasifikasi</th>
                 <th>Nama Berkas</th>
@@ -815,12 +814,12 @@ a.btn-edit:hover{
             <tbody>
             <?php if (empty($rows) || count($rows) === 0): ?>
               <tr>
-                <td class="muted" colspan="18">
+                <td class="muted" colspan="17">
                   <?= !empty($q) ? "Data tidak ditemukan untuk pencarian: " . htmlspecialchars($q) : "Belum ada data" ?>
                 </td>
               </tr>
             <?php else: ?>
-              <?php $no = 1; foreach ($rows as $r): ?>
+              <?php foreach ($rows as $r): ?>
               <?php $rowId = $r["id"] ?? null; ?>
               <?php
                 $uraian1 = $r["uraian_informasi_1"] ?? ($r["uraian"] ?? "");
@@ -836,7 +835,6 @@ a.btn-edit:hover{
                 }
               ?>
               <tr>
-                <td data-label="No"><?= $no++ ?></td>
                 <td data-label="Nomor Berkas"><?= htmlspecialchars($r["nomor_berkas"] ?? "") ?></td>
                 <td data-label="Kode Klasifikasi"><?= htmlspecialchars($r["kode_klasifikasi"] ?? "") ?></td>
                 <td data-label="Nama Berkas"><?= htmlspecialchars($r["nama_berkas"] ?? "") ?></td>
