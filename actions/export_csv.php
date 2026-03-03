@@ -44,11 +44,42 @@ $stmt = $dbhandle->prepare($sql);
 $stmt->execute($params);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$filenameParts = ["export_arsip"];
-if ($jenis !== '') $filenameParts[] = $jenis;
-if ($tahun !== '') $filenameParts[] = $tahun;
-if ($bulan !== '') $filenameParts[] = $bulan;
-$filename = implode('_', $filenameParts) . ".csv";
+/**
+ * Menentukan teks tahun untuk header export.
+ * Prioritas: filter tahun dari user, lalu rentang tahun dari hasil query.
+ */
+$headerTahun = '';
+if ($tahun !== '') {
+    $headerTahun = 'Tahun ' . $tahun;
+} else {
+    $years = [];
+    foreach ($rows as $row) {
+        $yearValue = isset($row['tahun']) ? (int)$row['tahun'] : 0;
+        if ($yearValue > 0) {
+            $years[] = $yearValue;
+        }
+    }
+
+    if ($years) {
+        $minYear = min($years);
+        $maxYear = max($years);
+        $headerTahun = $minYear === $maxYear
+            ? 'Tahun ' . $minYear
+            : 'Tahun ' . $minYear . ' s/d ' . $maxYear;
+    } else {
+        $headerTahun = 'Tahun -';
+    }
+}
+
+if ($jenis === '' && $tahun === '' && $bulan === '') {
+    $filename = "ekspor_keseluruhan_arsip.csv";
+} else {
+    $filenameParts = ["ekspor_arsip"];
+    if ($jenis !== '') $filenameParts[] = $jenis;
+    if ($tahun !== '') $filenameParts[] = $tahun;
+    if ($bulan !== '') $filenameParts[] = $bulan;
+    $filename = implode('_', $filenameParts) . ".csv";
+}
 
 header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -56,6 +87,11 @@ header('Content-Disposition: attachment; filename="' . $filename . '"');
 echo "\xEF\xBB\xBF"; // UTF-8 BOM for Excel
 
 $out = fopen('php://output', 'w');
+
+fputcsv($out, ['Daftar Isi Berkas Arsip']);
+fputcsv($out, ['Stasiun Meteorologi Kelas I Juanda Sidoarjo']);
+fputcsv($out, [$headerTahun]);
+fputcsv($out, []);
 
 fputcsv($out, [
     'Nomor',

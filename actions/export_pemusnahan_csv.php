@@ -38,16 +38,60 @@ $stmt = $dbhandle->prepare($sql);
 $stmt->execute($params);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$filenameParts = ["export_dokumen_musnah"];
-if ($tahun !== '') $filenameParts[] = $tahun;
-if ($bulan !== '') $filenameParts[] = $bulan;
-$filename = implode('_', $filenameParts) . ".csv";
+/**
+ * Menentukan teks tahun di header export.
+ * Prioritas: filter tahun dari user, lalu hitung rentang tahun dari data hasil query.
+ */
+$headerTahun = '';
+if ($tahun !== '') {
+    $headerTahun = 'TAHUN ' . $tahun;
+} else {
+    $years = [];
+    foreach ($rows as $row) {
+        $candidates = [
+            (string)($row['tanggal_surat'] ?? ''),
+            (string)($row['tanggal'] ?? ''),
+            (string)($row['kurun_waktu'] ?? '')
+        ];
+
+        foreach ($candidates as $value) {
+            if (preg_match('/\b(19|20)\d{2}\b/', $value, $m)) {
+                $years[] = (int)$m[0];
+                break;
+            }
+        }
+    }
+
+    if ($years) {
+        $minYear = min($years);
+        $maxYear = max($years);
+        $headerTahun = $minYear === $maxYear
+            ? 'TAHUN ' . $minYear
+            : 'TAHUN ' . $minYear . ' s/d ' . $maxYear;
+    } else {
+        $headerTahun = 'TAHUN -';
+    }
+}
+
+if ($tahun === '' && $bulan === '') {
+    $filename = "ekspor_keseluruhan_arsip_musnah.csv";
+} else {
+    $filenameParts = ["export_dokumen_musnah"];
+    if ($tahun !== '') $filenameParts[] = $tahun;
+    if ($bulan !== '') $filenameParts[] = $bulan;
+    $filename = implode('_', $filenameParts) . ".csv";
+}
 
 header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 
 echo "\xEF\xBB\xBF";
 $out = fopen('php://output', 'w');
+
+fputcsv($out, ['DAFTAR ARSIP YANG DIMUSNAHKAN']);
+fputcsv($out, ['STASIUN METROLOGI KELAS I JUANDA - SIDOARJO']);
+fputcsv($out, [$headerTahun]);
+fputcsv($out, []);
 
 fputcsv($out, [
     'No',
