@@ -845,7 +845,6 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
                     <option value="XII">Desember</option>
                   </select>
 
-                  <!-- TAHUN: input kosong (bebas) -->
                   <input
                     type="text"
                     id="others_tahun"
