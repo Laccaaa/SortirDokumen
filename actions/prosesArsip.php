@@ -56,6 +56,18 @@ function hitungFile($jenis = null, $tahun = null, $bulan = null, $kode = null, $
     return $stmt->fetchColumn();
 }
 
+function hitungFileOtherMasuk(): int
+{
+    $conn = getConnection();
+    $st = $conn->prepare("
+        SELECT COUNT(*) FROM surat
+        WHERE jenis_surat = 'masuk'
+          AND path_file ILIKE 'uploads/masuk/OTHER/%'
+    ");
+    $st->execute();
+    return (int)$st->fetchColumn();
+}
+
 /**
  * ======================================================
  * AMBIL FOLDER / FILE BERDASARKAN PATH
@@ -88,8 +100,22 @@ function getItems($path)
     // LEVEL 1 - TAHUN
     if ($path === 'Surat Masuk' || $path === 'Surat Keluar') {
         $jenis = ($path === 'Surat Masuk') ? 'masuk' : 'keluar';
+
+        // ✅ Tambah folder OTHER khusus Surat Masuk
+        if ($path === 'Surat Masuk') {
+            $items[] = [
+                'type' => 'folder',
+                'name' => 'OTHER',
+                'link' => "?path=Surat Masuk/OTHER",
+                'count' => hitungFileOtherMasuk()
+            ];
+        }
+
+        // ✅ tahun NULL tidak ikut jadi folder
         $stmt = $conn->prepare(
-            "SELECT DISTINCT tahun FROM surat WHERE jenis_surat = ? ORDER BY tahun DESC"
+            "SELECT DISTINCT tahun FROM surat
+            WHERE jenis_surat = ? AND tahun IS NOT NULL
+            ORDER BY tahun DESC"
         );
         $stmt->execute([$jenis]);
 
@@ -103,6 +129,109 @@ function getItems($path)
         }
         return $items;
     }
+
+    // ✅ OTHER ROOT: Surat Masuk/OTHER
+    if ($path === 'Surat Masuk/OTHER') {
+        // ambil folder level pertama setelah OTHER: uploads/masuk/OTHER/{X}/...
+        $stmt = $conn->prepare("
+            SELECT DISTINCT split_part(path_file, '/', 4) AS folder
+            FROM surat
+            WHERE jenis_surat='masuk'
+            AND path_file ILIKE 'uploads/masuk/OTHER/%'
+            AND split_part(path_file, '/', 4) <> ''
+            ORDER BY folder
+        ");
+        $stmt->execute();
+
+        while ($row = $stmt->fetch()) {
+            $folder = $row['folder'];
+            $items[] = [
+                'type' => 'folder',
+                'name' => $folder,
+                'link' => "?path=Surat Masuk/OTHER/" . urlencode($folder),
+                'count' => countFilesForPath("Surat Masuk/OTHER/$folder"),
+            ];
+        }
+        return $items;
+    }
+
+// ✅ OTHER LEVEL 2: Surat Masuk/OTHER/{X}
+if (preg_match('#^Surat Masuk/OTHER/([^/]+)$#', $path, $m)) {
+    $x = $m[1];
+
+    // cek apakah ada subfolder lagi (pola lama: OTHER/Pemb/{safeNomor}/...)
+    $stmt = $conn->prepare("
+        SELECT DISTINCT split_part(path_file, '/', 5) AS subfolder
+        FROM surat
+        WHERE jenis_surat='masuk'
+          AND path_file ILIKE 'uploads/masuk/OTHER/%'
+          AND split_part(path_file, '/', 4) = ?
+          AND split_part(path_file, '/', 5) <> ''
+        ORDER BY subfolder
+    ");
+    $stmt->execute([$x]);
+    $subs = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    if (!empty($subs)) {
+        foreach ($subs as $sf) {
+            $items[] = [
+                'type' => 'folder',
+                'name' => $sf,
+                'link' => "?path=Surat Masuk/OTHER/" . urlencode($x) . "/" . urlencode($sf),
+                'count' => countFilesForPath("Surat Masuk/OTHER/$x/$sf"),
+            ];
+        }
+        return $items;
+    }
+
+    // kalau tidak ada subfolder → tampilkan file langsung (pola baru OTHER/{safeNomor}/file)
+    $stmtFiles = $conn->prepare("
+        SELECT id_surat, nama_file, path_file
+        FROM surat
+        WHERE jenis_surat='masuk'
+          AND path_file ILIKE 'uploads/masuk/OTHER/%'
+          AND split_part(path_file, '/', 4) = ?
+        ORDER BY nama_file
+    ");
+    $stmtFiles->execute([$x]);
+
+    while ($row = $stmtFiles->fetch()) {
+        $items[] = [
+            'type' => 'file',
+            'id' => $row['id_surat'],
+            'name' => $row['nama_file'],
+            'path_file' => $row['path_file']
+        ];
+    }
+    return $items;
+}
+
+// ✅ OTHER LEVEL 3: Surat Masuk/OTHER/{X}/{Y} (pola lama)
+if (preg_match('#^Surat Masuk/OTHER/([^/]+)/([^/]+)$#', $path, $m)) {
+    $x = $m[1];
+    $y = $m[2];
+
+    $stmtFiles = $conn->prepare("
+        SELECT id_surat, nama_file, path_file
+        FROM surat
+        WHERE jenis_surat='masuk'
+          AND path_file ILIKE 'uploads/masuk/OTHER/%'
+          AND split_part(path_file, '/', 4) = ?
+          AND split_part(path_file, '/', 5) = ?
+        ORDER BY nama_file
+    ");
+    $stmtFiles->execute([$x, $y]);
+
+    while ($row = $stmtFiles->fetch()) {
+        $items[] = [
+            'type' => 'file',
+            'id' => $row['id_surat'],
+            'name' => $row['nama_file'],
+            'path_file' => $row['path_file']
+        ];
+    }
+    return $items;
+}
 
     // LEVEL 2 - BULAN
     if (preg_match('#^(Surat Masuk|Surat Keluar)/(\d{4})$#', $path, $m)) {
@@ -227,6 +356,8 @@ function getItems($path)
     return [];
 }
 
+
+
 /**
  * ======================================================
  * PARSE PATH KE FILTERS
@@ -283,6 +414,12 @@ function parsePathFilters($path)
         return $filters;
     }
 
+    // ✅ allow OTHER paths
+    if (preg_match('#^Surat Masuk/OTHER(?:/.*)?$#', $path)) {
+        $filters['jenis'] = 'masuk';
+        return $filters;
+    }
+
     $filters['valid'] = false;
     return $filters;
 }
@@ -297,6 +434,32 @@ function searchFilesRecursive($path, $query)
     $filters = parsePathFilters($path);
     if (!$filters['valid']) {
         return [];
+    }
+
+    // ✅ special-case untuk OTHER: hitung berdasarkan path_file
+    $decoded = urldecode($path);
+    if (preg_match('#^Surat Masuk/OTHER(?:/([^/]+))?(?:/([^/]+))?$#', $decoded, $m)) {
+        $x = $m[1] ?? null;
+        $y = $m[2] ?? null;
+
+        $conn = getConnection();
+        $sql = "SELECT COUNT(*) FROM surat
+                WHERE jenis_surat='masuk'
+                AND path_file ILIKE 'uploads/masuk/OTHER/%'";
+        $p = [];
+
+        if (!empty($x)) {
+            $sql .= " AND split_part(path_file,'/',4) = ?";
+            $p[] = $x;
+        }
+        if (!empty($y)) {
+            $sql .= " AND split_part(path_file,'/',5) = ?";
+            $p[] = $y;
+        }
+
+        $st = $conn->prepare($sql);
+        $st->execute($p);
+        return (int)$st->fetchColumn();
     }
 
     $conn = getConnection();
@@ -760,6 +923,32 @@ function countFilesForPath(string $path): int
 {
     $filters = parsePathFilters($path);
     if (!$filters['valid']) return 0;
+
+    // ✅ special-case untuk OTHER: hitung berdasarkan path_file
+    $decoded = urldecode($path);
+    if (preg_match('#^Surat Masuk/OTHER(?:/([^/]+))?(?:/([^/]+))?$#', $decoded, $m)) {
+        $x = $m[1] ?? null;
+        $y = $m[2] ?? null;
+
+        $conn = getConnection();
+        $sql = "SELECT COUNT(*) FROM surat
+                WHERE jenis_surat='masuk'
+                AND path_file ILIKE 'uploads/masuk/OTHER/%'";
+        $p = [];
+
+        if (!empty($x)) {
+            $sql .= " AND split_part(path_file,'/',4) = ?";
+            $p[] = $x;
+        }
+        if (!empty($y)) {
+            $sql .= " AND split_part(path_file,'/',5) = ?";
+            $p[] = $y;
+        }
+
+        $st = $conn->prepare($sql);
+        $st->execute($p);
+        return (int)$st->fetchColumn();
+    }
 
     $conn = getConnection();
     $sql = "SELECT COUNT(*) FROM surat WHERE 1=1";

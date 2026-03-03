@@ -15,9 +15,20 @@ if (!isset($_POST['jenis_surat'], $_POST['nomor_surat'], $_FILES['fileInput'])) 
     exit;
 }
 
-/* =======================
-   HELPER FUNCTIONS
-======================= */
+// ===== helper: pecah kode klasifikasi untuk surat masuk =====
+function parseKodeKlasifikasi(string $kode): array {
+    $kode = trim($kode);
+    if ($kode === '') return ['NO_KODE', ''];
+
+    // PR.01.00 -> kode_utama=PR, subkode=01.00
+    if (preg_match('/^([A-Z]+)\.(.+)$/', $kode, $m)) {
+        return [$m[1], $m[2]];
+    }
+
+    // kalau tidak ada titik -> semua dianggap kode utama
+    return [$kode, ''];
+}
+
 function romawiKeBulan($r) {
     return [
         'I'=>'Januari','II'=>'Februari','III'=>'Maret','IV'=>'April',
@@ -116,10 +127,8 @@ if (($file['size'] ?? 0) > $maxSize) {
 }
 
 /* =======================
-   REGEX PATTERNS
+   REGEX PATTERN (1 pattern saja, dipakai untuk keluar & masuk)
 ======================= */
-$pattern_masuk = '/\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\b.*\b(\d{4})\b/';
-
 $pattern_keluar = '/^
     (?:([a-zA-Z0-9.]+)\/)?      
     ([^\/]+)
@@ -130,10 +139,30 @@ $pattern_keluar = '/^
 $/x';
 
 $matches = [];
-$is_match = false;
+$is_match = preg_match($pattern_keluar, $nomor_surat, $matches) === 1;
 
 /* =======================
-   PARSE & MODE
+   MODE FOLDER
+======================= */
+$mode_folder = 'OTHER_MASUK';
+
+if ($jenis_surat === 'keluar') {
+    // surat keluar WAJIB match
+    if (!$is_match) {
+        $_SESSION['error_nomor'] = "Format nomor surat keluar tidak valid";
+        $_SESSION['old_jenis_surat'] = $jenis_surat;
+        $_SESSION['old_nomor_surat'] = $nomor_surat;
+        header("Location: /SortirDokumen/pages/form.php");
+        exit;
+    }
+    $mode_folder = 'KELUAR_OK';
+} else {
+    // surat masuk: kalau match -> ikut parsed, kalau tidak -> OTHER
+    $mode_folder = $is_match ? 'MASUK_PARSED' : 'OTHER_MASUK';
+}
+
+/* =======================
+   DEFAULT FIELDS
 ======================= */
 $kode_utama = '';
 $subkode = '';
@@ -142,19 +171,11 @@ $unit_pengirim = '';
 $bulan_romawi = '';
 $bulan = '';
 $tahun = '';
-$mode_folder = 'OTHER_MASUK';
 
-if ($jenis_surat === 'keluar') {
-    $is_match = preg_match($pattern_keluar, $nomor_surat, $matches) === 1;
-
-    if (!$is_match) {
-        $_SESSION['error_nomor'] = "Format nomor surat keluar tidak valid";
-        $_SESSION['old_jenis_surat'] = $jenis_surat;
-        $_SESSION['old_nomor_surat'] = $nomor_surat;
-        header("Location: /SortirDokumen/pages/form.php");
-        exit;
-    }
-
+/* =======================
+   PARSE jika match
+======================= */
+if ($is_match) {
     $prefix_kode   = $matches[1] ?? '';
     $bagian_1      = $matches[2];
     $bagian_2      = $matches[3];
@@ -174,23 +195,17 @@ if ($jenis_surat === 'keluar') {
         $nomor_urut    = $bagian_2;
         $unit_pengirim = $bagian_3;
     } else {
-        if (strpos($bagian_1, '.') !== false) {
-            preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
-            if ($kode_match) {
-                $kode_utama = $kode_match[1];
-                $subkode    = $kode_match[2];
-            } else {
-                $kode_utama = $bagian_1;
-                $subkode    = '';
-            }
-            $nomor_urut    = $bagian_2;
-            $unit_pengirim = $bagian_3;
+        // tanpa prefix
+        preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
+        if ($kode_match) {
+            $kode_utama = $kode_match[1];
+            $subkode    = $kode_match[2];
         } else {
-            $kode_utama    = $bagian_1;
-            $subkode       = '';
-            $nomor_urut    = $bagian_2;
-            $unit_pengirim = $bagian_3;
+            $kode_utama = $bagian_1;
+            $subkode    = '';
         }
+        $nomor_urut    = $bagian_2;
+        $unit_pengirim = $bagian_3;
     }
 
     $bulan = romawiKeBulan($bulan_romawi);
@@ -200,49 +215,27 @@ if ($jenis_surat === 'keluar') {
         header("Location: /SortirDokumen/pages/form.php");
         exit;
     }
-
-    $mode_folder = 'KELUAR_OK';
-
-} else { // masuk
-    $is_match = preg_match($pattern_masuk, $nomor_surat, $matches) === 1;
-
-    if ($is_match) {
-        $bulan_romawi = $matches[1];
-        $tahun        = (string)$matches[2];
-
-        $bulan = romawiKeBulan($bulan_romawi);
-        if ($bulan) {
-            $mode_folder = 'MASUK_PARSED';
-        } else {
-            $mode_folder = 'OTHER_MASUK';
-        }
-    } else {
-        $mode_folder = 'OTHER_MASUK';
-    }
-
-    // grouping by kode_klasifikasi
-    $kode_utama = $kode_klasifikasi !== '' ? $kode_klasifikasi : 'NO_KODE';
 }
 
 /* =======================
    BUILD UPLOAD PATH
 ======================= */
 $destBaseRel = '';
+
 if ($mode_folder === 'KELUAR_OK') {
     $uploadDir = __DIR__ . "/uploads/keluar/$tahun/$bulan/$kode_utama/";
     if (!empty($subkode)) $uploadDir .= "$subkode/";
     $destBaseRel = "uploads/keluar/$tahun/$bulan/$kode_utama/" . (!empty($subkode) ? "$subkode/" : "");
 
 } elseif ($mode_folder === 'MASUK_PARSED') {
-    $kodeFolder = safeFolderName($kode_klasifikasi ?: 'NO_KODE');
-    $uploadDir = __DIR__ . "/uploads/masuk/$tahun/$bulan/$kodeFolder/";
-    $destBaseRel = "uploads/masuk/$tahun/$bulan/$kodeFolder/";
+    $uploadDir = __DIR__ . "/uploads/masuk/$tahun/$bulan/$kode_utama/";
+    if (!empty($subkode)) $uploadDir .= "$subkode/";
+    $destBaseRel = "uploads/masuk/$tahun/$bulan/$kode_utama/" . (!empty($subkode) ? "$subkode/" : "");
 
 } else { // OTHER_MASUK
-    $kodeFolder = safeFolderName($kode_klasifikasi ?: 'NO_KODE');
-    $safeNomor  = safeFolderName($nomor_surat);
-    $uploadDir = __DIR__ . "/uploads/masuk/OTHER/$kodeFolder/$safeNomor/";
-    $destBaseRel = "uploads/masuk/OTHER/$kodeFolder/$safeNomor/";
+    $safeNomor = safeFolderName($nomor_surat);
+    $uploadDir = __DIR__ . "/uploads/masuk/OTHER/$safeNomor/";
+    $destBaseRel = "uploads/masuk/OTHER/$safeNomor/";
 }
 
 /* =======================
