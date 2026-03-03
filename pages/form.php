@@ -1242,6 +1242,26 @@ selBulan.addEventListener("change", toggleNomorSurat);
 inputTahun.addEventListener("input", toggleNomorSurat);
 
 toggleNomorSurat();
+
+// ===== AUTO: kalau jenis surat "keluar" -> nomor surat otomatis "lokal" =====
+function syncNomorTypeByJenis() {
+  if (jenisSurat.value === "keluar") {
+    nomorType.value = "lokal";
+    toggleNomorSurat();
+
+    setTimeout(() => inputLokal?.focus(), 0);
+  }
+
+  else {
+    nomorType.value = "";
+    toggleNomorSurat();
+  }
+}
+
+jenisSurat.addEventListener("change", syncNomorTypeByJenis);
+
+// jalankan saat halaman pertama kali dibuka (kalau ada old value "keluar")
+syncNomorTypeByJenis();
 });
 
 function closeErrorModal() {
