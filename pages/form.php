@@ -522,6 +522,16 @@ button.primary:active{ transform: translateY(1px); }
     height: 220px;
   }
 }
+
+.row2{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 12px;
+  width:100%;
+}
+@media (max-width: 980px){
+  .row2{ grid-template-columns: 1fr; }
+}
 </style>
 </head>
 
@@ -687,19 +697,62 @@ button.primary:active{ transform: translateY(1px); }
             </select>
           </div>
 
-          <div class="field">
-            <label>Nomor Surat <span class="required">*</span></label>
-            <input
-              type="text"
-              name="nomor_surat"
-              id="nomor_surat"
-              value="<?= htmlspecialchars($old_nomor) ?>"
-              placeholder="Contoh: e.B/PL.01.00/001/KSUB/V/2019"
-              required
-            >
-          </div>
+<!-- NOMOR SURAT (FULL 1 ROW) -->
+<div class="field full" id="nomor_surat_block">
+  <label>Nomor Surat <span class="required">*</span></label>
 
-          <div class="field full">
+  <select name="nomor_surat_type" id="nomor_surat_type" required>
+    <option value="">-- pilih --</option>
+    <option value="lokal">Lokal</option>
+    <option value="others">Lainnya</option>
+  </select>
+
+  <!-- Nomor surat final buat backend -->
+  <input type="hidden" name="nomor_surat" id="nomor_surat" value="<?= htmlspecialchars($old_nomor) ?>">
+
+  <!-- muncul kalau pilih lokal -->
+  <div id="nomor_surat_lokal_wrap" style="display:none; margin-top:10px;">
+    <label style="margin-top:4px;">Isi Nomor Surat (Lokal) <span class="required">*</span></label>
+    <input
+      type="text"
+      id="nomor_surat_lokal"
+      placeholder="Contoh: e.B/PL.01.00/001/KSUB/V/2019"
+    >
+  </div>
+
+  <!-- muncul kalau pilih others -->
+  <div id="nomor_surat_others_wrap" style="display:none; margin-top:10px;">
+    <label style="margin-top:4px;">Periode (Others) <span class="required">*</span></label>
+
+    <div class="row2">
+      <select id="others_bulan">
+        <option value="">-- bulan --</option>
+        <option value="I">Januari</option>
+        <option value="II">Februari</option>
+        <option value="III">Maret</option>
+        <option value="IV">April</option>
+        <option value="V">Mei</option>
+        <option value="VI">Juni</option>
+        <option value="VII">Juli</option>
+        <option value="VIII">Agustus</option>
+        <option value="IX">September</option>
+        <option value="X">Oktober</option>
+        <option value="XI">November</option>
+        <option value="XII">Desember</option>
+      </select>
+
+      <!-- TAHUN: input kosong (bebas) -->
+      <input
+        type="text"
+        id="others_tahun"
+        inputmode="numeric"
+        placeholder="Tahun (mis: 2026)"
+      >
+    </div>
+  </div>
+</div>
+
+          <div class="field">
             <label>Perihal</label>
             <input
               type="text"
@@ -1016,7 +1069,9 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!no) {
         showErrorModal("Nomor Surat belum diisi!");
         nomor.classList.add("error");
-        nomor.focus();
+        showErrorModal("Nomor Surat belum dipilih/diisi!");
+        nomorType.classList.add("error");
+        nomorType.focus();
         return;
       }
 
@@ -1153,6 +1208,40 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+const nomorType  = document.getElementById("nomor_surat_type");
+const wrapLokal  = document.getElementById("nomor_surat_lokal_wrap");
+const inputLokal = document.getElementById("nomor_surat_lokal");
+const wrapOthers = document.getElementById("nomor_surat_others_wrap");
+const selBulan   = document.getElementById("others_bulan");
+const inputTahun = document.getElementById("others_tahun");
+
+function toggleNomorSurat() {
+  wrapLokal.style.display = "none";
+  wrapOthers.style.display = "none";
+
+  nomor.value = "";
+
+  if (nomorType.value === "lokal") {
+    wrapLokal.style.display = "block";
+    const v = (inputLokal.value || "").trim();
+    if (v) nomor.value = v;
+
+  } else if (nomorType.value === "others") {
+    wrapOthers.style.display = "block";
+    const b = (selBulan.value || "").trim();
+    const y = (inputTahun.value || "").trim();
+
+    // kalau user isi angka selain 4 digit masih boleh, tapi biasanya kamu mau 4 digit:
+    if (b && y) nomor.value = `OTHER/${b}/${y}`;
+  }
+}
+
+nomorType.addEventListener("change", toggleNomorSurat);
+inputLokal.addEventListener("input", toggleNomorSurat);
+selBulan.addEventListener("change", toggleNomorSurat);
+inputTahun.addEventListener("input", toggleNomorSurat);
+
+toggleNomorSurat();
 });
 
 function closeErrorModal() {
