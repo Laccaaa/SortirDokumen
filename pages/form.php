@@ -975,7 +975,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    /* ========= VALIDASI FORM SUBMIT ========= */
     form.addEventListener("submit", function (e) {
       e.preventDefault();
 

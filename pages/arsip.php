@@ -1,7 +1,9 @@
 <?php
+
 $dbhandle = require __DIR__ . "/../config/koneksi.php";
 require_once __DIR__ . "/../actions/prosesArsip.php";
 require_once __DIR__ . "/../auth/auth_check.php";
+
 
 $path = $_GET['path'] ?? '';
 $action = $_GET['action'] ?? '';
@@ -19,6 +21,13 @@ $deleteReturnParams = array_filter([
   'subkode' => $filterSub,
 ], static fn($v) => $v !== '' && $v !== null);
 $deleteReturnQuery = http_build_query($deleteReturnParams);
+
+if (!function_exists('h')) {
+  function h($v): string {
+    return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
+  }
+}
+
 function isZipAllowedPath(string $path): bool
 {
   $path = urldecode(trim($path, "/"));
@@ -898,14 +907,14 @@ $filterOptions = getFilterOptions(
         </div>
 
         <form class="search-row" id="searchForm" method="get" action="arsip.php">
-          <input type="hidden" name="path" value="<?= htmlspecialchars($path, ENT_QUOTES, 'UTF-8') ?>">
-          <input type="hidden" name="jenis" value="<?= htmlspecialchars($filterJenis, ENT_QUOTES, 'UTF-8') ?>">
-          <input type="hidden" name="tahun" value="<?= htmlspecialchars($filterTahun, ENT_QUOTES, 'UTF-8') ?>">
-          <input type="hidden" name="bulan" value="<?= htmlspecialchars($filterBulan, ENT_QUOTES, 'UTF-8') ?>">
-          <input type="hidden" name="subkode" value="<?= htmlspecialchars($filterSub, ENT_QUOTES, 'UTF-8') ?>">
+          <input type="hidden" name="path" value="<?= h($path) ?>">
+          <input type="hidden" name="jenis" value="<?= h($filterJenis) ?>">
+          <input type="hidden" name="tahun" value="<?= h($filterTahun) ?>">
+          <input type="hidden" name="bulan" value="<?= h($filterBulan) ?>">
+          <input type="hidden" name="subkode" value="<?= h($filterSub) ?>">
           <div class="search-wrap">
             <span>🔎</span>
-            <input id="searchArsip" name="q" class="search-input" type="text" placeholder="Cari kode utama atau folder (rekursif)..." autocomplete="off" value="<?= htmlspecialchars($query, ENT_QUOTES, 'UTF-8') ?>">
+            <input id="searchArsip" name="q" class="search-input" type="text" placeholder="Cari kode utama atau folder (rekursif)..." autocomplete="off" value="<?= h($query) ?>">
           </div>
           <?php if ($query !== ''): ?>
             <a class="search-clear" href="arsip.php?path=<?= urlencode($path) ?>">Reset</a>
@@ -914,7 +923,7 @@ $filterOptions = getFilterOptions(
         </form>
 
         <form class="filter-row" method="get" action="arsip.php">
-          <input type="hidden" name="path" value="<?= htmlspecialchars($path, ENT_QUOTES, 'UTF-8') ?>">
+          <input type="hidden" name="path" value="<?= h($path) ?>">
           <div class="filter-group">
             <select class="filter-select" name="jenis">
               <option value="">Semua jenis</option>
@@ -924,19 +933,19 @@ $filterOptions = getFilterOptions(
             <select class="filter-select" name="tahun">
               <option value="">Semua tahun</option>
               <?php foreach ($filterOptions['years'] as $yr): ?>
-                <option value="<?= htmlspecialchars($yr) ?>" <?= (string)$filterTahun === (string)$yr ? 'selected' : '' ?>><?= htmlspecialchars($yr) ?></option>
+                <option value="<?= h($yr) ?>" <?= (string)$filterTahun === (string)$yr ? 'selected' : '' ?>><?= h($yr) ?></option>
               <?php endforeach; ?>
             </select>
             <select class="filter-select" name="bulan">
               <option value="">Semua bulan</option>
               <?php foreach ($filterOptions['months'] as $mo): ?>
-                <option value="<?= htmlspecialchars($mo) ?>" <?= (string)$filterBulan === (string)$mo ? 'selected' : '' ?>><?= htmlspecialchars($mo) ?></option>
+                <option value="<?= h($mo) ?>" <?= (string)$filterBulan === (string)$mo ? 'selected' : '' ?>><?= h($mo) ?></option>
               <?php endforeach; ?>
             </select>
             <select class="filter-select" name="subkode">
               <option value="">Semua subkode</option>
               <?php foreach ($filterOptions['subkodes'] as $sub): ?>
-                <option value="<?= htmlspecialchars($sub) ?>" <?= (string)$filterSub === (string)$sub ? 'selected' : '' ?>><?= htmlspecialchars($sub) ?></option>
+                <option value="<?= h($sub) ?>" <?= (string)$filterSub === (string)$sub ? 'selected' : '' ?>><?= h($sub) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -965,30 +974,31 @@ $filterOptions = getFilterOptions(
                   $targetPath = $qs['path'] ?? '';
                   $bolehZip = ($targetPath !== 'Surat Masuk' && $targetPath !== 'Surat Keluar' && $targetPath !== '');
                   ?>
-                  <div class="item" data-search="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>">
-                    <a href="<?= htmlspecialchars($item['link']) ?>" class="item-link">
+                  <div class="item" data-search="<?= h($item['name'] ?? ''), h($targetPath), h($deleteReturnQuery) ?>">
+                    <a href="<?= h($item['link']) ?>" class="item-link">
                       <div class="icon folder">📁</div>
                       <div class="name">
-                        <span title="<?= htmlspecialchars($item['name']) ?>"><?= htmlspecialchars($item['name']) ?></span>
+                        <span title="<?= h($item['name']) ?>"><?= h($item['name']) ?></span>
                         <span class="file-count">(<?= $item['count'] ?>)</span>
                       </div>
                     </a>
 
                     <?php if ($bolehZip): ?>
                       <div class="actions">
-                        <button type="button" class="btn btn-download js-zip" data-zip-path="<?= htmlspecialchars($targetPath, ENT_QUOTES, 'UTF-8') ?>">Download</button>
+                        <button type="button" class="btn btn-download js-zip" data-zip-path="<?= h($targetPath, ENT_QUOTES, 'UTF-8') ?>">Download</button>
                       </div>
                     <?php endif; ?>
                   </div>
                 <?php else: ?>
-                  <div class="item" data-search="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>">
+                  <div class="item" data-search="<?= h($item['name'] ?? '') ?>">
                     <div class="icon file">📄</div>
                     <div class="name">
-                      <span title="<?= htmlspecialchars($item['name']) ?>"><?= htmlspecialchars($item['name']) ?></span>
+                      <span title="<?= h($item['name'] ?? '') ?>"><?= h($item['name'] ?? '') ?></span>
+
                       <?php if (!empty($item['location'])): ?>
                         <div class="meta">
-                          Lokasi: <?= htmlspecialchars($item['location']) ?> ·
-                          <a href="<?= htmlspecialchars($item['folder_link']) ?>">Buka folder</a>
+                          Lokasi: <?= h($item['location'] ?? '') ?> ·
+                          <a href="<?= h($item['folder_link'] ?? '#') ?>">Buka folder</a>
                         </div>
                       <?php endif; ?>
                     </div>
@@ -997,13 +1007,13 @@ $filterOptions = getFilterOptions(
                         type="button"
                         class="btn btn-view js-preview"
                         data-preview="arsip.php?action=view&id=<?= $item['id'] ?>"
-                        data-name="<?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-name="<?= h($item['name'], ENT_QUOTES, 'UTF-8') ?>"
                         title="Preview">Lihat</button>
                       <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">Unduh</a>
                       <button
                         type="button"
                         class="btn btn-delete js-delete"
-                        data-delete-url="arsip.php?action=delete&id=<?= $item['id'] ?><?= $deleteReturnQuery !== '' ? '&' . htmlspecialchars($deleteReturnQuery, ENT_QUOTES, 'UTF-8') : '' ?>"
+                        data-delete-url="arsip.php?action=delete&id=<?= $item['id'] ?><?= $deleteReturnQuery !== '' ? '&' . h($deleteReturnQuery, ENT_QUOTES, 'UTF-8') : '' ?>"
                         title="Hapus">Hapus</button>
                     </div>
                   </div>
@@ -1185,7 +1195,6 @@ $filterOptions = getFilterOptions(
       const p = btn.dataset.zipPath || "";
       if (!p) return;
 
-      // cek dulu ada file atau tidak
       const res = await fetch(`arsip.php?action=zip_check&path=${encodeURIComponent(p)}`);
       const data = await res.json();
 
@@ -1209,5 +1218,4 @@ $filterOptions = getFilterOptions(
     </div>
   </div>
 </body>
-
 </html>
