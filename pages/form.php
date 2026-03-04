@@ -977,7 +977,6 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
     </div>
   </div>
 
-  <!-- MODAL VALIDASI ERROR -->
   <div id="errorModal" class="modal">
     <div class="modal-content">
       <div class="modal-icon error">⚠️</div>
@@ -987,7 +986,6 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
     </div>
   </div>
 
-  <!-- MODAL SUKSES -->
   <div id="successModal" class="modal">
     <div class="modal-content">
       <div class="modal-icon success">✔</div>
@@ -997,7 +995,6 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
     </div>
   </div>
 
-  <!-- MODAL KONFIRMASI RESET -->
   <div id="resetConfirmModal" class="modal">
     <div class="modal-content">
       <div class="modal-icon warning">⚠</div>
@@ -1032,7 +1029,7 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
       const jraAktifHint = document.getElementById("jraAktifHint");
       const jraInaktifHint = document.getElementById("jraInaktifHint");
 
-      /* ========= PREVIEW FILE ========= */
+      // preview file
       fileInput.addEventListener("change", function() {
         filePreview.innerHTML = "";
         fileLabel.classList.remove("error");
@@ -1076,7 +1073,7 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
         }
       });
 
-      /* ========= RESET FORM ========= */
+      //reset form
       const resetBtn = document.getElementById("resetFormBtn");
       resetBtn?.addEventListener("click", (e) => {
         e.preventDefault();
@@ -1170,7 +1167,6 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
           return;
         }
 
-        // ✅ Validasi format nomor surat sesuai jenis
         if (jenisSurat.value === "keluar") {
           // ketat: harus segment lengkap + bulan romawi + tahun
           const regexKeluar =
@@ -1189,11 +1185,9 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
           const regexMasuk = /\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\b.*\b(\d{4})\b/;
 
           if (!regexMasuk.test(no)) {
-            // Tidak diblokir, hanya warning (biar tetap bisa submit -> masuk OTHER)
             showErrorModal(
               'Nomor surat masuk tidak mengandung BULAN ROMAWI & TAHUN (mis. "V 2024").<br><small>File akan masuk folder <b>OTHER</b>.</small>'
             );
-            // tidak return
           }
         }
 
@@ -1214,7 +1208,6 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
           return;
         }
 
-        // ✅ Cek file ada atau belum
         if (!fileInput.files.length) {
           showErrorModal("File surat belum dipilih!");
           fileLabel.classList.add("error");
@@ -1222,28 +1215,25 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
           return;
         }
 
-        // ✅ Baru ambil file
         const file = fileInput.files[0];
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        const maxSize = 5 * 1024 * 1024; 
 
-        // ✅ Cek ukuran
         if (file.size > maxSize) {
           showErrorModal("Ukuran file maksimal 5MB!");
           fileLabel.classList.add("error");
           return;
         }
 
-        // Semua validasi OK -> submit form
         form.submit();
       });
 
-      /* ========= FUNGSI SHOW ERROR MODAL ========= */
+      // show error modal function
       function showErrorModal(message) {
         errorMsg.innerHTML = message;
         errorModal.classList.add("show");
       }
 
-      /* ========= TAMPILKAN MODAL SUKSES ========= */
+      // modal sukses
       <?php if (isset($_SESSION['status']) && $_SESSION['status'] === 'success'): ?>
         const modal = document.getElementById("successModal");
         const msg = document.getElementById("modalMessage");
@@ -1256,13 +1246,12 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
       <?php unset($_SESSION['status'], $_SESSION['pesan']);
       endif; ?>
 
-      /* ========= TAMPILKAN MODAL ERROR (SERVER) ========= */
+      // modal eror dari server
       <?php if (isset($_SESSION['status']) && $_SESSION['status'] === 'error'): ?>
         showErrorModal("<?= addslashes($_SESSION['pesan']); ?>");
       <?php unset($_SESSION['status'], $_SESSION['pesan']);
       endif; ?>
 
-      /* ========= ENTER TO NEXT FIELD ========= */
       const getFields = () => Array.from(
         form.querySelectorAll("input, select, textarea, button")
       ).filter(el => {
@@ -1340,7 +1329,7 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
 
       toggleNomorSurat();
 
-      // ===== AUTO: kalau jenis surat "keluar" -> nomor surat otomatis "lokal" =====
+      // if surat keluar = kunci lokal
       function syncNomorTypeByJenis() {
         if (jenisSurat.value === "keluar") {
           nomorType.value = "lokal";
@@ -1356,14 +1345,11 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
       jenisSurat.addEventListener("change", syncNomorTypeByJenis);
 
       function lockNomorTypeToLokal(isLocked) {
-        // disable select-nya
         nomorType.disabled = isLocked;
 
-        // opsional: biar opsi "Lainnya" juga benar-benar nggak bisa dipilih via klik/keyboard
         const optOthers = nomorType.querySelector('option[value="others"]');
         if (optOthers) optOthers.disabled = isLocked;
 
-        // opsional: styling biar kelihatan "terkunci"
         if (isLocked) {
           nomorType.style.opacity = "0.8";
           nomorType.style.cursor = "not-allowed";
@@ -1377,11 +1363,10 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
         if (jenisSurat.value === "keluar") {
           nomorType.value = "lokal";
           lockNomorTypeToLokal(true);
-          toggleNomorSurat(); // fungsi kamu yang sudah ada
+          toggleNomorSurat();
           setTimeout(() => inputLokal?.focus(), 0);
         } else {
           lockNomorTypeToLokal(false);
-          // kalau mau, biarkan user memilih lagi
           nomorType.value = "";
           toggleNomorSurat();
         }
