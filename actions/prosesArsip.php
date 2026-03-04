@@ -56,23 +56,6 @@ function hitungFile($jenis = null, $tahun = null, $bulan = null, $kode = null, $
     return $stmt->fetchColumn();
 }
 
-function hitungFileOtherMasuk(): int
-{
-    $conn = getConnection();
-    $st = $conn->prepare("
-        SELECT COUNT(*) FROM surat
-        WHERE jenis_surat = 'masuk'
-          AND path_file ILIKE 'uploads/masuk/OTHER/%'
-    ");
-    $st->execute();
-    return (int)$st->fetchColumn();
-}
-
-/**
- * ======================================================
- * AMBIL FOLDER / FILE BERDASARKAN PATH
- * ======================================================
- */
 function getItems($path)
 {
     $path = urldecode($path);
@@ -100,16 +83,6 @@ function getItems($path)
     // LEVEL 1 - TAHUN
     if ($path === 'Surat Masuk' || $path === 'Surat Keluar') {
         $jenis = ($path === 'Surat Masuk') ? 'masuk' : 'keluar';
-
-        // ✅ Tambah folder OTHER khusus Surat Masuk
-        if ($path === 'Surat Masuk') {
-            $items[] = [
-                'type' => 'folder',
-                'name' => 'OTHER',
-                'link' => "?path=Surat Masuk/OTHER",
-                'count' => hitungFileOtherMasuk()
-            ];
-        }
 
         // ✅ tahun NULL tidak ikut jadi folder
         $stmt = $conn->prepare(
@@ -414,12 +387,6 @@ function parsePathFilters($path)
         return $filters;
     }
 
-    // ✅ allow OTHER paths
-    if (preg_match('#^Surat Masuk/OTHER(?:/.*)?$#', $path)) {
-        $filters['jenis'] = 'masuk';
-        return $filters;
-    }
-
     $filters['valid'] = false;
     return $filters;
 }
@@ -438,29 +405,6 @@ function searchFilesRecursive($path, $query)
 
     // ✅ special-case untuk OTHER: hitung berdasarkan path_file
     $decoded = urldecode($path);
-    if (preg_match('#^Surat Masuk/OTHER(?:/([^/]+))?(?:/([^/]+))?$#', $decoded, $m)) {
-        $x = $m[1] ?? null;
-        $y = $m[2] ?? null;
-
-        $conn = getConnection();
-        $sql = "SELECT COUNT(*) FROM surat
-                WHERE jenis_surat='masuk'
-                AND path_file ILIKE 'uploads/masuk/OTHER/%'";
-        $p = [];
-
-        if (!empty($x)) {
-            $sql .= " AND split_part(path_file,'/',4) = ?";
-            $p[] = $x;
-        }
-        if (!empty($y)) {
-            $sql .= " AND split_part(path_file,'/',5) = ?";
-            $p[] = $y;
-        }
-
-        $st = $conn->prepare($sql);
-        $st->execute($p);
-        return (int)$st->fetchColumn();
-    }
 
     $conn = getConnection();
     $items = [];
