@@ -1355,39 +1355,39 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
 
       jenisSurat.addEventListener("change", syncNomorTypeByJenis);
 
-  function lockNomorTypeToLokal(isLocked) {
-    // disable select-nya
-    nomorType.disabled = isLocked;
+      function lockNomorTypeToLokal(isLocked) {
+        // disable select-nya
+        nomorType.disabled = isLocked;
 
-    // opsional: biar opsi "Lainnya" juga benar-benar nggak bisa dipilih via klik/keyboard
-    const optOthers = nomorType.querySelector('option[value="others"]');
-    if (optOthers) optOthers.disabled = isLocked;
+        // opsional: biar opsi "Lainnya" juga benar-benar nggak bisa dipilih via klik/keyboard
+        const optOthers = nomorType.querySelector('option[value="others"]');
+        if (optOthers) optOthers.disabled = isLocked;
 
-    // opsional: styling biar kelihatan "terkunci"
-    if (isLocked) {
-      nomorType.style.opacity = "0.8";
-      nomorType.style.cursor = "not-allowed";
-    } else {
-      nomorType.style.opacity = "";
-      nomorType.style.cursor = "";
-    }
-  }
+        // opsional: styling biar kelihatan "terkunci"
+        if (isLocked) {
+          nomorType.style.opacity = "0.8";
+          nomorType.style.cursor = "not-allowed";
+        } else {
+          nomorType.style.opacity = "";
+          nomorType.style.cursor = "";
+        }
+      }
 
-  function syncNomorTypeByJenis() {
-    if (jenisSurat.value === "keluar") {
-      nomorType.value = "lokal";
-      lockNomorTypeToLokal(true);
-      toggleNomorSurat(); // fungsi kamu yang sudah ada
-      setTimeout(() => inputLokal?.focus(), 0);
-    } else {
-      lockNomorTypeToLokal(false);
-      // kalau mau, biarkan user memilih lagi
-      nomorType.value = "";
-      toggleNomorSurat();
-    }
-  }
+      function syncNomorTypeByJenis() {
+        if (jenisSurat.value === "keluar") {
+          nomorType.value = "lokal";
+          lockNomorTypeToLokal(true);
+          toggleNomorSurat(); // fungsi kamu yang sudah ada
+          setTimeout(() => inputLokal?.focus(), 0);
+        } else {
+          lockNomorTypeToLokal(false);
+          // kalau mau, biarkan user memilih lagi
+          nomorType.value = "";
+          toggleNomorSurat();
+        }
+      }
 
-  jenisSurat.addEventListener("change", syncNomorTypeByJenis);
+      jenisSurat.addEventListener("change", syncNomorTypeByJenis);
       syncNomorTypeByJenis();
     });
 
