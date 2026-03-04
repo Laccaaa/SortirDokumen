@@ -38,10 +38,6 @@ $stmt = $dbhandle->prepare($sql);
 $stmt->execute($params);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-/**
- * Menentukan teks tahun di header export.
- * Prioritas: filter tahun dari user, lalu hitung rentang tahun dari data hasil query.
- */
 $headerTahun = '';
 if ($tahun !== '') {
     $headerTahun = 'TAHUN ' . $tahun;

@@ -1,5 +1,4 @@
 <?php
-// actions/proses_tabel.php
 require_once __DIR__ . "/../auth/auth_check.php";
 $dbhandle = require __DIR__ . "/../config/koneksi.php";
 
@@ -56,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
   }
 }
 
-/* ✅ SEARCH + LIST */
 $q = trim($_GET['q'] ?? '');
 
 $sql = "
