@@ -924,7 +924,6 @@ function countFilesForPath(string $path): int
     $filters = parsePathFilters($path);
     if (!$filters['valid']) return 0;
 
-    // ✅ special-case untuk OTHER: hitung berdasarkan path_file
     $decoded = urldecode($path);
     if (preg_match('#^Surat Masuk/OTHER(?:/([^/]+))?(?:/([^/]+))?$#', $decoded, $m)) {
         $x = $m[1] ?? null;
