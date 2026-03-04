@@ -128,7 +128,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($errors) {
         $_SESSION['error'] = "Masih ada bagian yang belum diisi. Silakan periksa kembali.";
 
-        // tentukan field pertama yang error
         if (empty($data['kode_klasifikasi'])) {
             $_SESSION['error'] = "Kode klasifikasi belum diisi";
             $_SESSION['error_field'] = 'kode_klasifikasi';
@@ -145,7 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // INSERT
     try {
         $id = insertArsip($data);
 
@@ -162,6 +160,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// AKSES LANGSUNG
 header("Location: input_arsip.php");
 exit;
