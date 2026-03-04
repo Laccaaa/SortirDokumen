@@ -804,7 +804,7 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
 
             <!-- NOMOR SURAT (FULL 1 ROW) -->
             <div class="field full" id="nomor_surat_block">
-              <label>Nomor Surat <span class="required">*</span></label>
+              <label>Kategori Surat <span class="required">*</span></label>
 
               <select name="nomor_surat_type" id="nomor_surat_type" required>
                 <option value="">-- pilih --</option>
@@ -826,9 +826,14 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
 
               <!-- muncul kalau pilih others -->
               <div id="nomor_surat_others_wrap" style="display:none; margin-top:10px;">
-                <label style="margin-top:4px;">Periode (Others) <span class="required">*</span></label>
+                <label style="margin-top:4px;">Nomor Surat (Lainnya) <span class="required">*</span></label>
 
-                <div class="row2">
+                <div class="row3">
+                  <input
+                    type="text"
+                    id="others_kode"
+                    placeholder="Kode surat">
+
                   <select id="others_bulan">
                     <option value="">-- bulan --</option>
                     <option value="I">Januari</option>
@@ -849,7 +854,7 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
                     type="text"
                     id="others_tahun"
                     inputmode="numeric"
-                    placeholder="Tahun (mis: 2026)">
+                    placeholder="Tahun">
                 </div>
               </div>
             </div>
@@ -1157,13 +1162,57 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
         }
 
         // Cek Nomor Surat (kosong)
-        const no = nomor.value.trim();
-        if (!no) {
-          showErrorModal("Nomor Surat belum diisi!");
-          nomor.classList.add("error");
-          showErrorModal("Nomor Surat belum dipilih/diisi!");
+        if (!nomorType.value) {
+          showErrorModal("Pilih kategori surat dulu (Lokal / Lainnya).");
           nomorType.classList.add("error");
           nomorType.focus();
+          return;
+        }
+
+        if (nomorType.value === "lokal") {
+          const v = (inputLokal.value || "").trim();
+          if (!v) {
+            showErrorModal("Harap isi nomor surat dahulu (kategori Lokal).");
+            inputLokal.classList.add("error");
+            inputLokal.focus();
+            return;
+          }
+        }
+
+        if (nomorType.value === "others") {
+          const k = (inputKodeOthers.value || "").trim();
+          const b = (selBulan.value || "").trim();
+          const y = (inputTahun.value || "").trim();
+
+          if (!k) {
+            showErrorModal("Harap isi kode surat dahulu (kategori Lainnya).");
+            inputKodeOthers.classList.add("error");
+            inputKodeOthers.focus();
+            return;
+          }
+
+          if (!b || !y) {
+            showErrorModal("Kategori Lainnya: lengkapi penempatan bulan dan tahun surat.");
+            if (!b) selBulan.classList.add("error");
+            if (!y) inputTahun.classList.add("error");
+            (!b ? selBulan : inputTahun).focus();
+            return;
+          }
+
+          // opsional: tahun wajib 4 digit
+          if (!/^\d{4}$/.test(y)) {
+            showErrorModal("Tahun harus 4 digit (misal: 2026).");
+            inputTahun.classList.add("error");
+            inputTahun.focus();
+            return;
+          }
+        }
+
+        // setelah validasi input, pastikan hidden nomor terisi
+        toggleNomorSurat();
+        const no = nomor.value.trim();
+        if (!no) {
+          showErrorModal("Nomor surat belum terbentuk. Periksa kembali input kategori.");
           return;
         }
 
@@ -1216,7 +1265,7 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
         }
 
         const file = fileInput.files[0];
-        const maxSize = 5 * 1024 * 1024; 
+        const maxSize = 5 * 1024 * 1024;
 
         if (file.size > maxSize) {
           showErrorModal("Ukuran file maksimal 5MB!");
@@ -1300,11 +1349,11 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
       const wrapOthers = document.getElementById("nomor_surat_others_wrap");
       const selBulan = document.getElementById("others_bulan");
       const inputTahun = document.getElementById("others_tahun");
+      const inputKodeOthers = document.getElementById("others_kode");
 
       function toggleNomorSurat() {
         wrapLokal.style.display = "none";
         wrapOthers.style.display = "none";
-
         nomor.value = "";
 
         if (nomorType.value === "lokal") {
@@ -1314,11 +1363,17 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
 
         } else if (nomorType.value === "others") {
           wrapOthers.style.display = "block";
+
+          const k = (inputKodeOthers.value || "").trim().replace(/\/+$/g, "");
           const b = (selBulan.value || "").trim();
           const y = (inputTahun.value || "").trim();
 
-          // kalau user isi angka selain 4 digit masih boleh, tapi biasanya kamu mau 4 digit:
-          if (b && y) nomor.value = `OTHER/${b}/${y}`;
+          // wajib lengkap: kode + bulan + tahun
+          if (k && b && y) {
+            nomor.value = `${k}/${b}/${y}`;
+          } else {
+            nomor.value = "";
+          }
         }
       }
 
@@ -1326,6 +1381,7 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
       inputLokal.addEventListener("input", toggleNomorSurat);
       selBulan.addEventListener("change", toggleNomorSurat);
       inputTahun.addEventListener("input", toggleNomorSurat);
+      inputKodeOthers.addEventListener("input", toggleNomorSurat);
 
       toggleNomorSurat();
 
