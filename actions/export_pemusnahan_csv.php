@@ -19,7 +19,7 @@ $sql = "SELECT
     id, nomor_berkas, kode_klasifikasi, nama_berkas, no_isi, pencipta, tujuan_surat, no_surat,
     uraian, uraian_informasi_1, uraian_informasi_2,
     tanggal, tanggal_surat, kurun_waktu,
-    jumlah, skkad, tingkat, lokasi, keterangan, created_at
+    jumlah, skkad, tingkat, lokasi, keterangan
     FROM arsip_dimusnahkan WHERE 1=1";
 $params = [];
 
@@ -106,8 +106,7 @@ fputcsv($out, [
     'SKKAD',
     'Tingkat Perkembangan',
     'Boks',
-    'Keterangan',
-    'Created At'
+    'Keterangan'
 ]);
 
 foreach ($rows as $i => $row) {
@@ -140,8 +139,7 @@ foreach ($rows as $i => $row) {
         $row['skkad'] ?? '',
         $row['tingkat'] ?? '',
         $row['lokasi'] ?? '',
-        $row['keterangan'] ?? '',
-        $row['created_at'] ?? ''
+        $row['keterangan'] ?? ''
     ]);
 }
 
