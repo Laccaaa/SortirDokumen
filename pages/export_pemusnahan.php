@@ -55,7 +55,7 @@ function getPemusnahanRows($conn, $tahun = null, $bulan = null) {
         id, nomor_berkas, kode_klasifikasi, nama_berkas, no_isi, pencipta, tujuan_surat, no_surat,
         uraian, uraian_informasi_1, uraian_informasi_2,
         tanggal, tanggal_surat, kurun_waktu,
-        jumlah, skkad, tingkat, lokasi, keterangan, created_at
+        jumlah, skkad, tingkat, lokasi, keterangan
         FROM arsip_dimusnahkan WHERE 1=1";
     $params = [];
 
@@ -377,7 +377,6 @@ body{
                 <th>Tingkat Perkembangan</th>
                 <th>Boks</th>
                 <th>Keterangan</th>
-                <th>Created At</th>
               </tr>
             </thead>
             <tbody>
@@ -413,7 +412,6 @@ body{
                   <td><?= htmlspecialchars($row['tingkat'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['lokasi'] ?? '') ?></td>
                   <td><?= htmlspecialchars($row['keterangan'] ?? '') ?></td>
-                  <td><?= htmlspecialchars($row['created_at'] ?? '') ?></td>
                 </tr>
               <?php endforeach; ?>
             </tbody>
