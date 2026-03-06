@@ -832,9 +832,10 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
                   <input
                     type="text"
                     id="others_kode"
+                    name="others_kode"
                     placeholder="Kode surat">
 
-                  <select id="others_bulan">
+                  <select id="others_bulan" name="others_bulan">
                     <option value="">-- bulan --</option>
                     <option value="I">Januari</option>
                     <option value="II">Februari</option>
@@ -850,11 +851,7 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
                     <option value="XII">Desember</option>
                   </select>
 
-                  <input
-                    type="text"
-                    id="others_tahun"
-                    inputmode="numeric"
-                    placeholder="Tahun">
+                  <input type="text" id="others_tahun" name="others_tahun" inputmode="numeric" placeholder="Tahun">
                 </div>
               </div>
             </div>

@@ -63,6 +63,9 @@ function safeFolderName(string $s, int $maxLen = 80): string {
 
 $jenis_surat = trim($_POST['jenis_surat'] ?? '');
 $nomor_surat = trim($_POST['nomor_surat'] ?? '');
+$nomor_surat_type = trim($_POST['nomor_surat_type'] ?? '');
+$others_bulan_romawi = strtoupper(trim($_POST['others_bulan'] ?? ''));
+$others_tahun_post   = trim($_POST['others_tahun'] ?? '');
 $file        = $_FILES['fileInput'];
 
 $kode_klasifikasi = trim($_POST['kode_klasifikasi'] ?? '');
@@ -131,12 +134,25 @@ $/x';
 $matches = [];
 $is_match = preg_match($pattern_keluar, $nomor_surat, $matches) === 1;
 
+// HARD RULE: Surat Masuk + kategori Lainnya => jangan parsing nomor_surat
+if ($jenis_surat === 'masuk' && $nomor_surat_type === 'others') {
+    $is_match = false;
+}
+
 $mode_folder = 'OTHER_MASUK';
 $other_bulan_romawi = '';
 $other_tahun = '';
 
+$kode_utama = '';
+$subkode = '';
+$nomor_urut = '';
+$unit_pengirim = '';
+$bulan_romawi = '';
+$bulan = '';
+$tahun = '';
+
+// 1) SURAT KELUAR
 if ($jenis_surat === 'keluar') {
-    // surat keluar WAJIB match
     if (!$is_match) {
         $_SESSION['error_nomor'] = "Format nomor surat keluar tidak valid";
         $_SESSION['old_jenis_surat'] = $jenis_surat;
@@ -144,25 +160,129 @@ if ($jenis_surat === 'keluar') {
         header("Location: /SortirDokumen/pages/form.php");
         exit;
     }
+
     $mode_folder = 'KELUAR_OK';
-} else {
-    if ($is_match) {
-        $mode_folder = 'MASUK_PARSED';
+
+    $prefix_kode   = $matches[1] ?? '';
+    $bagian_1      = $matches[2];
+    $bagian_2      = $matches[3];
+    $bagian_3      = $matches[4];
+    $bulan_romawi  = $matches[5];
+    $tahun         = (string)$matches[6];
+
+    preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
+    if ($kode_match) {
+        $kode_utama = $kode_match[1];
+        $subkode    = $kode_match[2];
     } else {
+        $kode_utama = $bagian_1;
+        $subkode    = '';
+    }
+
+    $nomor_urut    = $bagian_2;
+    $unit_pengirim = $bagian_3;
+    $bulan         = romawiKeBulan($bulan_romawi);
+
+    if (!$bulan) {
+        $_SESSION['status'] = 'error';
+        $_SESSION['pesan']  = 'Bulan tidak valid.';
+        header("Location: /SortirDokumen/pages/form.php");
+        exit;
+    }
+}
+
+// 2) SURAT MASUK
+else {
+    // A. kategori "Lainnya"
+    if ($nomor_surat_type === 'others') {
+        $mode_folder = 'OTHER_MASUK_PERIOD';
+        $other_bulan_romawi = $others_bulan_romawi;
+        $other_tahun = $others_tahun_post;
+
+        $bulan = romawiKeBulan($other_bulan_romawi);
+        $tahun = (string)$other_tahun;
+
+        $errors = [];
+
+        if ($other_bulan_romawi === '' || !$bulan) {
+            $errors[] = "Bulan belum dipilih (Januari–Desember).";
+        }
+
+        if ($tahun === '') {
+            $errors[] = "Tahun belum diisi.";
+        } elseif (!preg_match('/^\d{4}$/', $tahun)) {
+            $errors[] = "Tahun harus 4 digit (contoh: 2026).";
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['status'] = 'error';
+            $_SESSION['pesan']  = "Kategori <b>Lainnya</b> belum lengkap:<br>• " . implode("<br>• ", $errors);
+            header("Location: /SortirDokumen/pages/form.php");
+            exit;
+        }
+
+        // paksa metadata agar masuk folder Lainnya
+        $kode_utama = 'Lainnya';
+        $subkode = '';
+        $nomor_urut = '';
+        $unit_pengirim = '';
+    }
+
+    // B. kategori lokal / format ter-parse
+    elseif ($is_match) {
+        $mode_folder = 'MASUK_PARSED';
+
+        $prefix_kode   = $matches[1] ?? '';
+        $bagian_1      = $matches[2];
+        $bagian_2      = $matches[3];
+        $bagian_3      = $matches[4];
+        $bulan_romawi  = $matches[5];
+        $tahun         = (string)$matches[6];
+
+        preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
+        if ($kode_match) {
+            $kode_utama = $kode_match[1];
+            $subkode    = $kode_match[2];
+        } else {
+            $kode_utama = $bagian_1;
+            $subkode    = '';
+        }
+
+        $nomor_urut    = $bagian_2;
+        $unit_pengirim = $bagian_3;
+        $bulan         = romawiKeBulan($bulan_romawi);
+
+        if (!$bulan) {
+            $_SESSION['status'] = 'error';
+            $_SESSION['pesan']  = 'Bulan tidak valid.';
+            header("Location: /SortirDokumen/pages/form.php");
+            exit;
+        }
+    }
+
+    // C. fallback surat masuk lain
+    else {
         if (preg_match('/^OTHER\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/(\d{4})$/i', $nomor_surat, $m2) === 1) {
             $other_bulan_romawi = strtoupper($m2[1] ?? '');
             $other_tahun = $m2[2] ?? '';
             $mode_folder = 'OTHER_MASUK_PERIOD';
+        } elseif (preg_match('/\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\b.*\b(\d{4})\b/i', $nomor_surat, $m3)) {
+            $other_bulan_romawi = strtoupper($m3[1]);
+            $other_tahun = $m3[2];
+            $mode_folder = 'OTHER_MASUK_PERIOD';
         } else {
-            // 2) fallback: ambil romawi & tahun dari nomor_surat bebas (mis: ".../X/1945")
-            if (preg_match('/\b(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\b.*\b(\d{4})\b/i', $nomor_surat, $m3)) {
-                $other_bulan_romawi = strtoupper($m3[1]);
-                $other_tahun = $m3[2];
-                $mode_folder = 'OTHER_MASUK_PERIOD';
-            } else {
-                $mode_folder = 'OTHER_MASUK';
-            }
+            $mode_folder = 'OTHER_MASUK';
         }
+
+        if ($mode_folder === 'OTHER_MASUK_PERIOD') {
+            $bulan = romawiKeBulan($other_bulan_romawi);
+            $tahun = (string)$other_tahun;
+        }
+
+        $kode_utama = 'Lainnya';
+        $subkode = '';
+        $nomor_urut = '';
+        $unit_pengirim = '';
     }
 }
 
@@ -185,9 +305,21 @@ if ($mode_folder === 'OTHER_MASUK_PERIOD') {
     $bulan = romawiKeBulan($other_bulan_romawi);
     $tahun = (string)$other_tahun;
 
-    if (!$bulan || $tahun === '') {
+    $errors = [];
+
+    if ($other_bulan_romawi === '' || !$bulan) {
+        $errors[] = "Bulan belum dipilih (Januari–Desember).";
+    }
+
+    if ($tahun === '') {
+        $errors[] = "Tahun belum diisi.";
+    } elseif (!preg_match('/^\d{4}$/', $tahun)) {
+        $errors[] = "Tahun harus 4 digit (contoh: 2026).";
+    }
+
+    if (!empty($errors)) {
         $_SESSION['status'] = 'error';
-        $_SESSION['pesan']  = 'Periode (Others) tidak valid.';
+        $_SESSION['pesan']  = "Kategori <b>Lainnya</b> belum lengkap:<br>• " . implode("<br>• ", $errors);
         header("Location: /SortirDokumen/pages/form.php");
         exit;
     }
