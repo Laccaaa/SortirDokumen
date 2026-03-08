@@ -151,14 +151,6 @@ $mode_folder = 'OTHER_MASUK';
 $other_bulan_romawi = '';
 $other_tahun = '';
 
-$kode_utama = '';
-$subkode = '';
-$nomor_urut = '';
-$unit_pengirim = '';
-$bulan_romawi = '';
-$bulan = '';
-$tahun = '';
-
 // 1) SURAT KELUAR
 if ($jenis_surat === 'keluar') {
     if (!$is_match) {
@@ -294,14 +286,6 @@ else {
     }
 }
 
-$kode_utama = '';
-$subkode = '';
-$nomor_urut = '';
-$unit_pengirim = '';
-$bulan_romawi = '';
-$bulan = '';
-$tahun = '';
-
 if ($jenis_surat === 'masuk' && ($mode_folder === 'OTHER_MASUK_PERIOD' || $mode_folder === 'OTHER_MASUK')) {
     $kode_utama = 'Lainnya';
     $subkode = '';
@@ -328,48 +312,6 @@ if ($mode_folder === 'OTHER_MASUK_PERIOD') {
     if (!empty($errors)) {
         $_SESSION['status'] = 'error';
         $_SESSION['pesan']  = "Kategori <b>Lainnya</b> belum lengkap:<br>• " . implode("<br>• ", $errors);
-        header("Location: /SortirDokumen/pages/form.php");
-        exit;
-    }
-}
-
-if ($is_match) {
-    $prefix_kode   = $matches[1] ?? '';
-    $bagian_1      = $matches[2];
-    $bagian_2      = $matches[3];
-    $bagian_3      = $matches[4];
-    $bulan_romawi  = $matches[5];
-    $tahun         = (string)$matches[6];
-
-    if (!empty($prefix_kode)) {
-        preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
-        if ($kode_match) {
-            $kode_utama = $kode_match[1];
-            $subkode    = $kode_match[2];
-        } else {
-            $kode_utama = $bagian_1;
-            $subkode    = '';
-        }
-        $nomor_urut    = $bagian_2;
-        $unit_pengirim = $bagian_3;
-    } else {
-        // tanpa prefix
-        preg_match('/^([A-Z]+)\.(.+)$/', $bagian_1, $kode_match);
-        if ($kode_match) {
-            $kode_utama = $kode_match[1];
-            $subkode    = $kode_match[2];
-        } else {
-            $kode_utama = $bagian_1;
-            $subkode    = '';
-        }
-        $nomor_urut    = $bagian_2;
-        $unit_pengirim = $bagian_3;
-    }
-
-    $bulan = romawiKeBulan($bulan_romawi);
-    if (!$bulan) {
-        $_SESSION['status'] = 'error';
-        $_SESSION['pesan']  = 'Bulan tidak valid.';
         header("Location: /SortirDokumen/pages/form.php");
         exit;
     }

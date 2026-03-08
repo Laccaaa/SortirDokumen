@@ -78,6 +78,7 @@ CREATE TABLE public.arsip_dimusnahkan (
 -- =========================
 CREATE TABLE public.surat (
     id_surat integer NOT NULL DEFAULT nextval('public.surat_id_surat_seq'::regclass),
+    nomor_berkas character varying(50) COLLATE pg_catalog."default",
     jenis_surat character varying(10) COLLATE pg_catalog."default" NOT NULL,
     nomor_surat character varying(100) COLLATE pg_catalog."default" NOT NULL,
     kode_utama character varying(10) COLLATE pg_catalog."default",
