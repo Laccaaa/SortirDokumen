@@ -86,6 +86,14 @@ $jra_aktif         = trim($_POST['jra_aktif'] ?? '');
 $jra_inaktif       = trim($_POST['jra_inaktif'] ?? '');
 $nasib             = trim($_POST['nasib'] ?? '');
 
+$allowed_skkad = ['Biasa', 'Terbuka', 'Rahasia'];
+if ($skkad !== '' && !in_array($skkad, $allowed_skkad, true)) {
+    $_SESSION['status'] = 'error';
+    $_SESSION['pesan']  = 'Nilai SKKAD tidak valid.';
+    header("Location: /SortirDokumen/pages/form.php");
+    exit;
+}
+
 if ($kode_klasifikasi === '' || $nama_berkas === '' || $jenis_surat === '' || $nomor_surat === '') {
     $_SESSION['status'] = 'error';
     $_SESSION['pesan']  = 'Form tidak lengkap. Pastikan semua field wajib terisi.';

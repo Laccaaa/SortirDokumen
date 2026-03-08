@@ -5,6 +5,7 @@ require_once __DIR__ . "/../auth/auth_check.php";
 $id_surat = $_SESSION['old_id_surat'] ?? '';
 $old_jenis = $_SESSION['old_jenis_surat'] ?? '';
 $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
+$old_skkad = $_SESSION['old_skkad'] ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -917,10 +918,12 @@ $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
 
             <div class="field">
               <label>SKKAD</label>
-              <input
-                type="text"
-                name="skkad"
-                placeholder="Arsip / Terbuka">
+              <select name="skkad">
+                <option value="">-- pilih --</option>
+                <option value="Biasa" <?= $old_skkad === 'Biasa' ? 'selected' : '' ?>>Biasa</option>
+                <option value="Terbuka" <?= $old_skkad === 'Terbuka' ? 'selected' : '' ?>>Terbuka</option>
+                <option value="Rahasia" <?= $old_skkad === 'Rahasia' ? 'selected' : '' ?>>Rahasia</option>
+              </select>
             </div>
 
             <div class="field">
