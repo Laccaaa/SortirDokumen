@@ -8,6 +8,32 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+$_SESSION['old_id_surat']         = $_POST['id_s'] ?? '';
+$_SESSION['old_kode_klasifikasi'] = $_POST['kode_klasifikasi'] ?? '';
+$_SESSION['old_unit_pengolah']    = $_POST['unit_pengolah'] ?? '';
+$_SESSION['old_nama_berkas']      = $_POST['nama_berkas'] ?? '';
+$_SESSION['old_nomor_berkas']     = $_POST['nomor_berkas'] ?? '';
+$_SESSION['old_no_isi']           = $_POST['no_isi'] ?? '';
+$_SESSION['old_pencipta']         = $_POST['pencipta'] ?? '';
+$_SESSION['old_tujuan_surat']     = $_POST['tujuan_surat'] ?? '';
+$_SESSION['old_jenis_surat']      = $_POST['jenis_surat'] ?? '';
+$_SESSION['old_nomor_surat_type'] = $_POST['nomor_surat_type'] ?? '';
+$_SESSION['old_nomor_surat']      = $_POST['nomor_surat'] ?? '';
+$_SESSION['old_others_kode']      = $_POST['others_kode'] ?? '';
+$_SESSION['old_others_bulan']     = $_POST['others_bulan'] ?? '';
+$_SESSION['old_others_tahun']     = $_POST['others_tahun'] ?? '';
+$_SESSION['old_perihal']          = $_POST['perihal'] ?? '';
+$_SESSION['old_uraian']           = $_POST['uraian'] ?? '';
+$_SESSION['old_tanggal_surat']    = $_POST['tanggal_surat'] ?? '';
+$_SESSION['old_jumlah']           = $_POST['jumlah'] ?? '';
+$_SESSION['old_lokasi']           = $_POST['lokasi'] ?? '';
+$_SESSION['old_tingkat']          = $_POST['tingkat'] ?? '';
+$_SESSION['old_keterangan']       = $_POST['keterangan'] ?? '';
+$_SESSION['old_skkad']            = $_POST['skkad'] ?? '';
+$_SESSION['old_jra_aktif']        = $_POST['jra_aktif'] ?? '';
+$_SESSION['old_jra_inaktif']      = $_POST['jra_inaktif'] ?? '';
+$_SESSION['old_nasib']            = $_POST['nasib'] ?? '';
+
 if (!isset($_POST['jenis_surat'], $_POST['nomor_surat'], $_FILES['fileInput'])) {
     $_SESSION['status'] = 'error';
     $_SESSION['pesan']  = 'Form tidak lengkap. Pastikan semua field wajib terisi.';
@@ -108,16 +134,16 @@ if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
     exit;
 }
 
-if ($jra_aktif === '' || !ctype_digit($jra_aktif)) {
+if ($jra_aktif === '') {
     $_SESSION['status'] = 'error';
-    $_SESSION['pesan']  = 'Input JRA Aktif tidak valid.';
+    $_SESSION['pesan']  = 'JRA Aktif wajib diisi.';
     header("Location: /SortirDokumen/pages/form.php");
     exit;
 }
 
-if ($jra_inaktif === '' || !ctype_digit($jra_inaktif)) {
+if ($jra_inaktif === '') {
     $_SESSION['status'] = 'error';
-    $_SESSION['pesan']  = 'Input JRA Inaktif tidak valid.';
+    $_SESSION['pesan']  = 'JRA Inaktif wajib diisi.';
     header("Location: /SortirDokumen/pages/form.php");
     exit;
 }
@@ -453,6 +479,33 @@ try {
 }
 
 if (!empty($result)) {
+    unset(
+        $_SESSION['old_id_surat'],
+        $_SESSION['old_kode_klasifikasi'],
+        $_SESSION['old_unit_pengolah'],
+        $_SESSION['old_nama_berkas'],
+        $_SESSION['old_nomor_berkas'],
+        $_SESSION['old_no_isi'],
+        $_SESSION['old_pencipta'],
+        $_SESSION['old_tujuan_surat'],
+        $_SESSION['old_jenis_surat'],
+        $_SESSION['old_nomor_surat_type'],
+        $_SESSION['old_nomor_surat'],
+        $_SESSION['old_others_kode'],
+        $_SESSION['old_others_bulan'],
+        $_SESSION['old_others_tahun'],
+        $_SESSION['old_perihal'],
+        $_SESSION['old_uraian'],
+        $_SESSION['old_tanggal_surat'],
+        $_SESSION['old_jumlah'],
+        $_SESSION['old_lokasi'],
+        $_SESSION['old_tingkat'],
+        $_SESSION['old_keterangan'],
+        $_SESSION['old_skkad'],
+        $_SESSION['old_jra_aktif'],
+        $_SESSION['old_jra_inaktif'],
+        $_SESSION['old_nasib']
+    );
     $_SESSION['status'] = 'success';
     $_SESSION['pesan']  = 'Data berhasil disimpan';
     header("Location: /SortirDokumen/pages/form.php");

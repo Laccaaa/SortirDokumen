@@ -3,9 +3,31 @@ $dbhandle = require __DIR__ . "/../config/koneksi.php";
 require_once __DIR__ . "/../auth/auth_check.php";
 
 $id_surat = $_SESSION['old_id_surat'] ?? '';
+$old_nomor_berkas = $_SESSION['old_nomor_berkas'] ?? '';
 $old_jenis = $_SESSION['old_jenis_surat'] ?? '';
 $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
+$old_kode = $_SESSION['old_kode'] ?? '';
+$old_unit_pengolah = $_SESSION['old_unit_pengolah'] ?? '';
+$old_nama_berkas = $_SESSION['old_nama_berkas'] ?? '';
+$old_no_isi = $_SESSION['old_no_isi'] ?? '';
+$old_pencipta = $_SESSION['old_pencipta'] ?? '';
+$old_tujuan_surat = $_SESSION['old_tujuan_surat'] ?? '';
+$old_nomor_type = $_SESSION['old_nomor_surat_type'] ?? '';
+$old_nomor = $_SESSION['old_nomor_surat'] ?? '';
+$old_others_kode = $_SESSION['old_others_kode'] ?? '';
+$old_others_bulan = $_SESSION['old_others_bulan'] ?? '';
+$old_others_tahun = $_SESSION['old_others_tahun'] ?? '';
+$old_perihal = $_SESSION['old_perihal'] ?? '';
+$old_uraian = $_SESSION['old_uraian'] ?? '';
+$old_tanggal_surat = $_SESSION['old_tanggal_surat'] ?? '';
+$old_jumlah = $_SESSION['old_jumlah'] ?? '';
+$old_lokasi = $_SESSION['old_lokasi'] ?? '';
+$old_tingkat = $_SESSION['old_tingkat'] ?? '';
+$old_keterangan = $_SESSION['old_keterangan'] ?? '';
 $old_skkad = $_SESSION['old_skkad'] ?? '';
+$old_jra_aktif = $_SESSION['old_jra_aktif'] ?? '';
+$old_jra_inaktif = $_SESSION['old_jra_inaktif'] ?? '';
+$old_nasib = $_SESSION['old_nasib'] ?? '';
 ?>
 
 <!DOCTYPE html>
@@ -745,7 +767,7 @@ $old_skkad = $_SESSION['old_skkad'] ?? '';
 
           <div class="form">
             <div class="field">
-              <label>Kode <span class="required">*</span></label>
+              <label>Kode Klasifikasi<span class="required">*</span></label>
               <input
                 type="text"
                 name="kode_klasifikasi"
@@ -766,8 +788,18 @@ $old_skkad = $_SESSION['old_skkad'] ?? '';
               <input
                 type="text"
                 name="nama_berkas"
+                value="<?= htmlspecialchars($_SESSION['old_nama_berkas'] ?? '') ?>"
                 placeholder="Produk Data dan Informasi Radar Cuaca"
                 required>
+            </div>
+
+            <div class="field">
+              <label>Nomor Berkas</label>
+              <input
+                type="text"
+                name="nomor_berkas"
+                maxlength="50"
+                value="<?= htmlspecialchars($old_nomor_berkas) ?>">
             </div>
 
             <div class="field">
@@ -927,29 +959,25 @@ $old_skkad = $_SESSION['old_skkad'] ?? '';
             </div>
 
             <div class="field">
-              <label>JRA Aktif (Tahun) <span class="label-hint" id="jraAktifHint">wajib berupa angka</span></label>
+              <label>JRA Aktif <span class="required">*</span></label>
               <input
                 type="text"
                 name="jra_aktif"
-                placeholder="1"
-                inputmode="numeric"
-                pattern="[0-9]+"
-                maxlength="10"
+                placeholder="1 Tahun setelah tidak digunakan"
+                maxlength="100"
                 required
-                title="Wajib isi angka">
+                title="Wajib diisi">
             </div>
 
             <div class="field">
-              <label>JRA Inaktif (Tahun) <span class="label-hint" id="jraInaktifHint">wajib berupa angka</span></label>
+              <label>JRA Inaktif <span class="required">*</span></label>
               <input
                 type="text"
                 name="jra_inaktif"
-                placeholder="1"
-                inputmode="numeric"
-                pattern="[0-9]+"
-                maxlength="10"
+                placeholder="1 Tahun"
+                maxlength="100"
                 required
-                title="Wajib isi angka">
+                title="Wajib diisi">
             </div>
 
             <div class="field">
@@ -1098,8 +1126,6 @@ $old_skkad = $_SESSION['old_skkad'] ?? '';
         nomor.classList.remove("error");
         jraAktif?.classList.remove("error");
         jraInaktif?.classList.remove("error");
-        jraAktifHint?.classList.remove("show");
-        jraInaktifHint?.classList.remove("show");
         form.reset();
         closeResetConfirmModal();
       };
@@ -1243,15 +1269,15 @@ $old_skkad = $_SESSION['old_skkad'] ?? '';
         const jraAktifValue = (jraAktif?.value || "").trim();
         const jraInaktifValue = (jraInaktif?.value || "").trim();
 
-        if (!jraAktifValue || !/^\d+$/.test(jraAktifValue)) {
-          showErrorModal("JRA Aktif wajib diisi angka saja!");
+        if (!jraAktifValue) {
+          showErrorModal("JRA Aktif wajib diisi!");
           jraAktif?.classList.add("error");
           jraAktif?.focus();
           return;
         }
 
-        if (!jraInaktifValue || !/^\d+$/.test(jraInaktifValue)) {
-          showErrorModal("JRA Inaktif wajib diisi angka saja!");
+        if (!jraInaktifValue) {
+          showErrorModal("JRA Inaktif wajib diisi!");
           jraInaktif?.classList.add("error");
           jraInaktif?.focus();
           return;
