@@ -23,7 +23,8 @@ $deleteReturnParams = array_filter([
 $deleteReturnQuery = http_build_query($deleteReturnParams);
 
 if (!function_exists('h')) {
-  function h($v): string {
+  function h($v): string
+  {
     return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
   }
 }
@@ -79,7 +80,19 @@ $items = $isFilterMode
   )
   : (($query !== '') ? searchFilesRecursive($path, $query) : getItems($path));
 $parts = array_filter(explode('/', $path));
-$filterOptions = getFilterOptions(
+$yearOptions = getFilterOptions(
+  $filterJenis !== '' ? $filterJenis : null,
+  null,
+  null
+);
+
+$monthOptions = getFilterOptions(
+  $filterJenis !== '' ? $filterJenis : null,
+  $filterTahun !== '' ? $filterTahun : null,
+  null
+);
+
+$subkodeOptions = getFilterOptions(
   $filterJenis !== '' ? $filterJenis : null,
   $filterTahun !== '' ? $filterTahun : null,
   $filterBulan !== '' ? $filterBulan : null
@@ -805,6 +818,13 @@ $filterOptions = getFilterOptions(
         justify-content: center;
       }
     }
+
+    .filter-select:disabled {
+      background: #e5e7eb;
+      color: #94a3b8;
+      cursor: not-allowed;
+      opacity: 1;
+    }
   </style>
 </head>
 
@@ -901,7 +921,7 @@ $filterOptions = getFilterOptions(
           foreach ($parts as $p) {
             echo '<span class="separator">›</span>';
             $link .= ($link ? '/' : '') . $p;
-            echo "<a href='arsip.php?path=$link'>$p</a>";
+            echo "<a href='arsip.php?path=" . urlencode($link) . "'>" . h($p) . "</a>";;
           }
           ?>
         </div>
@@ -917,37 +937,68 @@ $filterOptions = getFilterOptions(
             <input id="searchArsip" name="q" class="search-input" type="text" placeholder="Cari kode utama atau folder" autocomplete="off" value="<?= h($query) ?>">
           </div>
           <?php if ($query !== ''): ?>
-            <a class="search-clear" href="arsip.php?path=<?= urlencode($path) ?>">Reset</a>
+            <a class="search-clear" href="arsip.php?<?= h(http_build_query([
+                                                      'path' => $path,
+                                                      'jenis' => $filterJenis,
+                                                      'tahun' => $filterTahun,
+                                                      'bulan' => $filterBulan,
+                                                      'subkode' => $filterSub,
+                                                    ])) ?>">Reset</a>
           <?php endif; ?>
         </form>
 
-        <form class="filter-row" method="get" action="arsip.php">
+        <form class="filter-row" method="get" action="arsip.php" id="filterForm">
           <input type="hidden" name="path" value="<?= h($path) ?>">
+
           <div class="filter-group">
-            <select class="filter-select" name="jenis">
-              <option value="">Semua jenis</option>
+
+            <select class="filter-select" name="jenis" id="filterJenis">
+              <option value="">Pilih jenis</option>
               <option value="masuk" <?= $filterJenis === 'masuk' ? 'selected' : '' ?>>Surat Masuk</option>
               <option value="keluar" <?= $filterJenis === 'keluar' ? 'selected' : '' ?>>Surat Keluar</option>
             </select>
-            <select class="filter-select" name="tahun">
-              <option value="">Semua tahun</option>
-              <?php foreach ($filterOptions['years'] as $yr): ?>
-                <option value="<?= h($yr) ?>" <?= (string)$filterTahun === (string)$yr ? 'selected' : '' ?>><?= h($yr) ?></option>
+
+            <select
+              class="filter-select"
+              name="tahun"
+              id="filterTahun"
+              <?= $filterJenis === '' ? 'disabled' : '' ?>>
+              <option value="">Pilih tahun</option>
+              <?php foreach ($yearOptions['years'] as $yr): ?>
+                <option value="<?= h($yr) ?>" <?= (string)$filterTahun === (string)$yr ? 'selected' : '' ?>>
+                  <?= h($yr) ?>
+                </option>
               <?php endforeach; ?>
             </select>
-            <select class="filter-select" name="bulan">
-              <option value="">Semua bulan</option>
-              <?php foreach ($filterOptions['months'] as $mo): ?>
-                <option value="<?= h($mo) ?>" <?= (string)$filterBulan === (string)$mo ? 'selected' : '' ?>><?= h($mo) ?></option>
+
+            <select
+              class="filter-select"
+              name="bulan"
+              id="filterBulan"
+              <?= ($filterJenis === '' || $filterTahun === '') ? 'disabled' : '' ?>>
+              <option value="">Pilih bulan</option>
+              <?php foreach ($monthOptions['months'] as $mo): ?>
+                <option value="<?= h($mo) ?>" <?= (string)$filterBulan === (string)$mo ? 'selected' : '' ?>>
+                  <?= h($mo) ?>
+                </option>
               <?php endforeach; ?>
             </select>
-            <select class="filter-select" name="subkode">
+
+            <select
+              class="filter-select"
+              name="subkode"
+              id="filterSubkode"
+              <?= ($filterJenis === '' || $filterTahun === '' || $filterBulan === '') ? 'disabled' : '' ?>>
               <option value="">Semua subkode</option>
-              <?php foreach ($filterOptions['subkodes'] as $sub): ?>
-                <option value="<?= h($sub) ?>" <?= (string)$filterSub === (string)$sub ? 'selected' : '' ?>><?= h($sub) ?></option>
+              <?php foreach ($subkodeOptions['subkodes'] as $sub): ?>
+                <option value="<?= h($sub) ?>" <?= (string)$filterSub === (string)$sub ? 'selected' : '' ?>>
+                  <?= h($sub) ?>
+                </option>
               <?php endforeach; ?>
             </select>
+
           </div>
+
           <div class="filter-actions">
             <?php if ($isFilterMode): ?>
               <a class="search-clear" href="arsip.php?path=<?= urlencode($path) ?>">Reset</a>
@@ -972,7 +1023,7 @@ $filterOptions = getFilterOptions(
                   $targetPath = $qs['path'] ?? '';
                   $bolehZip = ($targetPath !== 'Surat Masuk' && $targetPath !== 'Surat Keluar' && $targetPath !== '');
                   ?>
-                  <div class="item" data-search="<?= h($item['name'] ?? ''), h($targetPath), h($deleteReturnQuery) ?>">
+                  <div class="item" data-search="<?= h(($item['name'] ?? '') . ' ' . $targetPath . ' ' . $deleteReturnQuery) ?>">
                     <a href="<?= h($item['link']) ?>" class="item-link">
                       <div class="icon folder">📁</div>
                       <div class="name">
@@ -983,7 +1034,7 @@ $filterOptions = getFilterOptions(
 
                     <?php if ($bolehZip): ?>
                       <div class="actions">
-                        <button type="button" class="btn btn-download js-zip" data-zip-path="<?= h($targetPath, ENT_QUOTES, 'UTF-8') ?>">Download</button>
+                        <button type="button" class="btn btn-download js-zip" data-zip-path="<?= h($targetPath) ?>">Download</button>
                       </div>
                     <?php endif; ?>
                   </div>
@@ -1005,13 +1056,13 @@ $filterOptions = getFilterOptions(
                         type="button"
                         class="btn btn-view js-preview"
                         data-preview="arsip.php?action=view&id=<?= $item['id'] ?>"
-                        data-name="<?= h($item['name'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-name="<?= h($item['name']) ?>"
                         title="Preview">Lihat</button>
                       <a href="arsip.php?action=download&id=<?= $item['id'] ?>" class="btn btn-download" title="Unduh">Unduh</a>
                       <button
                         type="button"
                         class="btn btn-delete js-delete"
-                        data-delete-url="arsip.php?action=delete&id=<?= $item['id'] ?><?= $deleteReturnQuery !== '' ? '&' . h($deleteReturnQuery, ENT_QUOTES, 'UTF-8') : '' ?>"
+                        data-delete-url="arsip.php?action=delete&id=<?= $item['id'] ?><?= $deleteReturnQuery !== '' ? '&' . h($deleteReturnQuery) : '' ?>"
                         title="Hapus">Hapus</button>
                     </div>
                   </div>
@@ -1205,6 +1256,31 @@ $filterOptions = getFilterOptions(
       window.location.href = `arsip.php?action=zip&path=${encodeURIComponent(p)}`;
     });
   </script>
+  <script>
+    const filterForm = document.getElementById("filterForm");
+    const filterJenis = document.getElementById("filterJenis");
+    const filterTahun = document.getElementById("filterTahun");
+    const filterBulan = document.getElementById("filterBulan");
+    const filterSubkode = document.getElementById("filterSubkode");
+
+    filterJenis?.addEventListener("change", () => {
+      if (filterTahun) filterTahun.value = "";
+      if (filterBulan) filterBulan.value = "";
+      if (filterSubkode) filterSubkode.value = "";
+      filterForm.submit();
+    });
+
+    filterTahun?.addEventListener("change", () => {
+      if (filterBulan) filterBulan.value = "";
+      if (filterSubkode) filterSubkode.value = "";
+      filterForm.submit();
+    });
+
+    filterBulan?.addEventListener("change", () => {
+      if (filterSubkode) filterSubkode.value = "";
+      filterForm.submit();
+    });
+  </script>
   <div id="zipEmptyModal" class="modal" aria-hidden="true">
     <div class="confirm-card" role="dialog" aria-modal="true">
       <div class="confirm-icon">📭</div>
@@ -1216,4 +1292,5 @@ $filterOptions = getFilterOptions(
     </div>
   </div>
 </body>
+
 </html>
