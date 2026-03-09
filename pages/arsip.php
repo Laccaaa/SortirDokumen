@@ -1304,6 +1304,10 @@ if ($filterJenis !== '' && $filterTahun !== '' && $filterBulan !== '') {
       if (filterSubkode) filterSubkode.value = "";
       filterForm.submit();
     });
+    
+    filterSubkode?.addEventListener("change", () => {
+      filterForm.submit();
+    });
   </script>
   <div id="zipEmptyModal" class="modal" aria-hidden="true">
     <div class="confirm-card" role="dialog" aria-modal="true">
