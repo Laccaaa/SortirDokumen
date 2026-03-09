@@ -97,6 +97,7 @@ $file        = $_FILES['fileInput'];
 $kode_klasifikasi = trim($_POST['kode_klasifikasi'] ?? '');
 $unit_pengolah    = trim($_POST['unit_pengolah'] ?? '');
 $nama_berkas       = trim($_POST['nama_berkas'] ?? '');
+$nomor_berkas      = trim($_POST['nomor_berkas'] ?? '');
 $nomor_isi         = trim($_POST['no_isi'] ?? '');
 $pencipta_arsip    = trim($_POST['pencipta'] ?? '');
 $tujuan_surat      = trim($_POST['tujuan_surat'] ?? '');
@@ -428,12 +429,12 @@ INSERT INTO surat (
     jenis_surat, nomor_surat, kode_utama, subkode,
     nomor_urut, unit_pengirim, bulan, tahun,
     nama_file, path_file,
-    unit_pengolah, nama_berkas, nomor_isi, pencipta_arsip,
+    unit_pengolah, nama_berkas, nomor_berkas, nomor_isi, pencipta_arsip,
     tujuan_surat, perihal, uraian_informasi, tanggal_surat_kurun,
     jumlah, lokasi_simpan, tingkat, keterangan,
     skkad, jra_aktif, jra_inaktif, nasib
 ) VALUES (
-    ?,?,?,?,?,?,?,?,?,?,
+    ?,?,?,?,?,?,?,?,?,?,?,
     ?,?,?,?,?,?,?,?,?,?,
     ?,?,?,?,?,?
 )";
@@ -454,6 +455,7 @@ try {
 
         $unit_pengolah !== '' ? $unit_pengolah : null,
         $nama_berkas !== '' ? $nama_berkas : null,
+        $nomor_berkas !== '' ? $nomor_berkas : null,
         $nomor_isi !== '' ? $nomor_isi : null,
         $pencipta_arsip !== '' ? $pencipta_arsip : null,
         $tujuan_surat !== '' ? $tujuan_surat : null,
