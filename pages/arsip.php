@@ -914,12 +914,11 @@ $filterOptions = getFilterOptions(
           <input type="hidden" name="subkode" value="<?= h($filterSub) ?>">
           <div class="search-wrap">
             <span>🔎</span>
-            <input id="searchArsip" name="q" class="search-input" type="text" placeholder="Cari kode utama atau folder (rekursif)..." autocomplete="off" value="<?= h($query) ?>">
+            <input id="searchArsip" name="q" class="search-input" type="text" placeholder="Cari kode utama atau folder" autocomplete="off" value="<?= h($query) ?>">
           </div>
           <?php if ($query !== ''): ?>
             <a class="search-clear" href="arsip.php?path=<?= urlencode($path) ?>">Reset</a>
           <?php endif; ?>
-          <div class="search-hint">Berdasar kode utama, tahun, bulan, subkode, atau jenis</div>
         </form>
 
         <form class="filter-row" method="get" action="arsip.php">
@@ -955,7 +954,6 @@ $filterOptions = getFilterOptions(
             <?php endif; ?>
             <button class="search-clear" type="submit">Terapkan</button>
           </div>
-          <div class="filter-note">Filter update otomatis mengikuti data baru.</div>
         </form>
 
         <div class="content">
