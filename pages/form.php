@@ -941,11 +941,12 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>Keterangan</label>
-              <input
-                type="text"
-                name="keterangan"
-                placeholder="Arsip">
+              <label>Keterangan (Baik/Rusak)</label>
+              <select name="keterangan">
+                <option value="">-- pilih --</option>
+                <option value="Baik">Baik</option>
+                <option value="Rusak">Rusak</option>
+              </select>
             </div>
 
             <div class="field">
@@ -981,7 +982,7 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>Nasib</label>
+              <label>Nasib akhir</label>
               <input
                 type="text"
                 name="nasib"
