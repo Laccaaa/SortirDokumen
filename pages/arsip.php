@@ -1026,8 +1026,8 @@ if ($filterJenis !== '' && $filterTahun !== '' && $filterBulan !== '') {
 
           <div class="filter-actions">
             <?php if ($isFilterMode): ?>
-              <a class="search-clear" href="arsip.php">Reset</a> <?php endif; ?>
-            <button class="search-clear" type="submit">Terapkan</button>
+              <a class="search-clear" href="arsip.php">Reset</a>
+            <?php endif; ?>
           </div>
         </form>
 
@@ -1304,7 +1304,7 @@ if ($filterJenis !== '' && $filterTahun !== '' && $filterBulan !== '') {
       if (filterSubkode) filterSubkode.value = "";
       filterForm.submit();
     });
-    
+
     filterSubkode?.addEventListener("change", () => {
       filterForm.submit();
     });
