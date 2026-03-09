@@ -7,7 +7,7 @@ $tahun = $_GET['tahun'] ?? '';
 $bulan = $_GET['bulan'] ?? '';
 
 $sql = "SELECT
-    id_surat, jenis_surat, nomor_surat, kode_utama, subkode,
+    id_surat, to_jsonb(surat)->>'nomor_berkas' AS nomor_berkas, jenis_surat, nomor_surat, kode_utama, subkode,
     nomor_urut, unit_pengirim, bulan, tahun, nama_file,
     path_file, tanggal_upload, unit_pengolah, nama_berkas,
     nomor_isi, pencipta_arsip, tujuan_surat, perihal, uraian_informasi,
@@ -86,11 +86,35 @@ $out = fopen('php://output', 'w');
 
 fputcsv($out, ['Daftar Isi Berkas Arsip']);
 fputcsv($out, ['Stasiun Meteorologi Kelas I Juanda Sidoarjo']);
-fputcsv($out, [$headerTahun]);
+fputcsv($out, ['']);
 fputcsv($out, []);
 
 fputcsv($out, [
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    $headerTahun,
+    '',
+    '',
+    '',
+    '',
+    '',
+    'JRA',
+    '',
+    'Nasib Akhir'
+]);
+
+fputcsv($out, [
     'Nomor',
+    'Nomor Berkas',
     'Kode',
     'Unit Pengolah',
     'Nama Berkas',
@@ -100,21 +124,33 @@ fputcsv($out, [
     'Nomor Surat',
     'Perihal',
     'Uraian Informasi',
-    'Tanggal Surat / Kurun',
+    'Tanggal Surat / Kurun Waktu',
     'Jumlah',
     'Lokasi Simpan',
-    'Tingkat',
-    'Keterangan',
-    'SKKAD',
-    'JRA Aktif',
-    'JRA Inaktif',
-    'Nasib'
+    'Tingkat Perkembangan (Asli/Copy)',
+    'Keterangan (Baik/Rusak)',
+    'SKKAD (B/T/R)',
+    'Aktif',
+    'Inaktif',
+    ''
 ]);
 
 foreach ($rows as $i => $row) {
-    $kodeGabung = trim(($row['kode_utama'] ?? '') . ((isset($row['subkode']) && $row['subkode'] !== '') ? '.' . $row['subkode'] : ''));
+    $kodeParts = [];
+    if (($row['kode_utama'] ?? '') !== '') {
+        $kodeParts[] = trim((string)$row['kode_utama']);
+    }
+    if (($row['subkode'] ?? '') !== '') {
+        $kodeParts[] = trim((string)$row['subkode']);
+    }
+    if (($row['nomor_urut'] ?? '') !== '') {
+        $kodeParts[] = trim((string)$row['nomor_urut']);
+    }
+    $kodeGabung = implode('.', $kodeParts);
+
     fputcsv($out, [
         $i + 1,
+        $row['nomor_berkas'] ?? '',
         $kodeGabung,
         (($row['unit_pengolah'] ?? '') !== '' ? $row['unit_pengolah'] : ($row['unit_pengirim'] ?? '')),
         (($row['nama_berkas'] ?? '') !== '' ? $row['nama_berkas'] : ($row['nama_file'] ?? '')),

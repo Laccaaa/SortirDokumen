@@ -45,7 +45,7 @@ function getExportFilterOptions($conn, $jenis = null, $tahun = null) {
 
 function getExportRows($conn, $jenis = null, $tahun = null, $bulan = null) {
     $sql = "SELECT
-        id_surat, jenis_surat, nomor_surat, kode_utama, subkode,
+        id_surat, to_jsonb(surat)->>'nomor_berkas' AS nomor_berkas, jenis_surat, nomor_surat, kode_utama, subkode,
         nomor_urut, unit_pengirim, bulan, tahun, nama_file,
         path_file, tanggal_upload, unit_pengolah, nama_berkas,
         nomor_isi, pencipta_arsip, tujuan_surat, perihal, uraian_informasi,
@@ -376,6 +376,7 @@ body{
             <thead>
               <tr>
                 <th>Nomor</th>
+                <th>Nomor Berkas</th>
                 <th>Kode</th>
                 <th>Unit Pengolah</th>
                 <th>Nama Berkas</th>
@@ -398,9 +399,16 @@ body{
             </thead>
             <tbody>
               <?php foreach ($rows as $i => $row): ?>
-                <?php $kodeGabung = trim(($row['kode_utama'] ?? '') . ((isset($row['subkode']) && $row['subkode'] !== '') ? '.' . $row['subkode'] : '')); ?>
+                <?php
+                $kodeParts = [];
+                if (($row['kode_utama'] ?? '') !== '') $kodeParts[] = trim((string)$row['kode_utama']);
+                if (($row['subkode'] ?? '') !== '') $kodeParts[] = trim((string)$row['subkode']);
+                if (($row['nomor_urut'] ?? '') !== '') $kodeParts[] = trim((string)$row['nomor_urut']);
+                $kodeGabung = implode('.', $kodeParts);
+                ?>
                 <tr>
                   <td><?= $i + 1 ?></td>
+                  <td><?= htmlspecialchars($row['nomor_berkas'] ?? '-') ?></td>
                   <td><?= htmlspecialchars($kodeGabung) ?></td>
                   <td><?= htmlspecialchars(($row['unit_pengolah'] ?? '') !== '' ? $row['unit_pengolah'] : ($row['unit_pengirim'] ?? '')) ?></td>
                   <td><?= htmlspecialchars(($row['nama_berkas'] ?? '') !== '' ? $row['nama_berkas'] : ($row['nama_file'] ?? '')) ?></td>
