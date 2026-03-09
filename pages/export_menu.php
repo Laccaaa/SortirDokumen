@@ -365,7 +365,6 @@ body{
         <a class="btn light" href="export_menu.php">Reset</a>
         <button class="btn light" type="submit">Terapkan</button>
         <a class="btn dark" href="/SortirDokumen/actions/export_csv.php?jenis=<?= urlencode($jenis) ?>&tahun=<?= urlencode($tahun) ?>&bulan=<?= urlencode($bulan) ?>">Unduh CSV</a>
-        <span class="filter-note">Filter update otomatis mengikuti data baru.</span>
       </form>
 
       <?php if (empty($rows)): ?>
