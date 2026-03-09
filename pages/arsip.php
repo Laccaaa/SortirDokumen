@@ -69,17 +69,32 @@ if ($action === 'delete' && isset($_GET['id'])) {
 }
 
 // Get items untuk ditampilkan
+$resolvedPath = $path;
+
+if ($filterJenis !== '') {
+  $resolvedPath = $filterJenis === 'masuk' ? 'Surat Masuk' : 'Surat Keluar';
+
+  if ($filterTahun !== '') {
+    $resolvedPath .= '/' . $filterTahun;
+  }
+
+  if ($filterBulan !== '') {
+    $resolvedPath .= '/' . $filterBulan;
+  }
+
+  if ($filterSub !== '') {
+    $resolvedPath .= '/' . $filterSub;
+  }
+}
+
 $isFilterMode = ($filterJenis !== '' || $filterTahun !== '' || $filterBulan !== '' || $filterSub !== '');
-$items = $isFilterMode
-  ? getFilesByFiltersAndQuery(
-    $filterJenis !== '' ? $filterJenis : null,
-    $filterTahun !== '' ? $filterTahun : null,
-    $filterBulan !== '' ? $filterBulan : null,
-    $filterSub !== '' ? $filterSub : null,
-    $query !== '' ? $query : null
-  )
-  : (($query !== '') ? searchFilesRecursive($path, $query) : getItems($path));
-$parts = array_filter(explode('/', $path));
+
+$items = ($query !== '')
+  ? searchFilesRecursive($resolvedPath, $query)
+  : getItems($resolvedPath);
+
+$parts = array_filter(explode('/', $resolvedPath));
+
 $yearOptions = getFilterOptions(
   $filterJenis !== '' ? $filterJenis : null,
   null,
@@ -92,11 +107,21 @@ $monthOptions = getFilterOptions(
   null
 );
 
-$subkodeOptions = getFilterOptions(
-  $filterJenis !== '' ? $filterJenis : null,
-  $filterTahun !== '' ? $filterTahun : null,
-  $filterBulan !== '' ? $filterBulan : null
-);
+$subkodeOptions = [];
+
+if ($filterJenis !== '' && $filterTahun !== '' && $filterBulan !== '') {
+  $subkodeBasePath = ($filterJenis === 'masuk' ? 'Surat Masuk' : 'Surat Keluar')
+    . '/' . $filterTahun
+    . '/' . $filterBulan;
+
+  $subkodeItems = getItems($subkodeBasePath);
+
+  foreach ($subkodeItems as $item) {
+    if (($item['type'] ?? '') === 'folder') {
+      $subkodeOptions[] = $item['name'];
+    }
+  }
+}
 ?>
 
 <!DOCTYPE html>
@@ -927,7 +952,7 @@ $subkodeOptions = getFilterOptions(
         </div>
 
         <form class="search-row" id="searchForm" method="get" action="arsip.php">
-          <input type="hidden" name="path" value="<?= h($path) ?>">
+          <input type="hidden" name="path" value="<?= h($resolvedPath) ?>">
           <input type="hidden" name="jenis" value="<?= h($filterJenis) ?>">
           <input type="hidden" name="tahun" value="<?= h($filterTahun) ?>">
           <input type="hidden" name="bulan" value="<?= h($filterBulan) ?>">
@@ -948,7 +973,7 @@ $subkodeOptions = getFilterOptions(
         </form>
 
         <form class="filter-row" method="get" action="arsip.php" id="filterForm">
-          <input type="hidden" name="path" value="<?= h($path) ?>">
+          <input type="hidden" name="path" value="<?= h($resolvedPath) ?>">
 
           <div class="filter-group">
 
@@ -990,7 +1015,7 @@ $subkodeOptions = getFilterOptions(
               id="filterSubkode"
               <?= ($filterJenis === '' || $filterTahun === '' || $filterBulan === '') ? 'disabled' : '' ?>>
               <option value="">Semua subkode</option>
-              <?php foreach ($subkodeOptions['subkodes'] as $sub): ?>
+              <?php foreach ($subkodeOptions as $sub): ?>
                 <option value="<?= h($sub) ?>" <?= (string)$filterSub === (string)$sub ? 'selected' : '' ?>>
                   <?= h($sub) ?>
                 </option>
@@ -1001,8 +1026,7 @@ $subkodeOptions = getFilterOptions(
 
           <div class="filter-actions">
             <?php if ($isFilterMode): ?>
-              <a class="search-clear" href="arsip.php?path=<?= urlencode($path) ?>">Reset</a>
-            <?php endif; ?>
+              <a class="search-clear" href="arsip.php">Reset</a> <?php endif; ?>
             <button class="search-clear" type="submit">Terapkan</button>
           </div>
         </form>
