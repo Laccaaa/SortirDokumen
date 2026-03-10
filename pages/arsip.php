@@ -959,7 +959,7 @@ if ($filterJenis !== '' && $filterTahun !== '' && $filterBulan !== '') {
           <input type="hidden" name="subkode" value="<?= h($filterSub) ?>">
           <div class="search-wrap">
             <span>🔎</span>
-            <input id="searchArsip" name="q" class="search-input" type="text" placeholder="Cari kode utama atau folder" autocomplete="off" value="<?= h($query) ?>">
+            <input id="searchArsip" name="q" class="search-input" type="text" placeholder="Cari file" autocomplete="off" value="<?= h($query) ?>">
           </div>
           <?php if ($query !== ''): ?>
             <a class="search-clear" href="arsip.php?<?= h(http_build_query([
