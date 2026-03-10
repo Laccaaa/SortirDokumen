@@ -368,15 +368,15 @@ thead th:last-child{
   position: sticky;
   right: 0;
   z-index: 7;
-  box-shadow: none;
-  background: transparent;
-  border-bottom-color: transparent;
+  width: 170px;
+  min-width: 170px;
+  max-width: 170px;
+  padding:10px 10px;
+  text-align:center;
+  background:#e5e7eb;
+  border-left:1px solid #d1d5db;
   border-right:none;
-  width: 130px;
-  min-width: 130px;
-  max-width: 130px;
-  padding: 0;
-  overflow: visible;
+  box-shadow: -8px 0 12px rgba(15, 23, 42, .06);
 }
 
 tbody td{
@@ -393,23 +393,22 @@ tbody td:last-child{
   position: sticky;
   right: 0;
   z-index: 6;
-  min-width: 130px;
-  width: 130px;
-  max-width: 130px;
-  box-shadow: none;
-  border-bottom-color: transparent;
+  min-width: 170px;
+  width: 170px;
+  max-width: 170px;
   border-right:none;
-  background: transparent !important;
-  padding: 0;
-  text-align: right;
+  border-left:1px solid #eef2f6;
+  padding: 8px 10px;
+  text-align: center;
   vertical-align: middle;
-  overflow: visible;
+  background:#fff !important;
+  box-shadow: -8px 0 12px rgba(15, 23, 42, .04);
 }
 
 tbody tr:nth-child(even) td{ background:#fafbff; }
 tbody tr:hover td{ background:#f1f5ff; }
-tbody tr:nth-child(even) td:last-child{ background:transparent !important; }
-tbody tr:hover td:last-child{ background:transparent !important; }
+tbody tr:nth-child(even) td:last-child{ background:#fafbff !important; }
+tbody tr:hover td:last-child{ background:#f1f5ff !important; }
 
 td.muted{
   text-align:center;
@@ -422,15 +421,14 @@ td.muted{
   gap:6px;
   flex-direction:row;
   align-items:center;
-  justify-content:flex-end;
+  justify-content:center;
   flex-wrap:nowrap;
-  width: max-content;
-  margin-left: auto;
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+  width: 100%;
+  margin: 0;
+  position: static;
+  transform: none;
 }
+.actions form{ margin:0; }
 
 a.btn-edit{
   display:inline-flex;
@@ -791,7 +789,7 @@ a.btn-edit:hover{
                 <th>Tingkat Perkembangan</th>
                 <th>Boks</th>
                 <th>Keterangan</th>
-                <th aria-label="Aksi"></th>
+                <th>Aksi</th>
               </tr>
             </thead>
 
