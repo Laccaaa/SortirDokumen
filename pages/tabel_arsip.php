@@ -28,7 +28,6 @@ html, body{
   margin:0;
 }
 
-/* ✅ body NO scroll */
 body{
   height:100vh;
   overflow:hidden;
@@ -42,8 +41,6 @@ body{
   padding:14px;
 }
 
-/* background bersih tanpa layer tambahan */
-
 .wrap{
   width: 100%;
   max-width: none;
@@ -53,7 +50,6 @@ body{
   display:flex;
 }
 
-/* layout */
 .layout{
   width:100%;
   height:100%;
@@ -61,7 +57,6 @@ body{
   gap:14px;
 }
 
-/* sidebar */
 .sidebar{
   width: 340px;
   height: 100%;
@@ -169,7 +164,6 @@ body{
   line-height:1.25;
 }
 
-/* ✅ Shell utama */
 .card{
   width:100%;
   height:100%;
@@ -187,7 +181,6 @@ body{
   flex-direction:column;
 }
 
-/* ✅ HEAD (fixed) */
 .shell-head{
   padding:12px 12px 10px;
   border-bottom:1px solid #eef2f7;
@@ -195,7 +188,6 @@ body{
   background:#fff;
 }
 
-/* ✅ TOOLS (fixed) */
 .shell-tools{
   padding:10px 12px 10px;
   border-bottom:1px solid #eef2f7;
@@ -203,7 +195,6 @@ body{
   background:#fff;
 }
 
-/* ✅ BODY (tidak scroll) */
 .shell-body{
   padding:10px 12px 12px;
   flex:1 1 auto;
@@ -211,7 +202,6 @@ body{
   overflow:hidden;
 }
 
-/* header */
 .header{
   display:flex;
   justify-content:space-between;
@@ -229,7 +219,6 @@ body{
   color:var(--muted);
 }
 
-/* tombol */
 .btns{
   display:flex;
   gap:10px;
@@ -267,7 +256,6 @@ a.btn.secondary{
   border:1px solid #d7ddff;
 }
 
-/* alerts */
 .alert-err{
   margin-bottom:12px;
   padding:10px 12px;
@@ -297,7 +285,6 @@ a.btn.secondary{
   display:inline-block;
 }
 
-/* search */
 .search-row{
   display:flex;
   justify-content:space-between;
@@ -343,12 +330,11 @@ a.clear{
   background:#fff;
 }
 
-/* ✅ table-wrap yang scroll */
 .table-wrap{
   height: 100%;
   border-radius:16px;
-  overflow:auto;                 /* ✅ scroll vertikal di sini */
-  overflow-x:auto;               /* ✅ allow scroll kanan-kiri */
+  overflow:auto;                 
+  overflow-x:auto;               
   -webkit-overflow-scrolling: touch;
   border:1px solid #e5e7eb;
   box-shadow:0 8px 24px rgba(15,23,42,.06);
@@ -431,7 +417,6 @@ td.muted{
   background:#fff;
 }
 
-/* aksi */
 .actions{
   display:flex;
   gap:6px;
@@ -556,7 +541,6 @@ a.btn-edit:hover{
   color:#fff;
 }
 
-/* ✅ Mobile */
 @media (max-width:768px){
   body{ padding:10px; }
   .layout{ flex-direction:column; }
@@ -713,7 +697,6 @@ a.btn-edit:hover{
 
       <div class="card">
 
-      <!-- ✅ HEAD fixed -->
       <div class="shell-head">
         <div class="header">
           <div class="title">
@@ -722,7 +705,6 @@ a.btn-edit:hover{
           </div>
 
           <div class="btns">
-            <!-- karena file ini ada di /pages, link cukup relatif -->
             <a class="btn secondary" href="input_arsip.php">➕ Form Input</a>
             <a class="btn primary" href="/SortirDokumen/pages/homepage.php">
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
@@ -734,7 +716,6 @@ a.btn-edit:hover{
         </div>
       </div>
 
-      <!-- ✅ TOOLS fixed (alert + search gak ikut scroll) -->
       <div class="shell-tools">
         <?php if (!empty($_GET['msg']) && $_GET['msg'] === 'deleted'): ?>
           <div class="alert-ok">
@@ -789,7 +770,6 @@ a.btn-edit:hover{
         </div>
       </div>
 
-      <!-- ✅ BODY (scroll cuma tabel) -->
       <div class="shell-body">
         <div class="table-wrap">
           <table>
@@ -861,7 +841,6 @@ a.btn-edit:hover{
                     <?php if ($rowId !== null): ?>
                       <a class="btn-edit" href="input_arsip.php?edit=<?= urlencode((string)$rowId) ?>">Edit</a>
 
-                      <!-- ✅ hapus diarahkan ke actions/proses_tabel.php -->
                       <form method="POST" action="../actions/proses_tabel.php" class="js-delete-form">
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="id" value="<?= htmlspecialchars((string)$rowId) ?>">
