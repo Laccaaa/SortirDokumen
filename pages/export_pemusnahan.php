@@ -367,8 +367,8 @@ body{
                 <th>Pencipta</th>
                 <th>Tujuan Surat</th>
                 <th>No Surat</th>
-                <th>Uraian Informasi 1</th>
-                <th>Uraian Informasi 2</th>
+                <th>Uraian Informasi</th>
+                <th>Uraian Informasi</th>
                 <th>Tanggal Surat</th>
                 <th>Kurun Waktu</th>
                 <th>Jumlah</th>
