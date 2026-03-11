@@ -83,6 +83,27 @@ function getExportRows($conn, $jenis = null, $tahun = null, $bulan = null) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function buildKodeKlasifikasi(array $row): string {
+    $kodeUtama = trim((string)($row['kode_utama'] ?? ''));
+    $subkode = trim((string)($row['subkode'] ?? ''));
+    $nomorUrut = trim((string)($row['nomor_urut'] ?? ''));
+
+    $parts = [];
+    if ($kodeUtama !== '' && strcasecmp($kodeUtama, 'lainnya') !== 0) $parts[] = $kodeUtama;
+    if ($subkode !== '') $parts[] = $subkode;
+    if ($nomorUrut !== '') $parts[] = $nomorUrut;
+    $kodeGabung = implode('.', $parts);
+    if ($kodeGabung !== '') return $kodeGabung;
+
+    $nomorSurat = trim((string)($row['nomor_surat'] ?? ''));
+    if ($nomorSurat !== '') {
+        $first = trim(explode('/', $nomorSurat, 2)[0] ?? '');
+        if ($first !== '' && strcasecmp($first, 'lainnya') !== 0) return $first;
+    }
+
+    return '-';
+}
+
 $filterOptions = getExportFilterOptions($dbhandle, $jenis !== '' ? $jenis : null, $tahun !== '' ? $tahun : null);
 $rows = getExportRows($dbhandle, $jenis !== '' ? $jenis : null, $tahun !== '' ? $tahun : null, $bulan !== '' ? $bulan : null);
 ?>
@@ -376,7 +397,7 @@ body{
               <tr>
                 <th>NOMOR</th>
                 <th>NOMOR BERKAS</th>
-                <th>KODE</th>
+                <th>KODE KLASIFIKASI</th>
                 <th>UNIT PENGOLAH</th>
                 <th>NAMA BERKAS</th>
                 <th>NOMOR ISI</th>
@@ -397,18 +418,14 @@ body{
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($rows as $i => $row): ?>
-                <?php
-                $kodeParts = [];
-                if (($row['kode_utama'] ?? '') !== '') $kodeParts[] = trim((string)$row['kode_utama']);
-                if (($row['subkode'] ?? '') !== '') $kodeParts[] = trim((string)$row['subkode']);
-                if (($row['nomor_urut'] ?? '') !== '') $kodeParts[] = trim((string)$row['nomor_urut']);
-                $kodeGabung = implode('.', $kodeParts);
-                ?>
+	              <?php foreach ($rows as $i => $row): ?>
+	                <?php
+	                $kodeGabung = buildKodeKlasifikasi($row);
+	                ?>
                 <tr>
                   <td><?= $i + 1 ?></td>
                   <td><?= htmlspecialchars($row['nomor_berkas'] ?? '-') ?></td>
-                  <td><?= htmlspecialchars($kodeGabung) ?></td>
+	                  <td><?= htmlspecialchars($kodeGabung) ?></td>
                   <td><?= htmlspecialchars(($row['unit_pengolah'] ?? '') !== '' ? $row['unit_pengolah'] : ($row['unit_pengirim'] ?? '')) ?></td>
                   <td><?= htmlspecialchars(($row['nama_berkas'] ?? '') !== '' ? $row['nama_berkas'] : ($row['nama_file'] ?? '')) ?></td>
                   <td><?= htmlspecialchars($row['nomor_isi'] ?? '-') ?></td>

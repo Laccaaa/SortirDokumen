@@ -77,7 +77,7 @@ if ($jenis === '' && $tahun === '' && $bulan === '') {
 $headers = [
     'NOMOR',
     'NOMOR BERKAS',
-    'KODE',
+    'KODE KLASIFIKASI',
     'UNIT PENGOLAH',
     'NAMA BERKAS',
     'NOMOR ISI',
@@ -128,11 +128,26 @@ $writer->addRow([]);
 $writer->addRow($headers, 3);
 
 foreach ($rows as $i => $row) {
+    $kodeUtama = trim((string)($row['kode_utama'] ?? ''));
+    $subkode = trim((string)($row['subkode'] ?? ''));
+    $nomorUrut = trim((string)($row['nomor_urut'] ?? ''));
+
     $kodeParts = [];
-    if (($row['kode_utama'] ?? '') !== '') $kodeParts[] = trim((string)$row['kode_utama']);
-    if (($row['subkode'] ?? '') !== '') $kodeParts[] = trim((string)$row['subkode']);
-    if (($row['nomor_urut'] ?? '') !== '') $kodeParts[] = trim((string)$row['nomor_urut']);
+    if ($kodeUtama !== '' && strcasecmp($kodeUtama, 'lainnya') !== 0) $kodeParts[] = $kodeUtama;
+    if ($subkode !== '') $kodeParts[] = $subkode;
+    if ($nomorUrut !== '') $kodeParts[] = $nomorUrut;
     $kodeGabung = implode('.', $kodeParts);
+
+    if ($kodeGabung === '') {
+        $nomorSurat = trim((string)($row['nomor_surat'] ?? ''));
+        if ($nomorSurat !== '') {
+            $first = trim(explode('/', $nomorSurat, 2)[0] ?? '');
+            if ($first !== '' && strcasecmp($first, 'lainnya') !== 0) {
+                $kodeGabung = $first;
+            }
+        }
+    }
+    if ($kodeGabung === '') $kodeGabung = '-';
 
     $writer->addRow([
         (string)($i + 1),
