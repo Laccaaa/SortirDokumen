@@ -319,7 +319,7 @@ body{
       <div class="top">
         <div class="titles">
           <h1>Export Dokumen Musnah</h1>
-          <p>Sortir berdasarkan tahun dan bulan, lalu unduh CSV.</p>
+          <p>Sortir berdasarkan tahun dan bulan, lalu unduh XLSX.</p>
         </div>
         <div class="actionsTop">
           <a class="btn back" href="homepage.php">
@@ -349,7 +349,7 @@ body{
 
         <a class="btn light" href="export_pemusnahan.php">Reset</a>
         <button class="btn light" type="submit">Terapkan</button>
-        <a class="btn dark" href="/SortirDokumen/actions/export_pemusnahan_csv.php?tahun=<?= urlencode($tahun) ?>&bulan=<?= urlencode($bulan) ?>">Unduh CSV</a>
+        <a class="btn dark" href="/SortirDokumen/actions/export_pemusnahan_xlsx.php?tahun=<?= urlencode($tahun) ?>&bulan=<?= urlencode($bulan) ?>">Unduh XLSX</a>
       </form>
 
       <?php if (empty($rows)): ?>
@@ -359,23 +359,23 @@ body{
           <table class="table">
             <thead>
               <tr>
-                <th>No</th>
-                <th>Nomor Berkas</th>
-                <th>Kode Klasifikasi</th>
-                <th>Nama Berkas</th>
-                <th>No. Isi Berkas</th>
-                <th>Pencipta</th>
-                <th>Tujuan Surat</th>
-                <th>No Surat</th>
-                <th>Uraian Informasi</th>
-                <th>Uraian Informasi</th>
-                <th>Tanggal Surat</th>
-                <th>Kurun Waktu</th>
-                <th>Jumlah</th>
+                <th>NO</th>
+                <th>NOMOR BERKAS</th>
+                <th>KODE KLASIFIKASI</th>
+                <th>NAMA BERKAS</th>
+                <th>NO. ISI BERKAS</th>
+                <th>PENCIPTA</th>
+                <th>TUJUAN SURAT</th>
+                <th>NO SURAT</th>
+                <th>URAIAN INFORMASI</th>
+                <th>URAIAN INFORMASI</th>
+                <th>TANGGAL SURAT</th>
+                <th>KURUN WAKTU</th>
+                <th>JUMLAH</th>
                 <th>SKKAD</th>
-                <th>Tingkat Perkembangan</th>
-                <th>Boks</th>
-                <th>Keterangan</th>
+                <th>TINGKAT PERKEMBANGAN</th>
+                <th>BOKS</th>
+                <th>KETERANGAN</th>
               </tr>
             </thead>
             <tbody>

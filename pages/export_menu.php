@@ -330,8 +330,8 @@ body{
     <div class="shell">
       <div class="top">
         <div class="titles">
-          <h1>Export CSV</h1>
-          <p>Sortir berdasarkan tahun dan bulan, lalu unduh CSV.</p>
+          <h1>Export XLSX</h1>
+          <p>Sortir berdasarkan tahun dan bulan, lalu unduh XLSX.</p>
         </div>
         <div class="actionsTop">
           <a class="btn back" href="homepage.php">
@@ -364,7 +364,7 @@ body{
 
         <a class="btn light" href="export_menu.php">Reset</a>
         <button class="btn light" type="submit">Terapkan</button>
-        <a class="btn dark" href="/SortirDokumen/actions/export_csv.php?jenis=<?= urlencode($jenis) ?>&tahun=<?= urlencode($tahun) ?>&bulan=<?= urlencode($bulan) ?>">Unduh CSV</a>
+        <a class="btn dark" href="/SortirDokumen/actions/export_xlsx.php?jenis=<?= urlencode($jenis) ?>&tahun=<?= urlencode($tahun) ?>&bulan=<?= urlencode($bulan) ?>">Unduh XLSX</a>
       </form>
 
       <?php if (empty($rows)): ?>
@@ -374,26 +374,26 @@ body{
           <table class="table">
             <thead>
               <tr>
-                <th>Nomor</th>
-                <th>Nomor Berkas</th>
-                <th>Kode</th>
-                <th>Unit Pengolah</th>
-                <th>Nama Berkas</th>
-                <th>Nomor Isi</th>
-                <th>Pencipta Arsip</th>
-                <th>Tujuan Surat</th>
-                <th>Nomor Surat</th>
-                <th>Perihal</th>
-                <th>Uraian Informasi</th>
-                <th>Tanggal Surat / Kurun</th>
-                <th>Jumlah</th>
-                <th>Lokasi Simpan</th>
-                <th>Tingkat</th>
-                <th>Keterangan</th>
+                <th>NOMOR</th>
+                <th>NOMOR BERKAS</th>
+                <th>KODE</th>
+                <th>UNIT PENGOLAH</th>
+                <th>NAMA BERKAS</th>
+                <th>NOMOR ISI</th>
+                <th>PENCIPTA ARSIP</th>
+                <th>TUJUAN SURAT</th>
+                <th>NOMOR SURAT</th>
+                <th>PERIHAL</th>
+                <th>URAIAN INFORMASI</th>
+                <th>TANGGAL SURAT / KURUN</th>
+                <th>JUMLAH</th>
+                <th>LOKASI SIMPAN</th>
+                <th>TINGKAT</th>
+                <th>KETERANGAN</th>
                 <th>SKKAD</th>
-                <th>JRA Aktif</th>
-                <th>JRA Inaktif</th>
-                <th>Nasib</th>
+                <th>JRA AKTIF</th>
+                <th>JRA INAKTIF</th>
+                <th>NASIB</th>
               </tr>
             </thead>
             <tbody>
