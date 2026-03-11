@@ -81,6 +81,7 @@ CREATE TABLE public.surat (
     nomor_berkas character varying(50) COLLATE pg_catalog."default",
     jenis_surat character varying(10) COLLATE pg_catalog."default" NOT NULL,
     nomor_surat character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    kode_klasifikasi character varying(50) COLLATE pg_catalog."default" NOT NULL,
     kode_utama character varying(10) COLLATE pg_catalog."default",
     subkode character varying(20) COLLATE pg_catalog."default",
     nomor_urut character varying(10) COLLATE pg_catalog."default",

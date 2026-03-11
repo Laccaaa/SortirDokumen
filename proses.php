@@ -426,7 +426,7 @@ if (!move_uploaded_file($file['tmp_name'], $destPath)) {
 
 $sql = "
 INSERT INTO surat (
-    jenis_surat, nomor_surat, kode_utama, subkode,
+    jenis_surat, nomor_surat, kode_utama, subkode, kode_klasifikasi,
     nomor_urut, unit_pengirim, bulan, tahun,
     nama_file, path_file,
     unit_pengolah, nama_berkas, nomor_berkas, nomor_isi, pencipta_arsip,
@@ -436,7 +436,7 @@ INSERT INTO surat (
 ) VALUES (
     ?,?,?,?,?,?,?,?,?,?,?,
     ?,?,?,?,?,?,?,?,?,?,
-    ?,?,?,?,?,?
+    ?,?,?,?,?,?,?
 )";
 
 try {
@@ -446,6 +446,7 @@ try {
         $nomor_surat,
         $kode_utama,
         $subkode,
+        $kode_klasifikasi,
         $nomor_urut,
         $unit_pengirim,
         $bulan !== '' ? $bulan : null,

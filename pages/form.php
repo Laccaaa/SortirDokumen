@@ -6,7 +6,7 @@ $id_surat = $_SESSION['old_id_surat'] ?? '';
 $old_nomor_berkas = $_SESSION['old_nomor_berkas'] ?? '';
 $old_jenis = $_SESSION['old_jenis_surat'] ?? '';
 $old_nomor = $_SESSION['old_nomor_surat'] ?? '';
-$old_kode = $_SESSION['old_kode'] ?? '';
+$old_kode = $_SESSION['old_kode_klasifikasi'] ?? '';
 $old_unit_pengolah = $_SESSION['old_unit_pengolah'] ?? '';
 $old_nama_berkas = $_SESSION['old_nama_berkas'] ?? '';
 $old_no_isi = $_SESSION['old_no_isi'] ?? '';
@@ -772,6 +772,7 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
                 type="text"
                 name="kode_klasifikasi"
                 placeholder="ME.03.02"
+                value="<?= htmlspecialchars($old_kode) ?>"
                 required>
             </div>
 
