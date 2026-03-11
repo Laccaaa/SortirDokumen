@@ -8,13 +8,39 @@ $tahun = $_GET['tahun'] ?? '';
 $bulan = $_GET['bulan'] ?? '';
 
 $sql = "SELECT
-    id_surat, to_jsonb(surat)->>'nomor_berkas' AS nomor_berkas, jenis_surat, nomor_surat, kode_utama, subkode,
-    nomor_urut, unit_pengirim, bulan, tahun, nama_file,
-    path_file, tanggal_upload, unit_pengolah, nama_berkas,
-    nomor_isi, pencipta_arsip, tujuan_surat, perihal, uraian_informasi,
-    tanggal_surat_kurun, jumlah, lokasi_simpan, tingkat, keterangan,
-    skkad, jra_aktif, jra_inaktif, nasib
-    FROM surat WHERE 1=1";
+    id_surat,
+    to_jsonb(surat)->>'nomor_berkas' AS nomor_berkas,
+    jenis_surat,
+    nomor_surat,
+    kode_klasifikasi,
+    kode_utama,
+    subkode,
+    nomor_urut,
+    unit_pengirim,
+    bulan,
+    tahun,
+    nama_file,
+    path_file,
+    tanggal_upload,
+    unit_pengolah,
+    nama_berkas,
+    nomor_isi,
+    pencipta_arsip,
+    tujuan_surat,
+    perihal,
+    uraian_informasi,
+    tanggal_surat_kurun,
+    jumlah,
+    lokasi_simpan,
+    tingkat,
+    keterangan,
+    skkad,
+    jra_aktif,
+    jra_inaktif,
+    nasib
+FROM surat
+WHERE 1=1";
+
 $params = [];
 
 if ($jenis !== '') {
@@ -33,12 +59,21 @@ if ($bulan !== '') {
 $sql .= "
     ORDER BY tahun DESC,
     CASE bulan
-        WHEN 'Januari' THEN 1 WHEN 'Februari' THEN 2 WHEN 'Maret' THEN 3
-        WHEN 'April' THEN 4 WHEN 'Mei' THEN 5 WHEN 'Juni' THEN 6
-        WHEN 'Juli' THEN 7 WHEN 'Agustus' THEN 8 WHEN 'September' THEN 9
-        WHEN 'Oktober' THEN 10 WHEN 'November' THEN 11 WHEN 'Desember' THEN 12
+        WHEN 'Januari' THEN 1
+        WHEN 'Februari' THEN 2
+        WHEN 'Maret' THEN 3
+        WHEN 'April' THEN 4
+        WHEN 'Mei' THEN 5
+        WHEN 'Juni' THEN 6
+        WHEN 'Juli' THEN 7
+        WHEN 'Agustus' THEN 8
+        WHEN 'September' THEN 9
+        WHEN 'Oktober' THEN 10
+        WHEN 'November' THEN 11
+        WHEN 'Desember' THEN 12
     END,
-    kode_utama, nama_file
+    kode_klasifikasi,
+    nama_file
 ";
 
 $stmt = $dbhandle->prepare($sql);
@@ -52,13 +87,17 @@ if ($tahun !== '') {
     $years = [];
     foreach ($rows as $row) {
         $yearValue = isset($row['tahun']) ? (int)$row['tahun'] : 0;
-        if ($yearValue > 0) $years[] = $yearValue;
+        if ($yearValue > 0) {
+            $years[] = $yearValue;
+        }
     }
 
     if ($years) {
         $minYear = min($years);
         $maxYear = max($years);
-        $headerTahun = $minYear === $maxYear ? 'TAHUN ' . $minYear : 'TAHUN ' . $minYear . ' s/d ' . $maxYear;
+        $headerTahun = ($minYear === $maxYear)
+            ? 'TAHUN ' . $minYear
+            : 'TAHUN ' . $minYear . ' s/d ' . $maxYear;
     } else {
         $headerTahun = 'TAHUN -';
     }
@@ -101,13 +140,13 @@ $writer = (new SimpleXlsxWriter('Export Arsip'))
     ->setColumnWidths([
         1 => 6,
         2 => 18,
-        3 => 14,
+        3 => 18,
         4 => 22,
         5 => 30,
         6 => 16,
         7 => 22,
         8 => 22,
-        9 => 18,
+        9 => 24,
         10 => 22,
         11 => 34,
         12 => 22,
@@ -115,7 +154,7 @@ $writer = (new SimpleXlsxWriter('Export Arsip'))
         14 => 18,
         15 => 22,
         16 => 20,
-        17 => 10,
+        17 => 14,
         18 => 10,
         19 => 10,
         20 => 14,
@@ -128,26 +167,10 @@ $writer->addRow([]);
 $writer->addRow($headers, 3);
 
 foreach ($rows as $i => $row) {
-    $kodeUtama = trim((string)($row['kode_utama'] ?? ''));
-    $subkode = trim((string)($row['subkode'] ?? ''));
-    $nomorUrut = trim((string)($row['nomor_urut'] ?? ''));
-
-    $kodeParts = [];
-    if ($kodeUtama !== '' && strcasecmp($kodeUtama, 'lainnya') !== 0) $kodeParts[] = $kodeUtama;
-    if ($subkode !== '') $kodeParts[] = $subkode;
-    if ($nomorUrut !== '') $kodeParts[] = $nomorUrut;
-    $kodeGabung = implode('.', $kodeParts);
-
+    $kodeGabung = trim((string)($row['kode_klasifikasi'] ?? ''));
     if ($kodeGabung === '') {
-        $nomorSurat = trim((string)($row['nomor_surat'] ?? ''));
-        if ($nomorSurat !== '') {
-            $first = trim(explode('/', $nomorSurat, 2)[0] ?? '');
-            if ($first !== '' && strcasecmp($first, 'lainnya') !== 0) {
-                $kodeGabung = $first;
-            }
-        }
+        $kodeGabung = '-';
     }
-    if ($kodeGabung === '') $kodeGabung = '-';
 
     $writer->addRow([
         (string)($i + 1),

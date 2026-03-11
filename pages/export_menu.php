@@ -45,7 +45,7 @@ function getExportFilterOptions($conn, $jenis = null, $tahun = null) {
 
 function getExportRows($conn, $jenis = null, $tahun = null, $bulan = null) {
     $sql = "SELECT
-        id_surat, to_jsonb(surat)->>'nomor_berkas' AS nomor_berkas, jenis_surat, nomor_surat, kode_utama, subkode,
+        id_surat, to_jsonb(surat)->>'nomor_berkas' AS nomor_berkas, jenis_surat, nomor_surat, kode_klasifikasi, subkode,
         nomor_urut, unit_pengirim, bulan, tahun, nama_file,
         path_file, tanggal_upload, unit_pengolah, nama_berkas,
         nomor_isi, pencipta_arsip, tujuan_surat, perihal, uraian_informasi,
@@ -83,26 +83,6 @@ function getExportRows($conn, $jenis = null, $tahun = null, $bulan = null) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function buildKodeKlasifikasi(array $row): string {
-    $kodeUtama = trim((string)($row['kode_utama'] ?? ''));
-    $subkode = trim((string)($row['subkode'] ?? ''));
-    $nomorUrut = trim((string)($row['nomor_urut'] ?? ''));
-
-    $parts = [];
-    if ($kodeUtama !== '' && strcasecmp($kodeUtama, 'lainnya') !== 0) $parts[] = $kodeUtama;
-    if ($subkode !== '') $parts[] = $subkode;
-    if ($nomorUrut !== '') $parts[] = $nomorUrut;
-    $kodeGabung = implode('.', $parts);
-    if ($kodeGabung !== '') return $kodeGabung;
-
-    $nomorSurat = trim((string)($row['nomor_surat'] ?? ''));
-    if ($nomorSurat !== '') {
-        $first = trim(explode('/', $nomorSurat, 2)[0] ?? '');
-        if ($first !== '' && strcasecmp($first, 'lainnya') !== 0) return $first;
-    }
-
-    return '-';
-}
 
 $filterOptions = getExportFilterOptions($dbhandle, $jenis !== '' ? $jenis : null, $tahun !== '' ? $tahun : null);
 $rows = getExportRows($dbhandle, $jenis !== '' ? $jenis : null, $tahun !== '' ? $tahun : null, $bulan !== '' ? $bulan : null);
@@ -419,13 +399,10 @@ body{
             </thead>
             <tbody>
 	              <?php foreach ($rows as $i => $row): ?>
-	                <?php
-	                $kodeGabung = buildKodeKlasifikasi($row);
-	                ?>
                 <tr>
                   <td><?= $i + 1 ?></td>
                   <td><?= htmlspecialchars($row['nomor_berkas'] ?? '-') ?></td>
-	                  <td><?= htmlspecialchars($kodeGabung) ?></td>
+                  <td><?= htmlspecialchars($row['kode_klasifikasi'] ?? '-') ?></td>
                   <td><?= htmlspecialchars(($row['unit_pengolah'] ?? '') !== '' ? $row['unit_pengolah'] : ($row['unit_pengirim'] ?? '')) ?></td>
                   <td><?= htmlspecialchars(($row['nama_berkas'] ?? '') !== '' ? $row['nama_berkas'] : ($row['nama_file'] ?? '')) ?></td>
                   <td><?= htmlspecialchars($row['nomor_isi'] ?? '-') ?></td>
