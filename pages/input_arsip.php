@@ -120,9 +120,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data["lokasi"]           = trim($_POST["lokasi"] ?? "");
     $data["keterangan"]       = trim($_POST["keterangan"] ?? "");
 
-    // validasi minimal
-    if ($data["nomor_berkas"] === "" || $data["kode_klasifikasi"] === "" || $data["nama_berkas"] === "" || $data["no_isi"] === "") {
-      $error = "Nomor Berkas, Kode Klasifikasi, Nama Berkas, dan No. Isi wajib diisi.";
+    // validasi wajib isi (semua field)
+    $requiredMap = [
+      "nomor_berkas" => "Nomor Berkas",
+      "kode_klasifikasi" => "Kode Klasifikasi",
+      "nama_berkas" => "Nama Berkas",
+      "no_isi" => "No. Isi Berkas",
+      "pencipta" => "Pencipta Arsip",
+      "tujuan_surat" => "Tujuan Surat",
+      "no_surat" => "No. Surat",
+      "uraian_informasi_1" => "Uraian Informasi",
+      "uraian_informasi_2" => "Uraian Informasi",
+      "tanggal_surat" => "Tanggal Surat",
+      "kurun_waktu" => "Kurun Waktu",
+      "jumlah" => "Jumlah",
+      "skkad" => "SKKAD",
+      "tingkat" => "Tingkat Perkembangan",
+      "lokasi" => "Boks",
+      "keterangan" => "Keterangan",
+    ];
+    $missing = [];
+    foreach ($requiredMap as $key => $label) {
+      if (trim((string)($data[$key] ?? "")) === "") {
+        $missing[] = $label;
+      }
+    }
+
+    if (!empty($missing)) {
+      $error = "Field wajib belum diisi: " . implode(", ", $missing) . ".";
     } elseif (!preg_match('/^\d+$/', $data["nomor_berkas"])) {
       $error = "Nomor Berkas wajib berupa angka.";
     } elseif (!preg_match('/^\d+$/', $data["no_isi"])) {
@@ -961,97 +986,106 @@ button.ghost:active{ transform: translateY(1px); }
           </div>
 
           <div class="field">
-            <label>Pencipta Arsip</label>
+            <label>Pencipta Arsip <span class="req">*</span></label>
             <input
               name="pencipta"
               value="<?= htmlspecialchars($data["pencipta"]) ?>"
               placeholder="BMKG Pusat Penelitian dan Pengembangan"
+              required
             >
             
           </div>
 
           <div class="field">
-            <label>Tujuan Surat</label>
+            <label>Tujuan Surat <span class="req">*</span></label>
             <input
               name="tujuan_surat"
               value="<?= htmlspecialchars($data["tujuan_surat"]) ?>"
               placeholder="Instansi / pihak tujuan surat"
+              required
             >
             
           </div>
 
           <div class="field">
-            <label>No. Surat</label>
+            <label>No. Surat <span class="req">*</span></label>
             <input
               name="no_surat"
               value="<?= htmlspecialchars($data["no_surat"]) ?>"
               placeholder="HM.002/001/DI/XII/2018"
+              required
             >
             
           </div>
 
           <div class="field full">
-            <label>Uraian Informasi</label>
+            <label>Uraian Informasi <span class="req">*</span></label>
             <textarea
               name="uraian_informasi_1"
               placeholder="Jelaskan singkat isi informasi arsip..."
+              required
             ><?= htmlspecialchars($data["uraian_informasi_1"]) ?></textarea>
             
           </div>
 
           <div class="field full">
-            <label>Uraian Informasi</label>
+            <label>Uraian Informasi <span class="req">*</span></label>
             <textarea
               name="uraian_informasi_2"
-              placeholder="Tambahan uraian informasi (opsional)..."
+              placeholder="Tambahan uraian informasi..."
+              required
             ><?= htmlspecialchars($data["uraian_informasi_2"]) ?></textarea>
             
           </div>
 
           <div class="field">
-            <label>Tanggal Surat</label>
+            <label>Tanggal Surat <span class="req">*</span></label>
             <input
               type="date"
               name="tanggal_surat"
               value="<?= htmlspecialchars($data["tanggal_surat"]) ?>"
+              required
             >
             
           </div>
 
           <div class="field">
-            <label>Kurun Waktu</label>
+            <label>Kurun Waktu <span class="req">*</span></label>
             <input
               name="kurun_waktu"
               value="<?= htmlspecialchars($data["kurun_waktu"]) ?>"
               placeholder="Contoh: 2020-2022"
+              required
             >
             
           </div>
 
           <div class="row4 full">
             <div class="field">
-              <label>Jumlah</label>
+              <label>Jumlah <span class="req">*</span></label>
               <input
                 name="jumlah"
                 value="<?= htmlspecialchars($data["jumlah"]) ?>"
                 placeholder="3 lembar"
+                required
               >
               
             </div>
 
             <div class="field">
-              <label>SKKAD</label>
+              <label>SKKAD <span class="req">*</span></label>
               <input
                 name="skkad"
                 value="<?= htmlspecialchars($data["skkad"]) ?>"
                 placeholder="Nomor / kode SKKAD"
+                required
               >
               
             </div>
 
             <div class="field">
-              <label>Tingkat Perkembangan</label>
-              <select name="tingkat">
+              <label>Tingkat Perkembangan <span class="req">*</span></label>
+              <select name="tingkat" required>
                 <?php
                   $opt = [
                     "" => "-- pilih --",
@@ -1070,22 +1104,24 @@ button.ghost:active{ transform: translateY(1px); }
             </div>
 
             <div class="field">
-              <label>Boks</label>
+              <label>Boks <span class="req">*</span></label>
               <input
                 name="lokasi"
                 value="<?= htmlspecialchars($data["lokasi"]) ?>"
                 placeholder="Boks 01 / Boks A"
+                required
               >
               
             </div>
           </div>
 
           <div class="field full">
-            <label>Keterangan</label>
+            <label>Keterangan <span class="req">*</span></label>
             <input
               name="keterangan"
               value="<?= htmlspecialchars($data["keterangan"]) ?>"
               placeholder="Baik / Perlu Perbaikan"
+              required
             >
             
           </div>
