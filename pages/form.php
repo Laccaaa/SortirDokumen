@@ -777,11 +777,13 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>Unit Pengolah</label>
+              <label>Unit Pengolah <span class="required">*</span></label>
               <input
                 type="text"
                 name="unit_pengolah"
-                placeholder="Tata Usaha">
+                placeholder="Tata Usaha"
+                required>
+              </input>
             </div>
 
             <div class="field">
@@ -795,36 +797,40 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>Nomor Berkas</label>
+              <label>Nomor Berkas <span class="required">*</span></label>
               <input
                 type="text"
                 name="nomor_berkas"
                 maxlength="50"
-                value="<?= htmlspecialchars($old_nomor_berkas) ?>">
+                value="<?= htmlspecialchars($old_nomor_berkas) ?>"
+                required>
             </div>
 
             <div class="field">
-              <label>Nomor Isi</label>
+              <label>Nomor Isi <span class="required">*</span></label>
               <input
                 type="text"
                 name="no_isi"
-                placeholder="1">
+                placeholder="1"
+                required>
             </div>
 
             <div class="field">
-              <label>Pencipta Arsip</label>
+              <label>Pencipta Arsip <span class="required">*</span></label>
               <input
                 type="text"
                 name="pencipta"
-                placeholder="Stasiun Meteorologi Kelas I">
+                placeholder="Stasiun Meteorologi Kelas I"
+                required>
             </div>
 
             <div class="field">
-              <label>Tujuan Surat</label>
+              <label>Tujuan Surat <span class="required">*</span></label>
               <input
                 type="text"
                 name="tujuan_surat"
-                placeholder="Stasiun Meteorologi">
+                placeholder="Stasiun Meteorologi"
+                required>
             </div>
 
             <div class="field">
@@ -855,7 +861,8 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
                 <input
                   type="text"
                   id="nomor_surat_lokal"
-                  placeholder="Contoh: e.B/PL.01.00/001/KSUB/V/2019">
+                  placeholder="Contoh: e.B/PL.01.00/001/KSUB/V/2019"
+                  required>
               </div>
 
               <!-- muncul kalau pilih others -->
@@ -891,15 +898,16 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>Perihal</label>
+              <label>Perihal <span class="required">*</span></label>
               <input
                 type="text"
                 name="perihal"
-                placeholder="Laporan Bulanan Radar Maritim">
+                placeholder="Laporan Bulanan Radar Maritim"
+                required>
             </div>
 
             <div class="field full">
-              <label>Uraian Informasi</label>
+              <label>Uraian Informas <span class="required">*</span></label>
               <input
                 type="text"
                 name="uraian"
@@ -907,14 +915,14 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>Tanggal Surat / Kurun</label>
+              <label>Tanggal Surat / Kurun <span class="required">*</span></label>
               <input
                 type="date"
                 name="tanggal_surat">
             </div>
 
             <div class="field">
-              <label>Jumlah</label>
+              <label>Jumlah <span class="required">*</span></label>
               <input
                 type="text"
                 name="jumlah"
@@ -923,7 +931,7 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>Lokasi Simpan</label>
+              <label>Lokasi Simpan <span class="required">*</span></label>
               <input
                 type="text"
                 name="lokasi"
@@ -932,7 +940,7 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>Tingkat</label>
+              <label>Tingkat <span class="required">*</span></label>
               <select name="tingkat">
                 <option value="">-- pilih --</option>
                 <option value="Penting">Penting</option>
@@ -942,7 +950,7 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>Keterangan (Baik/Rusak)</label>
+              <label>Keterangan (Baik/Rusak) <span class="required">*</span></label>
               <select name="keterangan">
                 <option value="">-- pilih --</option>
                 <option value="Baik">Baik</option>
@@ -951,7 +959,7 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>SKKAD</label>
+              <label>SKKAD <span class="required">*</span></label>
               <select name="skkad">
                 <option value="">-- pilih --</option>
                 <option value="Biasa" <?= $old_skkad === 'Biasa' ? 'selected' : '' ?>>Biasa</option>
@@ -983,7 +991,7 @@ $old_nasib = $_SESSION['old_nasib'] ?? '';
             </div>
 
             <div class="field">
-              <label>Nasib akhir</label>
+              <label>Nasib akhir <span class="required">*</span></label>
               <input
                 type="text"
                 name="nasib"
