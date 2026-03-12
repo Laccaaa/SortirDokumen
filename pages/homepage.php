@@ -422,7 +422,7 @@ $nama_user = $_SESSION['nama_lengkap'] ?? 'User';
                 <div class="icon">📥</div>
                 <div style="min-width:0;">
                   <p class="cardTitle">Export Sortir Dokumen</p>
-                  <p class="cardDesc">Unduh data sortir ke CSV/Excel.</p>
+                  <p class="cardDesc">Unduh data sortir ke Excel.</p>
                 </div>
               </div>
               <span class="pill">Export</span>
